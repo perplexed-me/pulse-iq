@@ -35,7 +35,6 @@ interface AppointmentListProps {
 
 const AppointmentList: React.FC<AppointmentListProps> = ({ userRole }) => {
   const { toast } = useToast();
-  const { token } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null);
@@ -72,7 +71,7 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ userRole }) => {
     } finally {
       setLoading(false);
     }
-  }, [token, toast]);
+  }, [toast]);
 
   const updateAppointmentStatus = async (appointmentId: number, status: 'CANCELLED' | 'COMPLETED') => {
     try {
@@ -219,10 +218,8 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ userRole }) => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchAppointments();
-    }
-  }, [token, fetchAppointments]);
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   if (loading) {
     return (

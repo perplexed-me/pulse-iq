@@ -12,8 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import PatientTestResults from '../TestResults/PatientTestResults';
 import AppointmentList from '../appointments/AppointmentList';
 import { useToast } from '@/hooks/use-toast';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface TestResult {
   testId: number;
@@ -63,11 +62,8 @@ const PatientDashboard = () => {
 
   const fetchTestResults = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/my-tests`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.MY_TESTS, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -85,13 +81,10 @@ const PatientDashboard = () => {
 
   const fetchProfileData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      console.log('Fetching profile data with token:', token ? 'Token exists' : 'No token');
+      console.log('Fetching profile data...');
       
-      const response = await fetch(`${BASE_URL}/api/auth/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.AUTH.PROFILE, {
+        method: 'GET'
       });
 
       console.log('Profile response status:', response.status);
@@ -111,11 +104,8 @@ const PatientDashboard = () => {
 
   const fetchUpcomingAppointments = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/appointments/upcoming`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.UPCOMING, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -189,13 +179,8 @@ const PatientDashboard = () => {
     if (!editedProfile) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/auth/profile`, {
+      const response = await apiCall(API_CONFIG.AUTH.PROFILE, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(editedProfile)
       });
 

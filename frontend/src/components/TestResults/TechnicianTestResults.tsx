@@ -19,8 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import TestResultUpload from './TestResultUpload';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface TestResult {
   testId: number;
@@ -70,11 +69,8 @@ const TechnicianTestResults = () => {
 
   const fetchTestResults = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/my-uploads`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.MY_UPLOADS, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -92,11 +88,8 @@ const TechnicianTestResults = () => {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/my-upload-stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.MY_UPLOAD_STATS, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -111,12 +104,8 @@ const TechnicianTestResults = () => {
   const updateTestStatus = async (testId: number, newStatus: string) => {
     setUpdatingId(testId);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/${testId}/status?status=${newStatus}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.UPDATE_STATUS(testId, newStatus), {
+        method: 'PUT'
       });
 
       if (response.ok) {
@@ -136,11 +125,8 @@ const TechnicianTestResults = () => {
   const downloadPdf = async (testId: number, filename: string) => {
     setDownloadingId(testId);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/${testId}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.DOWNLOAD(testId), {
+        method: 'GET'
       });
 
       if (response.ok) {

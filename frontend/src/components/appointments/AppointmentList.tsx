@@ -8,8 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar, Clock, User, Phone, Mail, FileText, X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface Appointment {
   appointmentId: number;
@@ -48,11 +47,8 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ userRole }) => {
     try {
       setLoading(true);
       
-      const response = await fetch(`${BASE_URL}/api/appointments/my-appointments`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.MY_APPOINTMENTS, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -82,12 +78,8 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ userRole }) => {
     try {
       setUpdatingStatus(appointmentId);
       
-      const response = await fetch(`${BASE_URL}/api/appointments/${appointmentId}/status?status=${status}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.UPDATE_STATUS(appointmentId, status), {
+        method: 'PUT'
       });
 
       if (response.ok) {
@@ -120,12 +112,8 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ userRole }) => {
     try {
       setCancelling(appointmentId);
       
-      const response = await fetch(`${BASE_URL}/api/appointments/${appointmentId}/cancel`, {
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.CANCEL(appointmentId), {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           cancellationReason: cancelReason
         })

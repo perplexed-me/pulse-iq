@@ -12,8 +12,7 @@ import { toast } from '@/hooks/use-toast';
 import { User as LucideUser, Mail, Phone, LogIn } from 'lucide-react';
 import { auth, googleProvider } from '@/lib/firebase';
 import { signInWithPopup } from 'firebase/auth';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -146,9 +145,8 @@ const Login = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      const response = await fetch(`${BASE_URL}/api/auth/google-patient`, {
+      const response = await apiCall(API_CONFIG.AUTH.GOOGLE_PATIENT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           idToken,
           // Include additional user info for patient table creation
@@ -156,7 +154,7 @@ const Login = () => {
           email: result.user.email,
           photoURL: result.user.photoURL
         })
-      });
+      }, false);
 
       const data = await response.json();
       console.log('Backend response:', data);

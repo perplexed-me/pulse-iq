@@ -9,8 +9,7 @@ import { Calendar, Clock, User, Search, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface Doctor {
   doctorId: string;
@@ -67,11 +66,8 @@ const BookAppointment = () => {
 
   const fetchSpecializations = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/appointments/specializations`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.SPECIALIZATIONS, {
+        method: 'GET'
       });
       if (response.ok) {
         const data = await response.json();
@@ -87,11 +83,8 @@ const BookAppointment = () => {
   const fetchAllDoctors = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${BASE_URL}/api/appointments/doctors`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.DOCTORS, {
+        method: 'GET'
       });
       if (response.ok) {
         const data = await response.json();
@@ -177,12 +170,8 @@ const BookAppointment = () => {
         notes: appointmentData.notes
       };
 
-      const response = await fetch(`${BASE_URL}/api/appointments/book`, {
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.BOOK, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(requestBody)
       });
 

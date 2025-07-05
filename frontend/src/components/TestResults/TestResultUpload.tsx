@@ -8,8 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface TestUploadFormData {
   testName: string;
@@ -72,14 +71,9 @@ const TestResultUpload = () => {
 
   const fetchAvailableUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Authorization': `Bearer ${token}`
-      };
-
       // Fetch patients
-      const patientsResponse = await fetch(`${BASE_URL}/api/users/patients`, {
-        headers
+      const patientsResponse = await apiCall(API_CONFIG.USERS.PATIENTS, {
+        method: 'GET'
       });
       if (patientsResponse.ok) {
         const patientsData = await patientsResponse.json();
@@ -87,8 +81,8 @@ const TestResultUpload = () => {
       }
 
       // Fetch doctors
-      const doctorsResponse = await fetch(`${BASE_URL}/api/users/doctors`, {
-        headers
+      const doctorsResponse = await apiCall(API_CONFIG.USERS.DOCTORS, {
+        method: 'GET'
       });
       if (doctorsResponse.ok) {
         const doctorsData = await doctorsResponse.json();
@@ -156,7 +150,7 @@ const TestResultUpload = () => {
         uploadFormData.append('notes', formData.notes);
       }
 
-      const response = await fetch(`${BASE_URL}/api/test-results/upload`, {
+      const response = await fetch(API_CONFIG.TEST_RESULTS.UPLOAD, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

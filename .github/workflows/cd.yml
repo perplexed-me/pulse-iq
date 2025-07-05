@@ -213,8 +213,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=frontend
           platforms: linux/amd64
           build-args: |
-            VITE_USER_APPOINTMENT_API_URL=http://${{ secrets.AZURE_SSH_HOST }}:8085
-            VITE_AI_SERVICE_API_URL=http://${{ secrets.AZURE_SSH_HOST }}:8000
+            VITE_USER_APPOINTMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8085
+            VITE_AI_SERVICE_API_URL=http://${{ secrets.PUBLIC_IP }}:8000
             VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
             VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
             VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -260,8 +260,10 @@ jobs:
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env.azure
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.azure
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env.azure
-            echo "FRONTEND_URL=http://${{ secrets.AZURE_SSH_HOST }}:8080" >> .env.azure
-            echo "AI_SERVICE_API_URL=http://${{ secrets.AZURE_SSH_HOST }}:8000" >> .env.azure
+            echo "PUBLIC_IP=${{ secrets.PUBLIC_IP }}" >> .env.azure
+            echo "FRONTEND_URL=http://${{ secrets.PUBLIC_IP }}:8080" >> .env.azure
+            echo "USER_APPOINTMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8085" >> .env.azure
+            echo "AI_SERVICE_API_URL=http://${{ secrets.PUBLIC_IP }}:8000" >> .env.azure
             echo "FIREBASE_ENABLED=true" >> .env.azure
             echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env.azure
             echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env.azure
@@ -556,13 +558,13 @@ jobs:
 
             echo "=== Deployment Summary ==="
             echo "✅ Deployment completed successfully using direct Docker containers!"
-            echo "🌐 Frontend: http://${{ secrets.AZURE_SSH_HOST }}:8080"
-            echo "🏥 User Appointment Service: http://${{ secrets.AZURE_SSH_HOST }}:8085"
-            echo "🤖 AI Service: http://${{ secrets.AZURE_SSH_HOST }}:8000"
+            echo "🌐 Frontend: http://${{ secrets.PUBLIC_IP }}:8080"
+            echo "🏥 User Appointment Service: http://${{ secrets.PUBLIC_IP }}:8085"
+            echo "🤖 AI Service: http://${{ secrets.PUBLIC_IP }}:8000"
             echo "🐘 Database: PostgreSQL on port 5432"
             echo "💚 Health Checks:"
-            echo "   - User Service: http://${{ secrets.AZURE_SSH_HOST }}:8085/actuator/health"
-            echo "   - AI Service: http://${{ secrets.AZURE_SSH_HOST }}:8000/health"
+            echo "   - User Service: http://${{ secrets.PUBLIC_IP }}:8085/actuator/health"
+            echo "   - AI Service: http://${{ secrets.PUBLIC_IP }}:8000/health"
             echo ""
             echo "🔗 All services are connected via pulseiq-network Docker network"
             echo "📊 Container Status:"

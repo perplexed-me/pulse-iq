@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { API_CONFIG } from '@/config/api';
 
 interface Props {
   doctorId: string;
@@ -8,7 +9,6 @@ interface Props {
 }
 
 const MAX_SIZE = 2.5 * 1024 * 1024; // 2.5MB
-const API_BASE_URL = 'http://localhost:8085';
 
 const DoctorProfilePicture: React.FC<Props> = ({ doctorId, profilePictureUrl, onPictureChange }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,8 +44,8 @@ const DoctorProfilePicture: React.FC<Props> = ({ doctorId, profilePictureUrl, on
     }
 
     try {
-      console.log('Making upload request to:', `${API_BASE_URL}/api/doctors/${doctorId}/profile-picture`);
-      const res = await fetch(`${API_BASE_URL}/api/doctors/${doctorId}/profile-picture`, {
+      console.log('Making upload request to:', API_CONFIG.DOCTORS.PROFILE_PICTURE(doctorId));
+      const res = await fetch(API_CONFIG.DOCTORS.PROFILE_PICTURE(doctorId), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -90,8 +90,8 @@ const DoctorProfilePicture: React.FC<Props> = ({ doctorId, profilePictureUrl, on
     }
 
     try {
-      console.log('Making delete request to:', `${API_BASE_URL}/api/doctors/${doctorId}/profile-picture`);
-      const res = await fetch(`${API_BASE_URL}/api/doctors/${doctorId}/profile-picture`, {
+      console.log('Making delete request to:', API_CONFIG.DOCTORS.PROFILE_PICTURE(doctorId));
+      const res = await fetch(API_CONFIG.DOCTORS.PROFILE_PICTURE(doctorId), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -128,7 +128,7 @@ const DoctorProfilePicture: React.FC<Props> = ({ doctorId, profilePictureUrl, on
     const token = localStorage.getItem('token');
     if (!profilePictureUrl || !token) return null;
     
-    const url = new URL(`${API_BASE_URL}${profilePictureUrl}`);
+    const url = new URL(`${API_CONFIG.USER_APPOINTMENT_BASE_URL}${profilePictureUrl}`);
     url.searchParams.append('token', token);
     return url.toString();
   };

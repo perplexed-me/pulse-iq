@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 export interface User {
   id: string;
@@ -38,11 +38,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const validateToken = async (token: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/api/auth/validate`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiCall(API_CONFIG.AUTH.VALIDATE, {
+        method: 'GET'
+      }, true);
 
       // Only return false for actual auth failures
       if (response.status === 401 || response.status === 403) {
@@ -115,11 +113,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Credentials:', { identifier: credentials.identifier, password: '***' });
       
       const startTime = Date.now();
-      const response = await fetch(`${BASE_URL}/api/auth/login`, {
+      const response = await apiCall(API_CONFIG.AUTH.LOGIN, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
-      });
+      }, false);
       const endTime = Date.now();
       
       console.log('Response received in:', endTime - startTime, 'ms');

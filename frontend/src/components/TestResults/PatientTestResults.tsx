@@ -16,8 +16,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface TestResult {
   testId: number;
@@ -66,11 +65,8 @@ const PatientTestResults = () => {
 
   const fetchTestResults = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/my-tests`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.MY_TESTS, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -88,11 +84,8 @@ const PatientTestResults = () => {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/my-stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.MY_STATS, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -107,11 +100,8 @@ const PatientTestResults = () => {
   const downloadPdf = async (testId: number, filename: string) => {
     setDownloadingId(testId);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/${testId}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.DOWNLOAD(testId), {
+        method: 'GET'
       });
 
       if (response.ok) {

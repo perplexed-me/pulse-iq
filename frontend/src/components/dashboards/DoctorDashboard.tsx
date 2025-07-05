@@ -12,8 +12,7 @@ import DoctorTestResults from '../TestResults/DoctorTestResults';
 import DoctorProfilePicture from '../DoctorProfilePicture';
 import AppointmentList from '../appointments/AppointmentList';
 import { useToast } from '@/hooks/use-toast';
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://132.196.64.104:8085";
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface TestResult {
   testId: number;
@@ -71,11 +70,8 @@ const DoctorDashboard = () => {
 
   const fetchTestResults = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/test-results/doctor/${user?.id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.DOCTOR_TESTS(user?.id || ''), {
+        method: 'GET'
       });
       
       if (response.ok) {
@@ -93,11 +89,8 @@ const DoctorDashboard = () => {
 
   const fetchProfileData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/doctors/${user?.id}/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.DOCTORS.PROFILE(user?.id || ''), {
+        method: 'GET'
       });
       
       if (response.ok) {
@@ -114,11 +107,8 @@ const DoctorDashboard = () => {
 
   const fetchUpcomingAppointments = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/appointments/upcoming`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await apiCall(API_CONFIG.APPOINTMENTS.UPCOMING, {
+        method: 'GET'
       });
 
       if (response.ok) {
@@ -136,13 +126,8 @@ const DoctorDashboard = () => {
     if (!editedProfile) return;
     
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${BASE_URL}/api/doctors/${user?.id}/profile`, {
+      const response = await apiCall(API_CONFIG.DOCTORS.PROFILE(user?.id || ''), {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(editedProfile)
       });
 

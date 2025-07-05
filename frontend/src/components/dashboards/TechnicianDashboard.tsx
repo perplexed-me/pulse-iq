@@ -7,6 +7,7 @@ import { FileText, User, LogOut, Clock, CheckCircle, Upload, BarChart3 } from 'l
 import { useNavigate } from 'react-router-dom';
 import ErrorBoundary from '../ErrorBoundary';
 import TechnicianTestResults from '../TestResults/TechnicianTestResults';
+import { API_CONFIG, apiCall } from '@/config/api';
 
 interface TestUpload {
   testId?: string;
@@ -44,11 +45,8 @@ const TechnicianDashboard = () => {
 
         console.log('Fetching stats with token:', token.substring(0, 20) + '...');
         
-        const response = await fetch('http://132.196.64.104:8085/api/test-results/my-upload-stats', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        const response = await apiCall(API_CONFIG.TEST_RESULTS.MY_UPLOAD_STATS, {
+          method: 'GET'
         });
 
         console.log('Stats response status:', response.status);
@@ -84,11 +82,8 @@ const TechnicianDashboard = () => {
         console.log('Fetching recent uploads...');
         
         // Use the correct technician endpoint that we know exists
-        const response = await fetch('http://132.196.64.104:8085/api/test-results/my-uploads', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        const response = await apiCall(API_CONFIG.TEST_RESULTS.MY_UPLOADS, {
+          method: 'GET'
         });
 
         console.log('Uploads response status:', response.status);

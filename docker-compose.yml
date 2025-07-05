@@ -1,0 +1,144 @@
+services:
+  # PostgreSQL Database - Production Configuration
+  db:
+    image: postgres:15-alpine
+    container_name: pulseiq_postgres
+    environment:
+      POSTGRES_DB: pulseiq_db
+      POSTGRES_USER: pulseiq_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      # Production PostgreSQL settings
+      POSTGRES_SHARED_BUFFERS: 256MB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 1GB
+      POSTGRES_WORK_MEM: 4MB
+      POSTGRES_MAINTENANCE_WORK_MEM: 64MB
+    volumes:
+      # Persistent data storage
+      - postgres_data:/var/lib/postgresql/data
+      # Schema initialization (runs only once)
+      - ./user-appointment-service/init-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    networks:
+      - pulseiq-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulseiq_user -d pulseiq_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # User Appointment Service (Java Spring Boot)
+  user-appointment-service:
+    image: ${DOCKER_USERNAME}/pulseiq-user-appointment:latest
+    container_name: pulseiq_user_appointment
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    networks:
+      - pulseiq-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/pulseiq_db?currentSchema=pulseiq
+      - SPRING_DATASOURCE_USERNAME=pulseiq_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - FIREBASE_ENABLED=true
+      - APP_CORS_ALLOWED_ORIGINS=${FRONTEND_URL:-http://${PUBLIC_IP:-localhost}:8080},http://${PUBLIC_IP:-localhost}:3000
+    volumes:
+      - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # AI Service (Python FastAPI)
+  ai-service:
+    image: ${DOCKER_USERNAME}/pulseiq-ai-service:latest
+    container_name: pulseiq_ai_service
+    ports:
+      - "8000:8000"
+    networks:
+      - pulseiq-network
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - USER_APPOINTMENT_SERVICE_URL=http://user-appointment-service:8085
+      - CORS_ORIGINS=${FRONTEND_URL:-http://${PUBLIC_IP:-localhost}:8080},http://${PUBLIC_IP:-localhost}:3000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # Frontend Service (React/Vite)
+  frontend:
+    image: ${DOCKER_USERNAME}/pulseiq-frontend:latest
+    container_name: pulseiq_frontend
+    depends_on:
+      user-appointment-service:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    networks:
+      - pulseiq-network
+    environment:
+      - VITE_USER_APPOINTMENT_API_URL=${USER_APPOINTMENT_API_URL:-http://${PUBLIC_IP:-localhost}:8085}
+      - VITE_AI_SERVICE_API_URL=${AI_SERVICE_API_URL:-http://${PUBLIC_IP:-localhost}:8000}
+      - VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY}
+      - VITE_FIREBASE_AUTH_DOMAIN=${VITE_FIREBASE_AUTH_DOMAIN}
+      - VITE_FIREBASE_PROJECT_ID=${VITE_FIREBASE_PROJECT_ID}
+      - VITE_FIREBASE_STORAGE_BUCKET=${VITE_FIREBASE_STORAGE_BUCKET}
+      - VITE_FIREBASE_MESSAGING_SENDER_ID=${VITE_FIREBASE_MESSAGING_SENDER_ID}
+      - VITE_FIREBASE_APP_ID=${VITE_FIREBASE_APP_ID}
+      - VITE_FIREBASE_MEASUREMENT_ID=${VITE_FIREBASE_MEASUREMENT_ID}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  pulseiq-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

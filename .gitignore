@@ -1,0 +1,145 @@
+# ====================
+# ROOT GITIGNORE FOR PULSE-IQ MONOREPO
+# ====================
+
+# General environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.development
+.env.production
+
+# Security - Firebase service account keys
+firebase-service-account.json
+**/firebase-service-account.json
+**/*service-account*.json
+
+# Security - SSH keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ====================
+# FRONTEND (Node.js/React/Vite)
+# ====================
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+# Note: package-lock.json should be committed for consistent dependency resolution
+# package-lock.json is now tracked in git
+
+# Build outputs
+dist
+dist-ssr
+build/
+*.local
+
+# ====================
+# JAVA/SPRING BOOT (User Appointment Service)
+# ====================
+
+# Maven
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+src/main/.DS_Store
+
+# Spring Boot specific
+src/main/resources/firebase-service-account.json
+
+# Spring Tool Suite
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ====================
+# PYTHON (AI Service)
+# ====================
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+myenv/
+venv/
+env/
+ENV/
+
+# ====================
+# EDITOR & OS FILES
+# ====================
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+
+# IntelliJ IDEA (general)
+.idea/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+
+# General editor files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ====================
+# MAVEN WRAPPER
+# ====================
+.mvn/

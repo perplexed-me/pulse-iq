@@ -1,0 +1,140 @@
+# ====================
+# ROOT DOCKERIGNORE FOR PULSE-IQ MONOREPO
+# ====================
+
+# Git and version control
+.git
+.gitignore
+.gitattributes
+.github/
+
+# Documentation and README files
+README.md
+*.md
+docs/
+documentation/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Environment files (keep for Docker builds)
+# .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ====================
+# FRONTEND (Node.js/React)
+# ====================
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs (will be built inside container)
+dist/
+build/
+coverage/
+
+# Testing
+test-results/
+playwright-report/
+coverage/
+
+# ====================
+# JAVA/SPRING BOOT (User Appointment Service)
+# ====================
+
+# Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+*.mvn
+
+# IDE files
+*.iml
+.idea/
+.project
+.classpath
+.settings/
+
+# Test and build artifacts
+*.log
+*.tmp
+
+# ====================
+# PYTHON (AI Service)
+# ====================
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+myenv/
+
+# Python distribution / packaging
+.Python
+dist/
+build/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# ====================
+# DEPLOYMENT FILES
+# ====================
+
+# Docker compose override files
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Deployment scripts
+*.sh
+*.bat
+
+# Certificates and keys (except if needed for build)
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.backup
+*.bak
+*.sql.bak
+
+# Logs
+logs/
+*.log

@@ -1,0 +1,110 @@
+services:
+  # PostgreSQL Database - Test Configuration
+  db:
+    image: postgres:15-alpine
+    container_name: pulseiq_postgres_test
+    environment:
+      POSTGRES_DB: pulseiq_db_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      # Create a simple test schema initialization
+      - ./init-test-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    networks:
+      - pulseiq-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d pulseiq_db_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "5432:5432"
+
+  # User Appointment Service (Java Spring Boot) - Test
+  user-appointment-service:
+    image: test/pulseiq-user-appointment:latest
+    container_name: pulseiq_user_appointment_test
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    networks:
+      - pulseiq-test-network
+    environment:
+      # Database configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/pulseiq_db_test?currentSchema=pulseiq
+      SPRING_DATASOURCE_USERNAME: test_user
+      SPRING_DATASOURCE_PASSWORD: test_password
+      
+      # JWT configuration
+      JWT_SECRET: test_jwt_secret_for_ci_only_minimum_32_characters_long_enough
+      JWT_EXPIRATION: 86400000
+      
+      # Server configuration
+      SERVER_PORT: 8085
+      SERVER_ADDRESS: 0.0.0.0
+      
+      # Spring profile
+      SPRING_PROFILES_ACTIVE: test
+      
+      # Firebase (disabled for tests)
+      FIREBASE_ENABLED: false
+      
+      # JVM optimization for faster startup in CI
+      JAVA_OPTS: "-Xms256m -Xmx512m -Dspring.jpa.hibernate.ddl-auto=create-drop"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # AI Service (Python FastAPI) - Test
+  ai-service:
+    image: test/pulseiq-ai-service:latest
+    container_name: pulseiq_ai_service_test
+    ports:
+      - "8000:8000"
+    networks:
+      - pulseiq-test-network
+    environment:
+      OPENAI_API_KEY: test_key_for_ci
+      DATABASE_URL: postgresql://test_user:test_password@db:5432/pulseiq_db_test
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Frontend (React + Vite) - Test
+  frontend:
+    image: test/pulseiq-frontend:latest
+    container_name: pulseiq_frontend_test
+    ports:
+      - "8080:80"
+    networks:
+      - pulseiq-test-network
+    environment:
+      VITE_USER_APPOINTMENT_API_URL: http://${PUBLIC_IP:-localhost}:8085
+      VITE_AI_SERVICE_API_URL: http://${PUBLIC_IP:-localhost}:8000
+      VITE_FIREBASE_API_KEY: test_api_key
+      VITE_FIREBASE_AUTH_DOMAIN: test.firebaseapp.com
+      VITE_FIREBASE_PROJECT_ID: test-project
+      VITE_FIREBASE_STORAGE_BUCKET: test-project.appspot.com
+      VITE_FIREBASE_MESSAGING_SENDER_ID: 123456789
+      VITE_FIREBASE_APP_ID: 1:123456789:web:abcdef123456
+      VITE_FIREBASE_MEASUREMENT_ID: G-ABCDEF1234
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  pulseiq-test-network:
+    driver: bridge

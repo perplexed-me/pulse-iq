@@ -5,18 +5,16 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pulseiq.entity.*;
-import com.pulseiq.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -25,25 +23,46 @@ import com.pulseiq.dto.LoginRequest;
 import com.pulseiq.dto.PatientRegistrationDto;
 import com.pulseiq.dto.RegisterRequest;
 import com.pulseiq.dto.TechnicianRegistrationDto;
+import com.pulseiq.entity.Doctor;
+import com.pulseiq.entity.Patient;
+import com.pulseiq.entity.RegistrationData;
+import com.pulseiq.entity.Technician;
+import com.pulseiq.entity.User;
+import com.pulseiq.entity.UserRole;
+import com.pulseiq.entity.UserStatus;
+import com.pulseiq.repository.DoctorRepository;
+import com.pulseiq.repository.PatientRepository;
+import com.pulseiq.repository.RegistrationDataRepository;
+import com.pulseiq.repository.TechnicianRepository;
+import com.pulseiq.repository.UserRepository;
 import com.pulseiq.security.JwtUtil;
 import com.pulseiq.security.UserDetailsServiceImpl;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired private UserRepository repo;
-    @Autowired private DoctorRepository doctorRepo;
-    @Autowired private PatientRepository patientRepo;
-    @Autowired private TechnicianRepository technicianRepo;
-    @Autowired private PasswordEncoder encoder;
-    @Autowired private JwtUtil jwtUtil;
-    @Autowired private UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private UserRepository repo;
+    @Autowired
+    private DoctorRepository doctorRepo;
+    @Autowired
+    private PatientRepository patientRepo;
+    @Autowired
+    private TechnicianRepository technicianRepo;
+    @Autowired
+    private PasswordEncoder encoder;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
-    @Autowired private RegistrationDataRepository registrationDataRepo;
-    @Autowired private ObjectMapper objectMapper; // Add to your dependencies
+    @Autowired
+    private RegistrationDataRepository registrationDataRepo;
+    @Autowired
+    private ObjectMapper objectMapper; // Add to your dependencies
 
     private String normalizePhone(String phone) {
-        if (phone == null || phone.isBlank()) return null;
+        if (phone == null || phone.isBlank())
+            return null;
         phone = phone.trim();
         if (phone.matches("^01\\d{9}$")) {
             return "+88" + phone;
@@ -85,7 +104,8 @@ public class UserServiceImpl implements UserService {
         if (normalizedEmail != null) {
             Optional<User> existingEmailUser = repo.findByEmailIgnoreCase(normalizedEmail);
             if (existingEmailUser.isPresent()) {
-                throw new RuntimeException("Email " + normalizedEmail + " is already registered. Please use a different email or try logging in.");
+                throw new RuntimeException("Email " + normalizedEmail
+                        + " is already registered. Please use a different email or try logging in.");
             }
         }
 
@@ -93,7 +113,8 @@ public class UserServiceImpl implements UserService {
         if (normalizedPhone != null) {
             Optional<User> existingPhoneUser = repo.findByPhone(normalizedPhone);
             if (existingPhoneUser.isPresent()) {
-                throw new RuntimeException("Phone number " + normalizedPhone + " is already registered. Please use a different phone number or try logging in.");
+                throw new RuntimeException("Phone number " + normalizedPhone
+                        + " is already registered. Please use a different phone number or try logging in.");
             }
         }
 
@@ -111,29 +132,31 @@ public class UserServiceImpl implements UserService {
             return userId;
         } catch (Exception e) {
             String errorMessage = e.getMessage();
-            
+
             // Handle duplicate email constraint
-            if (errorMessage.contains("UK6j5t70rd2eub907qysjvd76n") || 
-                errorMessage.contains("duplicate key value") && errorMessage.contains("email")) {
-                throw new RuntimeException("Email " + normalizedEmail + " is already registered. Please use a different email or try logging in.");
+            if (errorMessage.contains("UK6j5t70rd2eub907qysjvd76n") ||
+                    errorMessage.contains("duplicate key value") && errorMessage.contains("email")) {
+                throw new RuntimeException("Email " + normalizedEmail
+                        + " is already registered. Please use a different email or try logging in.");
             }
-            
-            // Handle duplicate phone constraint  
-            if (errorMessage.contains("UKassj8wlmlev8obxew6ql3vtmt") || 
-                errorMessage.contains("duplicate key value") && errorMessage.contains("phone")) {
-                throw new RuntimeException("Phone number " + normalizedPhone + " is already registered. Please use a different phone number or try logging in.");
+
+            // Handle duplicate phone constraint
+            if (errorMessage.contains("UKassj8wlmlev8obxew6ql3vtmt") ||
+                    errorMessage.contains("duplicate key value") && errorMessage.contains("phone")) {
+                throw new RuntimeException("Phone number " + normalizedPhone
+                        + " is already registered. Please use a different phone number or try logging in.");
             }
-            
+
             // Handle any other database constraint violations
             if (errorMessage.contains("duplicate key value")) {
-                throw new RuntimeException("The provided information is already registered. Please check your email and phone number.");
+                throw new RuntimeException(
+                        "The provided information is already registered. Please check your email and phone number.");
             }
-            
+
             // For any other unexpected errors
             throw new RuntimeException("Registration failed. Please try again.");
         }
     }
-
 
     // UPDATED: Store registration data properly
     private void storeRegistrationData(String userId, Object registrationDto, UserRole role) {
@@ -176,9 +199,10 @@ public class UserServiceImpl implements UserService {
     public void registerDoctor(DoctorRegistrationDto dto) {
         // Validate that license number is unique before creating user
         if (doctorRepo.existsByLicenseNumber(dto.getLicenseNumber())) {
-            throw new RuntimeException("License number " + dto.getLicenseNumber() + " is already registered to another doctor.");
+            throw new RuntimeException(
+                    "License number " + dto.getLicenseNumber() + " is already registered to another doctor.");
         }
-        
+
         String userId = createAndSaveUserOnly(dto, UserRole.DOCTOR, UserStatus.PENDING, "D");
         storeRegistrationData(userId, dto, UserRole.DOCTOR);
         // Profile will be created only after admin approval
@@ -194,7 +218,6 @@ public class UserServiceImpl implements UserService {
         storeRegistrationData(userId, dto, UserRole.TECHNICIAN);
         // Profile will be created only after admin approval
     }
-
 
     @Transactional
     public void approveUser(String userId) {
@@ -234,7 +257,7 @@ public class UserServiceImpl implements UserService {
             if (maybeData.isPresent()) {
                 // Registration data exists, so we proceed to create the profile
                 String json = maybeData.get().getRegistrationJson();
-                switch(user.getRole()) {
+                switch (user.getRole()) {
                     case DOCTOR:
                         DoctorRegistrationDto dr = objectMapper.readValue(json, DoctorRegistrationDto.class);
                         createDoctorProfile(userId, dr); // Creating the doctor profile
@@ -272,7 +295,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
     public void rejectUser(String userId) {
         Optional<User> optUser = repo.findByUserIdIgnoreCase(userId);
         if (!optUser.isPresent()) {
@@ -280,12 +302,13 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = optUser.get();
-        
+
         // Prevent rejecting already active users
         // if (user.getStatus() == UserStatus.ACTIVE) {
-        //     throw new RuntimeException("Cannot reject an active user.You may need to deactivate the user first.");
+        // throw new RuntimeException("Cannot reject an active user.You may need to
+        // deactivate the user first.");
         // }
-        
+
         // Allow rejection from PENDING status, or re-rejection if needed
         if (user.getStatus() == UserStatus.REJECTED) {
             System.out.println("User is already rejected, no action needed");
@@ -294,7 +317,7 @@ public class UserServiceImpl implements UserService {
 
         user.setStatus(UserStatus.REJECTED);
         repo.save(user);
-        
+
         System.out.println("User " + userId + " has been rejected");
     }
 
@@ -312,34 +335,34 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-     private void createDoctorProfile(String userId, DoctorRegistrationDto req) {
-         // Check if doctor profile already exists
-         if (doctorRepo.existsByDoctorId(userId)) {
-             System.out.println("Doctor profile already exists for user: " + userId);
-             return;
-         }
-         
-         // Check if license number is already in use by another doctor
-         if (doctorRepo.existsByLicenseNumber(req.getLicenseNumber())) {
-             System.out.println("License number already exists: " + req.getLicenseNumber());
-             throw new RuntimeException("License number " + req.getLicenseNumber() + " is already registered to another doctor.");
-         }
-         
-         Doctor doctor = new Doctor();
-         doctor.setDoctorId(userId);
-         doctor.setFirstName(req.getFirstName());
-         doctor.setLastName(req.getLastName());
-         doctor.setSpecialization(req.getSpecialization());
-         doctor.setDegree(req.getDegree());
-         doctor.setLicenseNumber(req.getLicenseNumber());
-         doctor.setAssistantName(req.getAssistantName());
-         doctor.setAssistantNumber(req.getAssistantNumber());
-         doctor.setConsultationFee(
-                 req.getConsultationFee() != null ? new BigDecimal(req.getConsultationFee()) : BigDecimal.ZERO
-         );
-         doctorRepo.save(doctor);
-         System.out.println("Doctor profile successfully created for user: " + userId);
-     }
+    private void createDoctorProfile(String userId, DoctorRegistrationDto req) {
+        // Check if doctor profile already exists
+        if (doctorRepo.existsByDoctorId(userId)) {
+            System.out.println("Doctor profile already exists for user: " + userId);
+            return;
+        }
+
+        // Check if license number is already in use by another doctor
+        if (doctorRepo.existsByLicenseNumber(req.getLicenseNumber())) {
+            System.out.println("License number already exists: " + req.getLicenseNumber());
+            throw new RuntimeException(
+                    "License number " + req.getLicenseNumber() + " is already registered to another doctor.");
+        }
+
+        Doctor doctor = new Doctor();
+        doctor.setDoctorId(userId);
+        doctor.setFirstName(req.getFirstName());
+        doctor.setLastName(req.getLastName());
+        doctor.setSpecialization(req.getSpecialization());
+        doctor.setDegree(req.getDegree());
+        doctor.setLicenseNumber(req.getLicenseNumber());
+        doctor.setAssistantName(req.getAssistantName());
+        doctor.setAssistantNumber(req.getAssistantNumber());
+        doctor.setConsultationFee(
+                req.getConsultationFee() != null ? new BigDecimal(req.getConsultationFee()) : BigDecimal.ZERO);
+        doctorRepo.save(doctor);
+        System.out.println("Doctor profile successfully created for user: " + userId);
+    }
 
     private void createPatientProfile(String userId, PatientRegistrationDto dto) {
         Patient patient = new Patient();
@@ -354,51 +377,54 @@ public class UserServiceImpl implements UserService {
         patientRepo.save(patient);
     }
 
-     private void createTechnicianProfile(String userId, TechnicianRegistrationDto dto) {
-         // Check if technician profile already exists
-         if (technicianRepo.existsByTechnicianId(userId)) {
-             System.out.println("Technician profile already exists for user: " + userId);
-             return;
-         }
-         
-         Technician technician = new Technician();
-         technician.setTechnicianId(userId);
-         technician.setFirstName(dto.getFirstName());
-         technician.setLastName(dto.getLastName());
-         technician.setSpecialization(dto.getSpecialization());
+    private void createTechnicianProfile(String userId, TechnicianRegistrationDto dto) {
+        // Check if technician profile already exists
+        if (technicianRepo.existsByTechnicianId(userId)) {
+            System.out.println("Technician profile already exists for user: " + userId);
+            return;
+        }
 
-         technicianRepo.save(technician);
-         System.out.println("Technician profile successfully created for user: " + userId);
-     }
+        Technician technician = new Technician();
+        technician.setTechnicianId(userId);
+        technician.setFirstName(dto.getFirstName());
+        technician.setLastName(dto.getLastName());
+        technician.setSpecialization(dto.getSpecialization());
+
+        technicianRepo.save(technician);
+        System.out.println("Technician profile successfully created for user: " + userId);
+    }
 
     // private User findUserByIdentifier(String identifier) {
-    //     Optional<User> optionalUser = Optional.empty();
+    // Optional<User> optionalUser = Optional.empty();
 
-    //     if (identifier.matches("^(?i)[dptn]\\d+$")) { // Added 'n' for admin if needed
-    //         optionalUser = repo.findByUserIdIgnoreCase(identifier);
-    //     } else if (identifier.matches("^\\d{11}$") || identifier.matches("^\\+8801\\d{9}$")) {
-    //         if (identifier.startsWith("01")) {
-    //             identifier = "+88" + identifier;
-    //         }
-    //         optionalUser = repo.findByPhone(identifier);
-    //     } else if (identifier.contains("@")) {
-    //         optionalUser = repo.findByEmailIgnoreCase(identifier.toLowerCase());
-    //     }
+    // if (identifier.matches("^(?i)[dptn]\\d+$")) { // Added 'n' for admin if
+    // needed
+    // optionalUser = repo.findByUserIdIgnoreCase(identifier);
+    // } else if (identifier.matches("^\\d{11}$") ||
+    // identifier.matches("^\\+8801\\d{9}$")) {
+    // if (identifier.startsWith("01")) {
+    // identifier = "+88" + identifier;
+    // }
+    // optionalUser = repo.findByPhone(identifier);
+    // } else if (identifier.contains("@")) {
+    // optionalUser = repo.findByEmailIgnoreCase(identifier.toLowerCase());
+    // }
 
-    //     return optionalUser.orElseThrow(() -> new RuntimeException("User not found."));
+    // return optionalUser.orElseThrow(() -> new RuntimeException("User not
+    // found."));
     // }
 
     private User findUserByIdentifier(String identifier) {
         System.out.println("=== SEARCHING FOR USER ===");
         System.out.println("Original identifier: '" + identifier + "'");
-        
+
         // Normalize the identifier first
         String normalizedIdentifier = identifier.trim();
         System.out.println("Trimmed identifier: '" + normalizedIdentifier + "'");
-        
+
         Optional<User> optionalUser = Optional.empty();
 
-        if (normalizedIdentifier.matches("^(?i)[dpta]\\d+$")) { 
+        if (normalizedIdentifier.matches("^(?i)[dpta]\\d+$")) {
             System.out.println("Searching by User ID pattern");
             optionalUser = repo.findByUserIdIgnoreCase(normalizedIdentifier);
         } else if (normalizedIdentifier.matches("^\\d{11}$") || normalizedIdentifier.matches("^\\+8801\\d{9}$")) {
@@ -425,61 +451,60 @@ public class UserServiceImpl implements UserService {
             System.out.println("Found user status: " + foundUser.getStatus());
             System.out.println("Found user role: " + foundUser.getRole());
         }
-        
+
         return optionalUser.orElseThrow(() -> new RuntimeException("User not found."));
     }
 
     // Helper method to get user profile data
     // private Map<String, Object> getUserProfileData(User user) {
-    //     Map<String, Object> profileData = new HashMap<>();
-        
-    //     switch (user.getRole()) {
-    //         case DOCTOR:
-    //             Optional<Doctor> doctor = doctorRepo.findById(user.getUserId());
-    //             if (doctor.isPresent()) {
-    //                 Doctor d = doctor.get();
-    //                 profileData.put("firstName", d.getFirstName());
-    //                 profileData.put("lastName", d.getLastName());
-    //                 profileData.put("name", d.getFirstName() + " " + d.getLastName());
-    //                 profileData.put("specialization", d.getSpecialization());
-    //                 profileData.put("degree", d.getDegree());
-    //             }
-    //             break;
-    //         case PATIENT:
-    //             Optional<Patient> patient = patientRepo.findById(user.getUserId());
-    //             if (patient.isPresent()) {
-    //                 Patient p = patient.get();
-    //                 profileData.put("firstName", p.getFirstName());
-    //                 profileData.put("lastName", p.getLastName());
-    //                 profileData.put("name", p.getFirstName() + " " + p.getLastName());
-    //                 profileData.put("age", p.getAge());
-    //                 profileData.put("gender", p.getGender());
-    //                 profileData.put("bloodGroup", p.getBloodGroup());
-    //             }
-    //             break;
-    //         case TECHNICIAN:
-    //             Optional<Technician> technician = technicianRepo.findById(user.getUserId());
-    //             if (technician.isPresent()) {
-    //                 Technician t = technician.get();
-    //                 profileData.put("firstName", t.getFirstName());
-    //                 profileData.put("lastName", t.getLastName());
-    //                 profileData.put("name", t.getFirstName() + " " + t.getLastName());
-    //                 profileData.put("specialization", t.getSpecialization());
-    //             }
-    //             break;
-    //     }
-        
-    //     return profileData;
+    // Map<String, Object> profileData = new HashMap<>();
+
+    // switch (user.getRole()) {
+    // case DOCTOR:
+    // Optional<Doctor> doctor = doctorRepo.findById(user.getUserId());
+    // if (doctor.isPresent()) {
+    // Doctor d = doctor.get();
+    // profileData.put("firstName", d.getFirstName());
+    // profileData.put("lastName", d.getLastName());
+    // profileData.put("name", d.getFirstName() + " " + d.getLastName());
+    // profileData.put("specialization", d.getSpecialization());
+    // profileData.put("degree", d.getDegree());
+    // }
+    // break;
+    // case PATIENT:
+    // Optional<Patient> patient = patientRepo.findById(user.getUserId());
+    // if (patient.isPresent()) {
+    // Patient p = patient.get();
+    // profileData.put("firstName", p.getFirstName());
+    // profileData.put("lastName", p.getLastName());
+    // profileData.put("name", p.getFirstName() + " " + p.getLastName());
+    // profileData.put("age", p.getAge());
+    // profileData.put("gender", p.getGender());
+    // profileData.put("bloodGroup", p.getBloodGroup());
+    // }
+    // break;
+    // case TECHNICIAN:
+    // Optional<Technician> technician = technicianRepo.findById(user.getUserId());
+    // if (technician.isPresent()) {
+    // Technician t = technician.get();
+    // profileData.put("firstName", t.getFirstName());
+    // profileData.put("lastName", t.getLastName());
+    // profileData.put("name", t.getFirstName() + " " + t.getLastName());
+    // profileData.put("specialization", t.getSpecialization());
+    // }
+    // break;
     // }
 
+    // return profileData;
+    // }
 
     private Map<String, Object> getUserProfileData(User user) {
         Map<String, Object> profileData = new HashMap<>();
-        
+
         System.out.println("\n=== GETTING PROFILE DATA ===");
         System.out.println("User ID: " + user.getUserId());
         System.out.println("User Role: " + user.getRole());
-        
+
         switch (user.getRole()) {
             case DOCTOR:
                 System.out.println("Fetching doctor profile for ID: " + user.getUserId());
@@ -507,12 +532,12 @@ public class UserServiceImpl implements UserService {
                     System.out.println("Before findById call");
                     System.out.println("Looking up patient with ID: " + user.getUserId());
                     System.out.println("Patient ID type: " + user.getUserId().getClass().getName());
-                    
+
                     // Use custom query instead of findById to avoid type issues
                     Optional<Patient> patient = patientRepo.findByPatientId(user.getUserId());
                     System.out.println("After findByPatientId call");
                     System.out.println("Patient found: " + patient.isPresent());
-                    
+
                     if (patient.isPresent()) {
                         Patient p = patient.get();
                         System.out.println("Patient data retrieved:");
@@ -521,13 +546,13 @@ public class UserServiceImpl implements UserService {
                         System.out.println("- Age: " + p.getAge());
                         System.out.println("- Gender: " + p.getGender());
                         System.out.println("- Blood Group: " + p.getBloodGroup());
-                        
+
                         profileData.put("firstName", p.getFirstName());
                         profileData.put("lastName", p.getLastName());
                         profileData.put("name", p.getFirstName() + " " + p.getLastName());
                         profileData.put("age", p.getAge());
-                        profileData.put("gender", p.getGender());
-                        profileData.put("bloodGroup", p.getBloodGroup());
+                        profileData.put("gender", p.getGender() != null ? p.getGender().toString() : null);
+                        profileData.put("bloodGroup", p.getBloodGroup() != null ? p.getBloodGroup().getValue() : null);
                         System.out.println("Patient profile loaded successfully");
                         System.out.println("Profile data: " + profileData);
                     } else {
@@ -565,13 +590,14 @@ public class UserServiceImpl implements UserService {
                 profileData.put("name", "Admin User");
                 break;
         }
-        
+
         System.out.println("Final profile data keys: " + profileData.keySet());
         System.out.println("Final profile data values: " + profileData);
         return profileData;
     }
 
-    // CORRECTED: Login method now returns complete user data and handles status properly
+    // CORRECTED: Login method now returns complete user data and handles status
+    // properly
     @Override
     public Map<String, Object> login(LoginRequest req) {
         String identifier = req.getIdentifier().trim();
@@ -643,7 +669,7 @@ public class UserServiceImpl implements UserService {
         response.put("phone", user.getPhone());
         response.put("role", user.getRole().name().toLowerCase());
         response.put("status", user.getStatus().name());
-        
+
         // Add profile data
         response.putAll(profileData);
         System.out.println("Final response: " + response);
@@ -694,6 +720,19 @@ public class UserServiceImpl implements UserService {
                 return response;
             }
 
+            // Ensure patient profile exists
+            if (!patientRepo.existsByPatientId(user.getUserId())) {
+                // Create patient profile if it doesn't exist
+                PatientRegistrationDto pr = new PatientRegistrationDto();
+                String[] nameParts = fullName != null ? fullName.split(" ") : new String[] { "User" };
+                pr.setFirstName(nameParts[0]);
+                pr.setLastName(nameParts.length > 1 ? nameParts[1] : "");
+                pr.setAge(25); // Default age
+                pr.setGender(null);
+                pr.setBloodGroup(null);
+                createPatientProfile(user.getUserId(), pr);
+            }
+
         } else {
             // Create new patient user
             RegisterRequest fake = new RegisterRequest();
@@ -705,24 +744,24 @@ public class UserServiceImpl implements UserService {
 
             // Create patient profile
             PatientRegistrationDto pr = new PatientRegistrationDto();
-            String[] nameParts = fullName != null ? fullName.split(" ") : new String[]{"User"};
+            String[] nameParts = fullName != null ? fullName.split(" ") : new String[] { "User" };
             pr.setFirstName(nameParts[0]);
             pr.setLastName(nameParts.length > 1 ? nameParts[1] : "");
-            pr.setAge(0);
+            pr.setAge(25); // Default age for Google users
             pr.setGender(null);
             pr.setBloodGroup(null);
             createPatientProfile(userId, pr);
 
             user = repo.findByUserIdIgnoreCase(userId)
-                      .orElseThrow(() -> new IllegalStateException("Just created patient not found."));
+                    .orElseThrow(() -> new IllegalStateException("Just created patient not found."));
         }
 
         // Generate JWT token
         UserDetails userDetails = org.springframework.security.core.userdetails.User
-            .withUsername(user.getUserId())
-            .password(user.getPassword())
-            .authorities("ROLE_" + user.getRole().name())
-            .build();
+                .withUsername(user.getUserId())
+                .password(user.getPassword())
+                .authorities("ROLE_" + user.getRole().name())
+                .build();
 
         String token = jwtUtil.generateToken(userDetails);
 
@@ -737,7 +776,7 @@ public class UserServiceImpl implements UserService {
         response.put("phone", user.getPhone());
         response.put("role", user.getRole().name().toLowerCase());
         response.put("status", user.getStatus().name());
-        
+
         // Add profile data
         response.putAll(profileData);
 
@@ -762,36 +801,36 @@ public class UserServiceImpl implements UserService {
     public Map<String, Object> getCurrentUserProfile(String token) {
         try {
             System.out.println("=== GET PROFILE REQUEST ===");
-            
+
             // Validate token and get username (which is actually userId)
             String userId = jwtUtil.extractUsername(token);
             System.out.println("UserId extracted from token: " + userId);
-            
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-            
+
             if (!jwtUtil.validateToken(token, userDetails)) {
                 System.out.println("Token validation failed");
                 throw new RuntimeException("Invalid token");
             }
-            
+
             // Find user by userId (this is what UserDetailsServiceImpl uses)
             Optional<User> userOpt = repo.findByUserIdIgnoreCase(userId);
             if (userOpt.isEmpty()) {
                 System.out.println("User not found with userId: " + userId);
                 throw new RuntimeException("User not found");
             }
-            
+
             User user = userOpt.get();
             System.out.println("User found: " + user.getUserId() + ", Role: " + user.getRole());
-            
+
             Map<String, Object> profile = new HashMap<>();
-            
+
             // Add basic user info
             profile.put("userId", user.getUserId());
             profile.put("email", user.getEmail());
             profile.put("phone", user.getPhone());
             profile.put("role", user.getRole().toString());
-            
+
             // Add role-specific info
             if (user.getRole() == UserRole.PATIENT) {
                 System.out.println("Looking for patient record with ID: " + user.getUserId());
@@ -802,8 +841,9 @@ public class UserServiceImpl implements UserService {
                     profile.put("firstName", patient.getFirstName());
                     profile.put("lastName", patient.getLastName());
                     profile.put("age", patient.getAge());
-                    profile.put("gender", patient.getGender().toString());
-                    profile.put("bloodGroup", patient.getBloodGroup() != null ? patient.getBloodGroup().getValue() : null);
+                    profile.put("gender", patient.getGender() != null ? patient.getGender().toString() : null);
+                    profile.put("bloodGroup",
+                            patient.getBloodGroup() != null ? patient.getBloodGroup().getValue() : null);
                 } else {
                     System.out.println("No patient record found - checking registration data");
                     // If no patient record exists, try to get data from registration data
@@ -814,8 +854,10 @@ public class UserServiceImpl implements UserService {
                             profile.put("firstName", patientDto.getFirstName());
                             profile.put("lastName", patientDto.getLastName());
                             profile.put("age", patientDto.getAge());
-                            profile.put("gender", patientDto.getGender().toString());
-                            profile.put("bloodGroup", patientDto.getBloodGroup() != null ? patientDto.getBloodGroup().getValue() : null);
+                            profile.put("gender",
+                                    patientDto.getGender() != null ? patientDto.getGender().toString() : null);
+                            profile.put("bloodGroup",
+                                    patientDto.getBloodGroup() != null ? patientDto.getBloodGroup().getValue() : null);
                             System.out.println("Profile data retrieved from registration data");
                         }
                     } catch (Exception e) {
@@ -846,7 +888,7 @@ public class UserServiceImpl implements UserService {
                     profile.put("specialization", technician.getSpecialization());
                 }
             }
-            
+
             System.out.println("Profile data to return: " + profile);
             return profile;
         } catch (Exception e) {
@@ -863,21 +905,21 @@ public class UserServiceImpl implements UserService {
             // Validate token and get username (which is actually userId)
             String username = jwtUtil.extractUsername(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            
+
             if (!jwtUtil.validateToken(token, userDetails)) {
                 throw new RuntimeException("Invalid token");
             }
-            
+
             // Find user by userId (the JWT username is actually the userId)
             Optional<User> userOpt = repo.findByUserIdIgnoreCase(username);
             if (userOpt.isEmpty()) {
                 throw new RuntimeException("User not found");
             }
-            
+
             User user = userOpt.get();
             boolean userUpdated = false;
             boolean profileUpdated = false;
-            
+
             // Update user-level fields (email, phone)
             if (profileUpdate.containsKey("email")) {
                 String newEmail = (String) profileUpdate.get("email");
@@ -891,7 +933,7 @@ public class UserServiceImpl implements UserService {
                     userUpdated = true;
                 }
             }
-            
+
             if (profileUpdate.containsKey("phone")) {
                 String newPhone = (String) profileUpdate.get("phone");
                 if (newPhone != null && !newPhone.equals(user.getPhone())) {
@@ -904,18 +946,18 @@ public class UserServiceImpl implements UserService {
                     userUpdated = true;
                 }
             }
-            
+
             // Save user updates if any
             if (userUpdated) {
                 repo.save(user);
             }
-            
+
             // Update role-specific profile
             if (user.getRole() == UserRole.PATIENT) {
                 Optional<Patient> patientOpt = patientRepo.findByPatientId(user.getUserId());
                 if (patientOpt.isPresent()) {
                     Patient patient = patientOpt.get();
-                    
+
                     if (profileUpdate.containsKey("firstName")) {
                         patient.setFirstName((String) profileUpdate.get("firstName"));
                         profileUpdated = true;
@@ -933,30 +975,48 @@ public class UserServiceImpl implements UserService {
                     }
                     if (profileUpdate.containsKey("gender")) {
                         String genderStr = (String) profileUpdate.get("gender");
-                        if (genderStr != null) {
-                            patient.setGender(Patient.Gender.valueOf(genderStr));
+                        if (genderStr != null && !genderStr.isEmpty()) {
+                            try {
+                                patient.setGender(Patient.Gender.valueOf(genderStr.toUpperCase()));
+                                profileUpdated = true;
+                            } catch (IllegalArgumentException e) {
+                                // Invalid gender value, skip this update
+                                System.out.println("Invalid gender value: " + genderStr);
+                            }
+                        } else {
+                            // Allow setting gender to null
+                            patient.setGender(null);
                             profileUpdated = true;
                         }
                     }
                     if (profileUpdate.containsKey("bloodGroup")) {
                         String bloodGroupStr = (String) profileUpdate.get("bloodGroup");
                         if (bloodGroupStr != null && !bloodGroupStr.isEmpty()) {
+                            boolean found = false;
                             for (Patient.BloodGroup bg : Patient.BloodGroup.values()) {
                                 if (bg.getValue().equals(bloodGroupStr)) {
                                     patient.setBloodGroup(bg);
                                     profileUpdated = true;
+                                    found = true;
                                     break;
                                 }
                             }
+                            if (!found) {
+                                System.out.println("Invalid blood group value: " + bloodGroupStr);
+                            }
+                        } else {
+                            // Allow setting blood group to null
+                            patient.setBloodGroup(null);
+                            profileUpdated = true;
                         }
                     }
-                    
+
                     if (profileUpdated) {
                         patientRepo.save(patient);
                     }
                 }
             }
-            
+
             // Return the updated profile
             return getCurrentUserProfile(token);
         } catch (Exception e) {

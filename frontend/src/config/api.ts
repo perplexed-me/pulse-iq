@@ -73,6 +73,12 @@ export const API_CONFIG = {
   HEALTH: {
     USER_APPOINTMENT: `${getUserAppointmentApiUrl()}/actuator/health`,
     AI_SERVICE: `${getAiServiceApiUrl()}/health`,
+  },
+
+  // AI Service endpoints
+  AI: {
+    CHAT: `${getAiServiceApiUrl()}/chat`,
+    HEALTH: `${getAiServiceApiUrl()}/health`,
   }
 };
 

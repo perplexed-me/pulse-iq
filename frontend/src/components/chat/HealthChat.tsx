@@ -6,8 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Send, Bot, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-
-const AI_BASE_URL = "/ai-api";
+import { API_CONFIG } from '@/config/api';
 
 interface Message {
   id: string;
@@ -108,7 +107,7 @@ const HealthChat = () => {
     setInputMessage('');
     setIsLoading(true);
     try {
-      const response = await fetch(`${AI_BASE_URL}/chat`, {
+      const response = await fetch(API_CONFIG.AI.CHAT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputMessage })

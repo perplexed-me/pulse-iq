@@ -902,6 +902,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public Map<String, Object> updateCurrentUserProfile(String token, Map<String, Object> profileUpdate) {
         try {
+            System.out.println("\n=== PROFILE UPDATE REQUEST ===");
+            System.out.println("Profile update data: " + profileUpdate);
+
             // Validate token and get username (which is actually userId)
             String username = jwtUtil.extractUsername(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -917,6 +920,7 @@ public class UserServiceImpl implements UserService {
             }
 
             User user = userOpt.get();
+            System.out.println("Updating profile for user: " + user.getUserId() + ", role: " + user.getRole());
             boolean userUpdated = false;
             boolean profileUpdated = false;
 
@@ -977,16 +981,43 @@ public class UserServiceImpl implements UserService {
                         String genderStr = (String) profileUpdate.get("gender");
                         if (genderStr != null && !genderStr.isEmpty()) {
                             try {
-                                patient.setGender(Patient.Gender.valueOf(genderStr.toUpperCase()));
-                                profileUpdated = true;
-                            } catch (IllegalArgumentException e) {
+                                // Normalize gender string to match enum values
+                                String normalizedGender = genderStr.trim().toLowerCase();
+                                Patient.Gender gender = null;
+
+                                switch (normalizedGender) {
+                                    case "male":
+                                    case "m":
+                                        gender = Patient.Gender.Male;
+                                        break;
+                                    case "female":
+                                    case "f":
+                                        gender = Patient.Gender.Female;
+                                        break;
+                                    case "other":
+                                    case "o":
+                                        gender = Patient.Gender.Other;
+                                        break;
+                                    default:
+                                        // Try the original valueOf approach as fallback
+                                        gender = Patient.Gender.valueOf(genderStr.substring(0, 1).toUpperCase()
+                                                + genderStr.substring(1).toLowerCase());
+                                }
+
+                                if (gender != null) {
+                                    patient.setGender(gender);
+                                    profileUpdated = true;
+                                    System.out.println("Gender updated to: " + gender);
+                                }
+                            } catch (Exception e) {
                                 // Invalid gender value, skip this update
-                                System.out.println("Invalid gender value: " + genderStr);
+                                System.out.println("Invalid gender value: " + genderStr + ", error: " + e.getMessage());
                             }
                         } else {
                             // Allow setting gender to null
                             patient.setGender(null);
                             profileUpdated = true;
+                            System.out.println("Gender set to null");
                         }
                     }
                     if (profileUpdate.containsKey("bloodGroup")) {
@@ -1018,8 +1049,14 @@ public class UserServiceImpl implements UserService {
             }
 
             // Return the updated profile
-            return getCurrentUserProfile(token);
+            System.out.println(
+                    "Profile update completed. User updated: " + userUpdated + ", Profile updated: " + profileUpdated);
+            Map<String, Object> updatedProfile = getCurrentUserProfile(token);
+            System.out.println("Updated profile result: " + updatedProfile);
+            return updatedProfile;
         } catch (Exception e) {
+            System.out.println("Profile update failed: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Failed to update user profile: " + e.getMessage());
         }
     }

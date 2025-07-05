@@ -728,7 +728,7 @@ public class UserServiceImpl implements UserService {
                 pr.setFirstName(nameParts[0]);
                 pr.setLastName(nameParts.length > 1 ? nameParts[1] : "");
                 pr.setAge(25); // Default age
-                pr.setGender(null); // Nullable - user can update later
+                pr.setGender(Patient.Gender.Other); // Default gender for Google users - can be updated later
                 pr.setBloodGroup(null);
                 createPatientProfile(user.getUserId(), pr);
             }
@@ -748,7 +748,7 @@ public class UserServiceImpl implements UserService {
             pr.setFirstName(nameParts[0]);
             pr.setLastName(nameParts.length > 1 ? nameParts[1] : "");
             pr.setAge(25); // Default age for Google users
-            pr.setGender(null); // Nullable - user can update later
+            pr.setGender(Patient.Gender.Other); // Default gender for Google users - can be updated later
             pr.setBloodGroup(null);
             createPatientProfile(userId, pr);
 

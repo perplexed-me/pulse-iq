@@ -30,7 +30,7 @@ public class AdminSeeder implements ApplicationListener<ApplicationReadyEvent> {
     @Override
     @Transactional
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        
+
         // Double-check that we're not in test profiles
         String[] activeProfiles = environment.getActiveProfiles();
         for (String profile : activeProfiles) {

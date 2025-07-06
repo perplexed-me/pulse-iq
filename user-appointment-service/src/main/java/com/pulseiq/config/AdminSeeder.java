@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("!test & !integration") // Don't run in test or integration environment
+@Profile("!test & !integration & !ci") // Don't run in test, integration, or ci environment
 public class AdminSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private final UserRepository userRepository;

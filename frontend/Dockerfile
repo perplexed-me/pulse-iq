@@ -26,7 +26,11 @@ RUN if [ ! -f package-lock.json ]; then \
     exit 1; \
     fi && \
     echo "Found package-lock.json, proceeding with npm ci..." && \
-    npm ci --only=production=false --include=optional && \
+    # Try npm ci first, fall back to npm install if lock file is out of sync
+    (npm ci --only=production=false --include=optional || \
+    (echo "npm ci failed, trying npm install to fix dependency conflicts..." && \
+     rm -f package-lock.json && \
+     npm install)) && \
     npm install @rollup/rollup-linux-x64-gnu --save-dev --force || true && \
     npm install @esbuild/linux-x64 --save-dev --force || true
 

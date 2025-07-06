@@ -9,7 +9,12 @@
     "build:docker": "NODE_ENV=production vite build --mode production",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview --host 0.0.0.0 --port 8080",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch"
   },
   "dependencies": {
     "@cloudinary/react": "^1.14.3",
@@ -43,6 +48,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.3",
     "@tanstack/react-query": "^5.61.3",
+    "@testing-library/dom": "^10.4.0",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -52,6 +58,7 @@
     "firebase": "^11.0.2",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.468.0",
+    "msw": "^2.10.3",
     "next-themes": "^0.4.3",
     "react": "^18.3.1",
     "react-day-picker": "^9.4.2",
@@ -69,20 +76,27 @@
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@tailwindcss/typography": "^0.5.15",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^22.9.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.15.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.12.0",
+    "jsdom": "^26.0.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.14",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.15.0",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "vitest": "^2.1.8"
   },
   "optionalDependencies": {
     "@esbuild/linux-x64": "^0.24.2",

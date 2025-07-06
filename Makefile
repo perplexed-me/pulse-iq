@@ -149,7 +149,7 @@ test-builds:
 
 test-frontend:
 	@echo "Testing Frontend..."
-	cd frontend && npm test
+	cd frontend && npm run test:run
 
 test-user-service:
 	@echo "Testing User Appointment Service..."
@@ -198,6 +198,26 @@ db-backup:
 
 # Production deployment helpers
 deploy-build:
+	@echo "🚀 Building for deployment..."
+	make test
+	make build-jars
+	make build-prod
+
+deploy-staging:
+	@echo "🚀 Deploying to staging..."
+	./deploy.sh staging
+
+deploy-production:
+	@echo "🚀 Deploying to production..."
+	./deploy.sh production
+
+deploy-staging-skip-tests:
+	@echo "🚀 Deploying to staging (skipping tests)..."
+	./deploy.sh staging true
+
+deploy-production-skip-tests:
+	@echo "🚀 Deploying to production (skipping tests)..."
+	./deploy.sh production true
 	@echo "🏭 Building for production deployment..."
 	docker-compose build
 	docker-compose push

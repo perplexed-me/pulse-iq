@@ -1,0 +1,1315 @@
+[90mstderr[2m | src/test/components/frontend-unit-tests.test.tsx[2m > [22m[2mFrontend Unit Tests - Core Components[2m > [22m[2mLogin Form Component[2m > [22m[2mshould render login form correctly
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstderr[2m | src/test/components/auth/PatientRegistration.test.tsx[2m > [22m[2mPatient Registration - Complete End-to-End Tests[2m > [22m[2mshould render registration form with all fields
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstderr[2m | src/test/components/appointments/AppointmentList.test.tsx[2m > [22m[2mAppointmentList[2m > [22m[2mshould render appointment list for patient
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstderr[2m | src/test/components/TestResults/TestResultUpload.test.tsx[2m > [22m[2mTestResultUpload[2m > [22m[2mshould render test upload form
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstderr[2m | src/test/components/appointments/AppointmentList.test.tsx[2m > [22m[2mAppointmentList[2m > [22m[2mshould handle API errors
+[22m[39mError fetching appointments: Error: Network error
+    at Proxy.<anonymous> (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/AppointmentList.test.tsx:339:31)
+    at Proxy.mockCall (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/spy/dist/index.js:61:17)
+    at Proxy.spy (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/tinyspy/dist/index.js:45:80)
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/AppointmentList.tsx:49:30
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/AppointmentList.tsx:221:5
+    at commitHookEffectListMount (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+    at commitPassiveMountOnFiber (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+    at commitPassiveMountEffects_complete (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+    at commitPassiveMountEffects_begin (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+    at commitPassiveMountEffects (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+
+[90mstderr[2m | src/test/components/appointments/BookAppointment.test.tsx[2m > [22m[2mBookAppointment[2m > [22m[2mshould render booking form
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstderr[2m | src/test/components/dashboards/PatientDashboard.test.tsx[2m > [22m[2mPatientDashboard[2m > [22m[2mshould display upcoming appointments section
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstderr[2m | src/test/components/appointments/BookAppointment.test.tsx[2m > [22m[2mBookAppointment[2m > [22m[2mshould filter doctors by specialization
+[22m[39mSelect is changing from uncontrolled to controlled. Components should not switch from controlled to uncontrolled (or vice versa). Decide between using a controlled or uncontrolled value for the lifetime of the component.
+
+[90mstderr[2m | src/test/components/dashboards/PatientDashboard.test.tsx[2m > [22m[2mPatientDashboard[2m > [22m[2mshould handle loading states
+[22m[39mWarning: An update to PatientDashboard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at PatientDashboard (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/dashboards/PatientDashboard.tsx:37:61)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/dashboards/PatientDashboard.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to PatientDashboard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at PatientDashboard (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/dashboards/PatientDashboard.tsx:37:61)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/dashboards/PatientDashboard.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+
+[90mstderr[2m | src/test/components/dashboards/PatientDashboard.test.tsx[2m > [22m[2mPatientDashboard[2m > [22m[2mshould handle API errors gracefully
+[22m[39mError fetching test results: Error: Network error
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/dashboards/PatientDashboard.test.tsx:330:39
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at listOnTimeout (node:internal/timers:540:9)
+    at processTimers (node:internal/timers:514:7)
+    at runSuite (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+
+[90mstderr[2m | src/test/components/appointments/BookAppointment.test.tsx[2m > [22m[2mBookAppointment[2m > [22m[2mshould show loading states
+[22m[39mWarning: An update to BookAppointment inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to BookAppointment inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to BookAppointment inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to Select inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at Select (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:42:5)
+    at div
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:81:57
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:7:50
+    at div
+    at div
+    at div
+    at div
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to SelectItemText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:901:13
+    at div
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-primitive/dist/index.mjs:28:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:39:15
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:800:7
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/select.tsx:169:56
+    at div
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-primitive/dist/index.mjs:28:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:27:15
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:711:13
+    at div
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:27:15
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:256:58
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-primitive/dist/index.mjs:28:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-portal/dist/index.mjs:11:22
+    at SelectPortal
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/select.tsx:96:59
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at CollectionProvider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:17:13)
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at Popper (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-popper/dist/index.mjs:30:11)
+    at Select (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:42:5)
+    at div
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:81:57
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:7:50
+    at div
+    at div
+    at div
+    at div
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to Select inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at Select (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:42:5)
+    at div
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:81:57
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:7:50
+    at div
+    at div
+    at div
+    at div
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to SelectItemText inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:901:13
+    at div
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-primitive/dist/index.mjs:28:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:39:15
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:800:7
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/select.tsx:169:56
+    at div
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-primitive/dist/index.mjs:28:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:27:15
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:711:13
+    at div
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:27:15
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:256:58
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:33:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-slot/dist/index.mjs:9:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-primitive/dist/index.mjs:28:13
+    at file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-portal/dist/index.mjs:11:22
+    at SelectPortal
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/select.tsx:96:59
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at CollectionProvider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-collection/dist/index.mjs:17:13)
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at Provider (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-context/dist/index.mjs:27:15)
+    at Popper (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-popper/dist/index.mjs:30:11)
+    at Select (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@radix-ui/react-select/dist/index.mjs:42:5)
+    at div
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:81:57
+    at div
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/ui/card.tsx:7:50
+    at div
+    at div
+    at div
+    at div
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+Warning: An update to BookAppointment inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BookAppointment (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:31:71)
+    at div
+    at AuthProvider (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:19:20)
+    at Router (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at BrowserRouter (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:695:7)
+
+[90mstderr[2m | src/test/components/appointments/BookAppointment.test.tsx[2m > [22m[2mBookAppointment[2m > [22m[2mshould handle network errors
+[22m[39mError fetching doctors: Error: Network error
+    at Proxy.<anonymous> (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/components/appointments/BookAppointment.test.tsx:399:31)
+    at Proxy.mockCall (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/@vitest/spy/dist/index.js:61:17)
+    at Proxy.spy (file:///Users/mohammad/Downloads/Telegram%20Desktop/pulse-iq/frontend/node_modules/tinyspy/dist/index.js:45:80)
+    at fetchAllDoctors (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:86:30)
+    at /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/components/appointments/BookAppointment.tsx:57:7
+    at commitHookEffectListMount (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+    at commitPassiveMountOnFiber (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+    at commitPassiveMountEffects_complete (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+    at commitPassiveMountEffects_begin (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+    at commitPassiveMountEffects (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould provide initial state
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould handle successful login
+[22m[39mToken validation error: TypeError: Cannot read properties of undefined (reading 'status')
+    at validateToken (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/contexts/AuthContext.tsx:46:20)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at checkAuth (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/contexts/AuthContext.tsx:78:25)
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould handle login failure
+[22m[39mLogin failed: Error: Invalid credentials
+    at login (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/contexts/AuthContext.tsx:143:15)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at processTimers (node:internal/timers:511:9)
+    at handleLogin (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/contexts/AuthContext.test.tsx:40:5)
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould handle logout
+[22m[39mToken invalid or expired
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould persist user session in localStorage
+[22m[39mToken invalid or expired
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould handle successful patient registration
+[22m[39mToken invalid or expired
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould handle registration failure - email already exists
+[22m[39mLogin failed: Error: Email already exists
+    at login (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/contexts/AuthContext.tsx:143:15)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at listOnTimeout (node:internal/timers:540:9)
+    at processTimers (node:internal/timers:514:7)
+    at handleRegister (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/contexts/AuthContext.test.tsx:48:5)
+
+[90mstderr[2m | src/test/contexts/AuthContext.test.tsx[2m > [22m[2mAuthContext[2m > [22m[2mshould handle registration validation errors
+[22m[39mLogin failed: Error: Validation failed
+    at login (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/contexts/AuthContext.tsx:143:15)
+    at handleRegister (/Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/contexts/AuthContext.test.tsx:48:5)
+
+[90mstderr[2m | src/test/components/auth/Login.test.tsx[2m > [22m[2mLogin Component[2m > [22m[2mshould render login form with all elements
+[22m[39m⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Suites 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-msw.test.ts[2m [ src/test/config/api-msw.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /Users/mohammad/Downloads/Telegram Desktop/pulse-iq/frontend/src/test/config/api-msw.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 15 [27m[22m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAuth API[2m > [22mshould login successfully with valid credentials
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m25:23[22m[39m
+    [90m 23| [39m      }[33m,[39m [35mfalse[39m)
+    [90m 24| [39m
+    [90m 25| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m 26| [39m      
+    [90m 27| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAuth API[2m > [22mshould fail login with invalid credentials
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m43:23[22m[39m
+    [90m 41| [39m      }[33m,[39m [35mfalse[39m)
+    [90m 42| [39m
+    [90m 43| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mfalse[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m 44| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m401[39m)
+    [90m 45| [39m      
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAuth API[2m > [22mshould register patient successfully
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m68:23[22m[39m
+    [90m 66| [39m      }[33m,[39m [35mfalse[39m)
+    [90m 67| [39m
+    [90m 68| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m 69| [39m      
+    [90m 70| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAuth API[2m > [22mshould fail patient registration with existing email
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m93:23[22m[39m
+    [90m 91| [39m      }[33m,[39m [35mfalse[39m)
+    [90m 92| [39m
+    [90m 93| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mfalse[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m 94| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m409[39m)
+    [90m 95| [39m      
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAuth API[2m > [22mshould validate patient registration data
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m118:23[22m[39m
+    [90m116| [39m      }[33m,[39m [35mfalse[39m)
+    [90m117| [39m
+    [90m118| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mfalse[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m119| [39m      [34mexpect[39m(response[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m400[39m)
+    [90m120| [39m      
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAppointments API[2m > [22mshould fetch appointments successfully
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m133:23[22m[39m
+    [90m131| [39m      })
+    [90m132| [39m
+    [90m133| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m134| [39m      
+    [90m135| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAppointments API[2m > [22mshould book appointment successfully
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m157:23[22m[39m
+    [90m155| [39m      })
+    [90m156| [39m
+    [90m157| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m158| [39m      
+    [90m159| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAppointments API[2m > [22mshould fetch doctors successfully
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m171:23[22m[39m
+    [90m169| [39m      })
+    [90m170| [39m
+    [90m171| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m172| [39m      
+    [90m173| [39m      [35mconst[39m data [33m=[39m [35mawait[39m response[33m.[39m[34mjson[39m()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAPI Configuration[2m > [22mshould have all required appointment endpoints
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'UPCOMING')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m194:38[22m[39m
+    [90m192| [39m
+    [90m193| [39m    [34mit[39m([32m'should have all required appointment endpoints'[39m[33m,[39m () [33m=>[39m {
+    [90m194| [39m      [34mexpect[39m([33mAPI_CONFIG[39m[33m.[39m[33mAPPOINTMENTS[39m[33m.[39m[33mUPCOMING[39m)[33m.[39m[34mtoBeDefined[39m()
+    [90m   | [39m                                     [31m^[39m
+    [90m195| [39m      [34mexpect[39m([33mAPI_CONFIG[39m[33m.[39m[33mAPPOINTMENTS[39m[33m.[39m[33mMY_APPOINTMENTS[39m)[33m.[39m[34mtoBeDefined[39m()
+    [90m196| [39m      [34mexpect[39m([33mAPI_CONFIG[39m[33m.[39m[33mAPPOINTMENTS[39m[33m.[39m[33mBOOK[39m)[33m.[39m[34mtoBeDefined[39m()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAPI Configuration[2m > [22mshould have all required test results endpoints
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'MY_TESTS')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m204:38[22m[39m
+    [90m202| [39m
+    [90m203| [39m    [34mit[39m([32m'should have all required test results endpoints'[39m[33m,[39m () [33m=>[39m {
+    [90m204| [39m      [34mexpect[39m([33mAPI_CONFIG[39m[33m.[39m[33mTEST_RESULTS[39m[33m.[39m[33mMY_TESTS[39m)[33m.[39m[34mtoBeDefined[39m()
+    [90m   | [39m                                     [31m^[39m
+    [90m205| [39m      [34mexpect[39m([33mAPI_CONFIG[39m[33m.[39m[33mTEST_RESULTS[39m[33m.[39m[33mMY_STATS[39m)[33m.[39m[34mtoBeDefined[39m()
+    [90m206| [39m      [34mexpect[39m([33mAPI_CONFIG[39m[33m.[39m[33mTEST_RESULTS[39m[33m.[39m[33mMY_UPLOADS[39m)[33m.[39m[34mtoBeDefined[39m()
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAuthentication Headers[2m > [22mshould include auth token when available
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m223:23[22m[39m
+    [90m221| [39m      })
+    [90m222| [39m
+    [90m223| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m224| [39m      [90m// The request should have been made with the Authorization header[39m
+    [90m225| [39m      [90m// This is verified by MSW handlers working correctly[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/config/api-integration.test.ts[2m > [22mAPI Integration Tests[2m > [22mAuthentication Headers[2m > [22mshould work without auth token when auth is disabled
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ok')[39m
+[36m [2m❯[22m src/test/config/api-integration.test.ts:[2m237:23[22m[39m
+    [90m235| [39m      }[33m,[39m [35mfalse[39m) [90m// Auth disabled[39m
+    [90m236| [39m
+    [90m237| [39m      [34mexpect[39m(response[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)
+    [90m   | [39m                      [31m^[39m
+    [90m238| [39m    })
+    [90m239| [39m  })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/components/appointments/AppointmentList.test.tsx[2m > [22mAppointmentList[2m > [22mshould handle appointment cancellation
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: Are you sure you want to cancel this appointment?. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex justify-between items-center"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"text-2xl font-bold text-gray-900"[39m
+          [36m>[39m
+            [0mMy Appointments[0m
+          [36m</h2>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-gray-600"[39m
+          [36m>[39m
+            [0m3[0m
+            [0m total appointments[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 border-l-blue-500"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-between items-start"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<h3[39m
+                    [33mclass[39m=[32m"text-2xl font-semibold leading-none tracking-tight flex items-center gap-2"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-user h-5 w-5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+                      [36m/>[39m
+                      [36m<circle[39m
+                        [33mcx[39m=[32m"12"[39m
+                        [33mcy[39m=[32m"7"[39m
+                        [33mr[39m=[32m"4"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [0mDr. [0m
+                    [0mJohn Smith[0m
+                  [36m</h3>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"text-sm text-gray-600"[39m
+                    [36m>[39m
+                      [0mCardiology[0m
+                    [36m</span>[39m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-50 text-blue-700 border-blue-200"[39m
+                  [36m>[39m
+                    [0mScheduled[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground"[39m
+                  [36m>[39m
+                    [0mUpcoming[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"p-6 pt-0"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-2"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-calendar h-4 w-4 text-gray-500"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M8 2v4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M16 2v4"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"18"[39m
+                        [33mrx[39m=[32m"2"[39m
+                        [33mwidth[39m=[32m"18"[39m
+                        [33mx[39m=[32m"3"[39m
+                        [33my[39m=[32m"4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M3 10h18"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [36m<span>[39m
+                      [0mThursday, December 25, 2025[0m
+                    [36m</span>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-clock h-4 w-4 text-gray-500"[39m
+                      [33mfill[39m=[32m"none"[...
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mdata-scroll-locked[39m=[32m"1"[39m
+    [33mstyle[39m=[32m"pointer-events: none;"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+      [33mdata-radix-focus-guard[39m=[32m""[39m
+      [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+      [33mtabindex[39m=[32m"0"[39m
+    [36m/>[39m
+    [36m<div[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold text-gray-900"[39m
+            [36m>[39m
+              [0mMy Appointments[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-gray-600"[39m
+            [36m>[39m
+              [0m3[0m
+              [0m total appointments[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 border-l-blue-500"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex justify-between items-start"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<h3[39m
+                      [33mclass[39m=[32m"text-2xl font-semibold leading-none tracking-tight flex items-center gap-2"[39m
+                    [36m>[39m
+                      [36m<svg[39m
+                        [33mclass[39m=[32m"lucide lucide-user h-5 w-5"[39m
+                        [33mfill[39m=[32m"none"[39m
+                        [33mheight[39m=[32m"24"[39m
+                        [33mstroke[39m=[32m"currentColor"[39m
+                        [33mstroke-linecap[39m=[32m"round"[39m
+                        [33mstroke-linejoin[39m=[32m"round"[39m
+                        [33mstroke-width[39m=[32m"2"[39m
+                        [33mviewBox[39m=[32m"0 0 24 24"[39m
+                        [33mwidth[39m=[32m"24"[39m
+                        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                      [36m>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+                        [36m/>[39m
+                        [36m<circle[39m
+                          [33mcx[39m=[32m"12"[39m
+                          [33mcy[39m=[32m"7"[39m
+                          [33mr[39m=[32m"4"[39m
+                        [36m/>[39m
+                      [36m</svg>[39m
+                      [0mDr. [0m
+                      [0mJohn Smith[0m
+                    [36m</h3>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"text-sm text-gray-600"[39m
+                      [36m>[39m
+                        [0mCardiology[0m
+                      [36m</span>[39m
+                    [36m</p>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-50 text-blue-700 border-blue-200"[39m
+                    [36m>[39m
+                      [0mScheduled[0m
+                    [36m</div>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground"[39m
+                    [36m>[39m
+                      [0mUpcoming[0m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-6 pt-0"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"space-y-2"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                    [36m>[39m
+                      [36m<svg[39m
+                        [33mclass[39m=[32m"lucide lucide-calendar h-4 w-4 text-gray-500"[39m
+                        [33mfill[39m=[32m"none"[39m
+                        [33mheight[39m=[32m"24"[39m
+                        [33mstroke[39m=[32m"currentColor"[39m
+                        [33mstroke-linecap[39m=[32m"round"[39m
+                        [33mstroke-linejoin[39m=[32m"round"[39m
+                        [33mstroke-width[39m=[32m"2"[39m
+                        [33mviewBox[39m=[32m"0 0 24 24"[39m
+                        [33mwidth[39m=[32m"24"[39m
+                        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                      [36m>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M8 2v4"[39m
+                        [36m/>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M16 2v4"[39m
+                        [36m/>[39m
+                        [36m<rect[39m
+                          [33mheight[39m=[32m"18"[39m
+                          [33mrx[39m=[32m"2"[39m
+                          [33mwidth[39m=[32m"18"[39m
+                          [33mx[39m=[32m"3"[39m
+                          [33my[39m=[32m"4"[39m
+                        [36m/>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M3 10h18"[39m
+                        [36m/>[39m
+                      [36m</svg>[39m
+                      [36m<span>[39m
+                        [0mThursday, December 25, 2025[0m
+                      [36m</span>[39m
+                    [36m</di...
+[90m [2m❯[22m Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/test/components/appointments/AppointmentList.test.tsx:[2m230:11[22m[39m
+    [90m228| [39m    
+    [90m229| [39m    [90m// Should show cancellation dialog - use getAllByText to handle multiple matches[39m
+    [90m230| [39m    [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   | [39m          [31m^[39m
+    [90m231| [39m      [35mconst[39m cancelTitles [33m=[39m screen[33m.[39m[34mgetAllByText[39m([32m'Cancel Appointment'[39m)
+    [90m232| [39m      [34mexpect[39m(cancelTitles[33m.[39mlength)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/components/appointments/AppointmentList.test.tsx[2m > [22mAppointmentList[2m > [22mshould handle appointment status update (doctor role)
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: Complete. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex justify-between items-center"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"text-2xl font-bold text-gray-900"[39m
+          [36m>[39m
+            [0mPatient Appointments[0m
+          [36m</h2>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-gray-600"[39m
+          [36m>[39m
+            [0m3[0m
+            [0m total appointments[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 border-l-blue-500"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-between items-start"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<h3[39m
+                    [33mclass[39m=[32m"text-2xl font-semibold leading-none tracking-tight flex items-center gap-2"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-user h-5 w-5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+                      [36m/>[39m
+                      [36m<circle[39m
+                        [33mcx[39m=[32m"12"[39m
+                        [33mcy[39m=[32m"7"[39m
+                        [33mr[39m=[32m"4"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [0mJohn Patient[0m
+                  [36m</h3>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+                  [36m/>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-50 text-blue-700 border-blue-200"[39m
+                  [36m>[39m
+                    [0mScheduled[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground"[39m
+                  [36m>[39m
+                    [0mUpcoming[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"p-6 pt-0"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-2"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-calendar h-4 w-4 text-gray-500"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M8 2v4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M16 2v4"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"18"[39m
+                        [33mrx[39m=[32m"2"[39m
+                        [33mwidth[39m=[32m"18"[39m
+                        [33mx[39m=[32m"3"[39m
+                        [33my[39m=[32m"4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M3 10h18"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [36m<span>[39m
+                      [0mThursday, December 25, 2025[0m
+                    [36m</span>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-clock h-4 w-4 text-gray-500"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<circle[39m
+                        [33mcx[39m=[32m"12"[39m
+                        [33mcy[39m=[32m"12"[39m
+                        [33mr[39m=[32m"10"[39m
+                      [3...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m109:15[22m[39m
+[36m [2m❯[22m src/test/components/appointments/AppointmentList.test.tsx:[2m272:36[22m[39m
+    [90m270| [39m    
+    [90m271| [39m    [90m// Find the complete button for a scheduled appointment[39m
+    [90m272| [39m    [35mconst[39m completeButtons [33m=[39m screen[33m.[39m[34mgetAllByText[39m([32m'Complete'[39m)
+    [90m   | [39m                                   [31m^[39m
+    [90m273| [39m    fireEvent[33m.[39m[34mclick[39m(completeButtons[[34m0[39m])
+    [90m274| [39m    
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/components/appointments/AppointmentList.test.tsx[2m > [22mAppointmentList[2m > [22mshould handle cancellation errors
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: Are you sure you want to cancel this appointment?. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex justify-between items-center"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"text-2xl font-bold text-gray-900"[39m
+          [36m>[39m
+            [0mMy Appointments[0m
+          [36m</h2>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-gray-600"[39m
+          [36m>[39m
+            [0m3[0m
+            [0m total appointments[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 border-l-blue-500"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex justify-between items-start"[39m
+              [36m>[39m
+                [36m<div>[39m
+                  [36m<h3[39m
+                    [33mclass[39m=[32m"text-2xl font-semibold leading-none tracking-tight flex items-center gap-2"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-user h-5 w-5"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+                      [36m/>[39m
+                      [36m<circle[39m
+                        [33mcx[39m=[32m"12"[39m
+                        [33mcy[39m=[32m"7"[39m
+                        [33mr[39m=[32m"4"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [0mDr. [0m
+                    [0mJohn Smith[0m
+                  [36m</h3>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"text-sm text-gray-600"[39m
+                    [36m>[39m
+                      [0mCardiology[0m
+                    [36m</span>[39m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex items-center gap-2"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-50 text-blue-700 border-blue-200"[39m
+                  [36m>[39m
+                    [0mScheduled[0m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground"[39m
+                  [36m>[39m
+                    [0mUpcoming[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"p-6 pt-0"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"space-y-2"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-calendar h-4 w-4 text-gray-500"[39m
+                      [33mfill[39m=[32m"none"[39m
+                      [33mheight[39m=[32m"24"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-linecap[39m=[32m"round"[39m
+                      [33mstroke-linejoin[39m=[32m"round"[39m
+                      [33mstroke-width[39m=[32m"2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"24"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M8 2v4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M16 2v4"[39m
+                      [36m/>[39m
+                      [36m<rect[39m
+                        [33mheight[39m=[32m"18"[39m
+                        [33mrx[39m=[32m"2"[39m
+                        [33mwidth[39m=[32m"18"[39m
+                        [33mx[39m=[32m"3"[39m
+                        [33my[39m=[32m"4"[39m
+                      [36m/>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M3 10h18"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                    [36m<span>[39m
+                      [0mThursday, December 25, 2025[0m
+                    [36m</span>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                  [36m>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"lucide lucide-clock h-4 w-4 text-gray-500"[39m
+                      [33mfill[39m=[32m"none"[...
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mdata-scroll-locked[39m=[32m"1"[39m
+    [33mstyle[39m=[32m"pointer-events: none;"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+      [33mdata-radix-focus-guard[39m=[32m""[39m
+      [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+      [33mtabindex[39m=[32m"0"[39m
+    [36m/>[39m
+    [36m<div[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-4"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-between items-center"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-2xl font-bold text-gray-900"[39m
+            [36m>[39m
+              [0mMy Appointments[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-gray-600"[39m
+            [36m>[39m
+              [0m3[0m
+              [0m total appointments[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"space-y-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 border-l-blue-500"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex justify-between items-start"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<h3[39m
+                      [33mclass[39m=[32m"text-2xl font-semibold leading-none tracking-tight flex items-center gap-2"[39m
+                    [36m>[39m
+                      [36m<svg[39m
+                        [33mclass[39m=[32m"lucide lucide-user h-5 w-5"[39m
+                        [33mfill[39m=[32m"none"[39m
+                        [33mheight[39m=[32m"24"[39m
+                        [33mstroke[39m=[32m"currentColor"[39m
+                        [33mstroke-linecap[39m=[32m"round"[39m
+                        [33mstroke-linejoin[39m=[32m"round"[39m
+                        [33mstroke-width[39m=[32m"2"[39m
+                        [33mviewBox[39m=[32m"0 0 24 24"[39m
+                        [33mwidth[39m=[32m"24"[39m
+                        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                      [36m>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+                        [36m/>[39m
+                        [36m<circle[39m
+                          [33mcx[39m=[32m"12"[39m
+                          [33mcy[39m=[32m"7"[39m
+                          [33mr[39m=[32m"4"[39m
+                        [36m/>[39m
+                      [36m</svg>[39m
+                      [0mDr. [0m
+                      [0mJohn Smith[0m
+                    [36m</h3>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"text-sm text-muted-foreground"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"text-sm text-gray-600"[39m
+                      [36m>[39m
+                        [0mCardiology[0m
+                      [36m</span>[39m
+                    [36m</p>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"flex items-center gap-2"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-50 text-blue-700 border-blue-200"[39m
+                    [36m>[39m
+                      [0mScheduled[0m
+                    [36m</div>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground"[39m
+                    [36m>[39m
+                      [0mUpcoming[0m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"p-6 pt-0"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"grid grid-cols-1 md:grid-cols-2 gap-4"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"space-y-2"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"flex items-center gap-2 text-sm"[39m
+                    [36m>[39m
+                      [36m<svg[39m
+                        [33mclass[39m=[32m"lucide lucide-calendar h-4 w-4 text-gray-500"[39m
+                        [33mfill[39m=[32m"none"[39m
+                        [33mheight[39m=[32m"24"[39m
+                        [33mstroke[39m=[32m"currentColor"[39m
+                        [33mstroke-linecap[39m=[32m"round"[39m
+                        [33mstroke-linejoin[39m=[32m"round"[39m
+                        [33mstroke-width[39m=[32m"2"[39m
+                        [33mviewBox[39m=[32m"0 0 24 24"[39m
+                        [33mwidth[39m=[32m"24"[39m
+                        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                      [36m>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M8 2v4"[39m
+                        [36m/>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M16 2v4"[39m
+                        [36m/>[39m
+                        [36m<rect[39m
+                          [33mheight[39m=[32m"18"[39m
+                          [33mrx[39m=[32m"2"[39m
+                          [33mwidth[39m=[32m"18"[39m
+                          [33mx[39m=[32m"3"[39m
+                          [33my[39m=[32m"4"[39m
+                        [36m/>[39m
+                        [36m<path[39m
+                          [33md[39m=[32m"M3 10h18"[39m
+                        [36m/>[39m
+                      [36m</svg>[39m
+                      [36m<span>[39m
+                        [0mThursday, December 25, 2025[0m
+                      [36m</span>[39m
+                    [36m</di...
+[90m [2m❯[22m Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/test/components/appointments/AppointmentList.test.tsx:[2m381:11[22m[39m
+    [90m379| [39m    fireEvent[33m.[39m[34mclick[39m(cancelButtons[[34m0[39m])
+    [90m380| [39m    
+    [90m381| [39m    [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   | [39m          [31m^[39m
+    [90m382| [39m      [90m// Use getAllByText to handle multiple matches[39m
+    [90m383| [39m      [35mconst[39m cancelTitles [33m=[39m screen[33m.[39m[34mgetAllByText[39m([32m'Cancel Appointment'[39m)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/16]⎯[22m[39m
+

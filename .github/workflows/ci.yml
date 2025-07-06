@@ -2,9 +2,9 @@ name: CI Build & Test All Services
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 env:
   NODE_VERSION: "20"
@@ -56,6 +56,12 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Type check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm run test:run
+
       - name: Build frontend
         run: npm run build
 
@@ -92,6 +98,7 @@ jobs:
       SPRING_DATASOURCE_USERNAME: test_user
       SPRING_DATASOURCE_PASSWORD: test_password
       JWT_SECRET: test_jwt_secret_for_ci_only_minimum_32_characters_long_enough
+      FIREBASE_ENABLED: false
 
     defaults:
       run:
@@ -120,12 +127,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
-      - name: Wait for PostgreSQL
+      - name: Wait for PostgreSQL (30×2s timeout)
         run: |
-          until pg_isready -h localhost -p 5432 -U test_user; do
-            echo "Waiting for PostgreSQL..."
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432 -U test_user; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            echo "Waiting for PostgreSQL… ($i/30)"
             sleep 2
           done
+
+          # Final check
+          if ! pg_isready -h localhost -p 5432 -U test_user; then
+            echo "❌ Postgres failed to start in time" >&2
+            exit 1
+          fi
 
       - name: Create test schema
         run: |
@@ -137,18 +154,19 @@ jobs:
           ./setup-maven.sh
 
       - name: Build & test with Maven (FAST)
+        env:
+          SPRING_PROFILES_ACTIVE: ci
+          FIREBASE_ENABLED: false
         run: |
-          # Set test profile explicitly  
-          export SPRING_PROFILES_ACTIVE=test
           # Use Maven wrapper if available, otherwise system Maven
           if [ -f "./mvnw" ] && [ -x "./mvnw" ] && [ -f ".mvn/wrapper/maven-wrapper.properties" ]; then
             echo "Using Maven wrapper"
-            ./mvnw clean compile -B --quiet -Dspring.profiles.active=test
-            ./mvnw test -B --quiet -Dspring.profiles.active=test
+            ./mvnw clean compile -B --quiet -Dspring.profiles.active=ci
+            ./mvnw test -B --quiet -Dspring.profiles.active=ci
           else
             echo "Using system Maven"
-            mvn clean compile -B --quiet -Dspring.profiles.active=test
-            mvn test -B --quiet -Dspring.profiles.active=test
+            mvn clean compile -B --quiet -Dspring.profiles.active=ci
+            mvn test -B --quiet -Dspring.profiles.active=ci
           fi
 
       - name: Upload test results
@@ -210,178 +228,84 @@ jobs:
   # Integration Test - Simple Docker Build & Container Test
   integration-test:
     runs-on: ubuntu-latest
-    needs: [test-frontend, test-user-appointment-service, test-ai-service]
-    # Run integration test on pushes to main/develop and pull requests
-    if: always() && (needs.test-frontend.result == 'success' && needs.test-user-appointment-service.result == 'success' && needs.test-ai-service.result == 'success')
+    needs:
+      - test-frontend
+      - test-user-appointment-service
+      - test-ai-service
+    if: >
+      always() &&
+      needs.test-frontend.result == 'success' &&
+      needs.test-user-appointment-service.result == 'success' &&
+      needs.test-ai-service.result == 'success'
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: ${{ env.JAVA_VERSION }}
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('user-appointment-service/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Install Docker Compose
         run: |
-          # Install Docker Compose v2 using direct download (most reliable for CI)
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" \
+            -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-
-          # Verify installation
           docker-compose --version
 
-          # Also check if docker compose (v2 plugin) works
-          docker compose version || echo "Docker compose plugin not available, using standalone binary"
-
-      - name: Set up Node.js for frontend build
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Verify build environment
+      - name: Build service images
         run: |
-          echo "=== Build Environment Check ==="
-          echo "✅ Repository checked out successfully"
-          echo "✅ package-lock.json available: $(ls -la frontend/package-lock.json)"
-          echo "✅ Ready for Docker builds"
-
-      - name: Create test environment file
-        run: |
-          cp .env.test .env
-
-      - name: Build all service images
-        run: |
-          # Set environment for builds
-          export JWT_SECRET="test_jwt_secret_for_ci_only_minimum_32_characters_long_enough"
-
-          # Build user appointment service JAR first
+          # Java service
           cd user-appointment-service
-
-          # Setup Maven wrapper
-          chmod +x ./setup-maven.sh
-          ./setup-maven.sh
-
-          # Build with Maven (wrapper or system)
-          if [ -f "./mvnw" ] && [ -x "./mvnw" ] && [ -f ".mvn/wrapper/maven-wrapper.properties" ]; then
-            echo "Using Maven wrapper for JAR build"
-            ./mvnw clean package -DskipTests -B -Dspring.profiles.active=test
-          else
-            echo "Using system Maven for JAR build"
-            mvn clean package -DskipTests -B -Dspring.profiles.active=test
-          fi
-
+          chmod +x ./setup-maven.sh && ./setup-maven.sh
+          SPRING_PROFILES_ACTIVE=ci ./mvnw clean package -DskipTests -B
           cd ..
 
-          # Build user appointment service Docker image
-          echo "Building user appointment service Docker image..."
           docker build -t test/pulseiq-user-appointment:latest ./user-appointment-service
-
-          # Build AI service
-          echo "Building AI service Docker image..."
           docker build -t test/pulseiq-ai-service:latest ./ai-service
 
-          # Build frontend with proper Docker context
-          echo "Building frontend Docker image..."
-          (
-            cd frontend
-            echo "Now in frontend directory: $(pwd)"
-            echo "Verifying Docker build context:"
-            ls -la package-lock.json package.json Dockerfile
-            
-            docker build -t test/pulseiq-frontend:latest \
-              --build-arg VITE_USER_APPOINTMENT_API_URL=http://localhost:8085 \
-              --build-arg VITE_AI_SERVICE_API_URL=http://localhost:8000 \
-              --build-arg VITE_FIREBASE_API_KEY=test_api_key \
-              --build-arg VITE_FIREBASE_AUTH_DOMAIN=test.firebaseapp.com \
-              --build-arg VITE_FIREBASE_PROJECT_ID=test-project \
-              --build-arg VITE_FIREBASE_STORAGE_BUCKET=test-project.appspot.com \
-              --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID=123456789 \
-              --build-arg VITE_FIREBASE_APP_ID=1:123456789:web:abcdef123456 \
-              --build-arg VITE_FIREBASE_MEASUREMENT_ID=G-ABCDEF1234 \
-              .
-          )
+          cd frontend
+          docker build -t test/pulseiq-frontend:latest \
+            --build-arg VITE_USER_APPOINTMENT_API_URL=http://localhost:8085 \
+            --build-arg VITE_AI_SERVICE_API_URL=http://localhost:8000 \
+            .
+          cd ..
 
-      - name: Simple integration test
+      - name: Start all containers
+        run: docker-compose -f docker-compose.test.yml up -d db user-appointment-service ai-service
+
+      - name: Wait for PostgreSQL (max 60s)
+        id: wait-postgres
         run: |
-          echo "=== Simple Docker Build & Start Test ==="
+          for i in {1..30}; do
+            docker exec pulseiq_postgres_test pg_isready -U test_user && break
+            echo "Waiting for Postgres ($i/30)…"; sleep 2
+          done
+          docker exec pulseiq_postgres_test pg_isready -U test_user \
+            || { echo "❌ Postgres never became ready"; exit 1; }
 
-          # Create firebase service account mock file
-          echo '{"project_id": "test"}' > firebase-service-account.json
+      - name: Wait for AI service (max 60s)
+        run: |
+          for i in {1..30}; do
+            curl --silent --fail http://localhost:8000/health && break
+            echo "Waiting for AI Service ($i/30)…"; sleep 2
+          done
+          curl --silent --fail http://localhost:8000/health \
+            || { echo "❌ AI Service never became healthy"; exit 1; }
 
-          # Start services
-          echo "Starting services..."
-          docker-compose -f docker-compose.test.yml up -d db user-appointment-service ai-service
+      - name: Wait for User service (max 60s)
+        run: |
+          for i in {1..30}; do
+            curl --silent --fail http://localhost:8085/actuator/health && break
+            echo "Waiting for User Service ($i/30)…"; sleep 2
+          done
+          curl --silent --fail http://localhost:8085/actuator/health \
+            || { echo "❌ User Service never became healthy"; exit 1; }
 
-          # Wait a bit for services to start
-          echo "Waiting 60 seconds for services to initialize..."
-          sleep 60
-
-          # Check if containers are running
-          echo "=== Container Status ==="
-          docker ps --filter "name=pulseiq"
-
-          # Show logs for debugging
-          echo "=== Service Logs ==="
-          echo "Database logs:"
+      - name: Dump recent logs for debugging
+        run: |
+          echo "=== Postgres Logs ==="
           docker logs pulseiq_postgres_test --tail 5
-          echo ""
-          echo "AI Service logs:"
+          echo "=== AI Service Logs ==="
           docker logs pulseiq_ai_service_test --tail 10
-          echo ""
-          echo "User Service logs:"
+          echo "=== User Service Logs ==="
           docker logs pulseiq_user_appointment_test --tail 10
 
-          # Simple health check - just verify containers are running
-          if docker ps --filter "name=pulseiq_postgres_test" --filter "status=running" | grep -q pulseiq_postgres_test; then
-            echo "✅ Database container is running"
-          else
-            echo "❌ Database container failed"
-            exit 1
-          fi
-
-          if docker ps --filter "name=pulseiq_ai_service_test" --filter "status=running" | grep -q pulseiq_ai_service_test; then
-            echo "✅ AI Service container is running"
-          else
-            echo "❌ AI Service container failed"
-            exit 1
-          fi
-
-          if docker ps --filter "name=pulseiq_user_appointment_test" --filter "status=running" | grep -q pulseiq_user_appointment_test; then
-            echo "✅ User Service container is running"
-          else
-            echo "❌ User Service container failed"
-            exit 1
-          fi
-
-          # Optional: Try quick health checks (but don't fail if they're not ready)
-          echo "=== Optional Health Checks ==="
-          curl -f http://localhost:8000/health --max-time 5 && echo "✅ AI Service health check passed" || echo "⚠️ AI Service not ready yet (normal)"
-          curl -f http://localhost:8085/actuator/health --max-time 5 && echo "✅ User Service health check passed" || echo "⚠️ User Service not ready yet (normal)"
-
-          echo "✅ Simple integration test completed!"
-
-          # Clean up
-          echo "=== Cleaning Up ==="
-          docker-compose -f docker-compose.test.yml down -v
+      - name: Tear down
+        run: docker-compose -f docker-compose.test.yml down -v

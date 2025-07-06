@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
+    @Autowired(required = false)
     private RegistrationDataRepository registrationDataRepo;
     @Autowired
     private ObjectMapper objectMapper; // Add to your dependencies
@@ -161,10 +161,16 @@ public class UserServiceImpl implements UserService {
     // UPDATED: Store registration data properly
     private void storeRegistrationData(String userId, Object registrationDto, UserRole role) {
         try {
-            String jsonData = objectMapper.writeValueAsString(registrationDto);
-            RegistrationData regData = new RegistrationData(userId, jsonData, role);
-            registrationDataRepo.save(regData);
-            System.out.println("Successfully stored registration data for user: " + userId);
+            if (registrationDataRepo != null) {
+                String jsonData = objectMapper.writeValueAsString(registrationDto);
+                RegistrationData regData = new RegistrationData(userId, jsonData, role);
+                registrationDataRepo.save(regData);
+                System.out.println("Successfully stored registration data for user: " + userId);
+            } else {
+                System.out
+                        .println("Warning: RegistrationDataRepository not available - skipping data storage for user: "
+                                + userId);
+            }
         } catch (Exception e) {
             System.err.println("Failed to store registration data for user: " + userId);
             throw new RuntimeException("Failed to store registration data", e);
@@ -173,6 +179,10 @@ public class UserServiceImpl implements UserService {
 
     // NEW: Retrieve registration data
     private Object getRegistrationData(String userId, UserRole role) {
+        if (registrationDataRepo == null) {
+            throw new RuntimeException("Registration data repository not available");
+        }
+
         Optional<RegistrationData> regDataOpt = registrationDataRepo.findByUserId(userId);
         if (!regDataOpt.isPresent()) {
             throw new RuntimeException("Registration data not found for user: " + userId);
@@ -253,36 +263,43 @@ public class UserServiceImpl implements UserService {
             System.out.println("User status updated to ACTIVE");
 
             // 2) Try to retrieve registration data for profile creation
-            Optional<RegistrationData> maybeData = registrationDataRepo.findByUserId(userId);
-            if (maybeData.isPresent()) {
-                // Registration data exists, so we proceed to create the profile
-                String json = maybeData.get().getRegistrationJson();
-                switch (user.getRole()) {
-                    case DOCTOR:
-                        DoctorRegistrationDto dr = objectMapper.readValue(json, DoctorRegistrationDto.class);
-                        createDoctorProfile(userId, dr); // Creating the doctor profile
-                        System.out.println("Doctor profile created");
-                        break;
-                    case TECHNICIAN:
-                        TechnicianRegistrationDto tr = objectMapper.readValue(json, TechnicianRegistrationDto.class);
-                        createTechnicianProfile(userId, tr); // Creating the technician profile
-                        System.out.println("Technician profile created");
-                        break;
-                    case PATIENT:
-                        // Patients are auto-approved so we won't hit this case during approval
-                        System.out.println("Patients do not require approval here.");
-                        break;
-                    default:
-                        System.out.println("Unsupported role for profile creation: " + user.getRole());
-                        break;
-                }
+            if (registrationDataRepo != null) {
+                Optional<RegistrationData> maybeData = registrationDataRepo.findByUserId(userId);
+                if (maybeData.isPresent()) {
+                    // Registration data exists, so we proceed to create the profile
+                    String json = maybeData.get().getRegistrationJson();
+                    switch (user.getRole()) {
+                        case DOCTOR:
+                            DoctorRegistrationDto dr = objectMapper.readValue(json, DoctorRegistrationDto.class);
+                            createDoctorProfile(userId, dr); // Creating the doctor profile
+                            System.out.println("Doctor profile created");
+                            break;
+                        case TECHNICIAN:
+                            TechnicianRegistrationDto tr = objectMapper.readValue(json,
+                                    TechnicianRegistrationDto.class);
+                            createTechnicianProfile(userId, tr); // Creating the technician profile
+                            System.out.println("Technician profile created");
+                            break;
+                        case PATIENT:
+                            // Patients are auto-approved so we won't hit this case during approval
+                            System.out.println("Patients do not require approval here.");
+                            break;
+                        default:
+                            System.out.println("Unsupported role for profile creation: " + user.getRole());
+                            break;
+                    }
 
-                // Clean up the registration data after successful profile creation
-                registrationDataRepo.deleteByUserId(userId);
-                System.out.println("Registration data cleaned up");
+                    // Clean up the registration data after successful profile creation
+                    registrationDataRepo.deleteByUserId(userId);
+                    System.out.println("Registration data cleaned up");
+                } else {
+                    // If registration data is missing, log a warning but do not stop the process
+                    System.out.println("Warning: No registration data found for user: " + userId);
+                }
             } else {
-                // If registration data is missing, log a warning but do not stop the process
-                System.out.println("Warning: No registration data found for user: " + userId);
+                System.out.println(
+                        "Warning: RegistrationDataRepository not available - skipping profile creation for user: "
+                                + userId);
             }
 
             System.out.println("=== APPROVAL SUCCESS ===");
@@ -902,9 +919,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public Map<String, Object> updateCurrentUserProfile(String token, Map<String, Object> profileUpdate) {
         try {
-            System.out.println("\n=== PROFILE UPDATE REQUEST ===");
-            System.out.println("Profile update data: " + profileUpdate);
-
             // Validate token and get username (which is actually userId)
             String username = jwtUtil.extractUsername(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -920,7 +934,6 @@ public class UserServiceImpl implements UserService {
             }
 
             User user = userOpt.get();
-            System.out.println("Updating profile for user: " + user.getUserId() + ", role: " + user.getRole());
             boolean userUpdated = false;
             boolean profileUpdated = false;
 
@@ -981,43 +994,16 @@ public class UserServiceImpl implements UserService {
                         String genderStr = (String) profileUpdate.get("gender");
                         if (genderStr != null && !genderStr.isEmpty()) {
                             try {
-                                // Normalize gender string to match enum values
-                                String normalizedGender = genderStr.trim().toLowerCase();
-                                Patient.Gender gender = null;
-
-                                switch (normalizedGender) {
-                                    case "male":
-                                    case "m":
-                                        gender = Patient.Gender.Male;
-                                        break;
-                                    case "female":
-                                    case "f":
-                                        gender = Patient.Gender.Female;
-                                        break;
-                                    case "other":
-                                    case "o":
-                                        gender = Patient.Gender.Other;
-                                        break;
-                                    default:
-                                        // Try the original valueOf approach as fallback
-                                        gender = Patient.Gender.valueOf(genderStr.substring(0, 1).toUpperCase()
-                                                + genderStr.substring(1).toLowerCase());
-                                }
-
-                                if (gender != null) {
-                                    patient.setGender(gender);
-                                    profileUpdated = true;
-                                    System.out.println("Gender updated to: " + gender);
-                                }
-                            } catch (Exception e) {
+                                patient.setGender(Patient.Gender.valueOf(genderStr.toUpperCase()));
+                                profileUpdated = true;
+                            } catch (IllegalArgumentException e) {
                                 // Invalid gender value, skip this update
-                                System.out.println("Invalid gender value: " + genderStr + ", error: " + e.getMessage());
+                                System.out.println("Invalid gender value: " + genderStr);
                             }
                         } else {
                             // Allow setting gender to null
                             patient.setGender(null);
                             profileUpdated = true;
-                            System.out.println("Gender set to null");
                         }
                     }
                     if (profileUpdate.containsKey("bloodGroup")) {
@@ -1049,14 +1035,8 @@ public class UserServiceImpl implements UserService {
             }
 
             // Return the updated profile
-            System.out.println(
-                    "Profile update completed. User updated: " + userUpdated + ", Profile updated: " + profileUpdated);
-            Map<String, Object> updatedProfile = getCurrentUserProfile(token);
-            System.out.println("Updated profile result: " + updatedProfile);
-            return updatedProfile;
+            return getCurrentUserProfile(token);
         } catch (Exception e) {
-            System.out.println("Profile update failed: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException("Failed to update user profile: " + e.getMessage());
         }
     }

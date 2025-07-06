@@ -28,7 +28,6 @@ public class JwtUtil {
         this.SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-
     public String generateToken(UserDetails userDetails) {
         System.out.println("Generating token for user: " + userDetails.getUsername());
         return Jwts.builder()
@@ -50,8 +49,12 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        try {
+            final String username = extractUsername(token);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        } catch (io.jsonwebtoken.JwtException e) {
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {

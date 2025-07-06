@@ -1,24 +1,28 @@
 package com.pulseiq.config;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
 import com.pulseiq.entity.Admin;
 import com.pulseiq.entity.User;
 import com.pulseiq.entity.UserRole;
 import com.pulseiq.entity.UserStatus;
 import com.pulseiq.repository.AdminRepository;
 import com.pulseiq.repository.UserRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationListener;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile("!test") // Don't run in test environment
 public class AdminSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
-    private final UserRepository  userRepository;
+    private final UserRepository userRepository;
     private final AdminRepository adminRepository;
 
     @Override
@@ -34,7 +38,7 @@ public class AdminSeeder implements ApplicationListener<ApplicationReadyEvent> {
             user.setUserId(userId);
             user.setUsername("super_admin");
             user.setPassword(
-                "$2a$12$E4.9tTLvehv4NOghm5mqROfyvfCOdY962drt8sfZeNC47k0ztCNFS"); // bcrypt of admin123
+                    "$2a$12$E4.9tTLvehv4NOghm5mqROfyvfCOdY962drt8sfZeNC47k0ztCNFS"); // bcrypt of admin123
             user.setEmail("admin@pulseiq.com");
             user.setPhone("01800000000");
             user.setRole(UserRole.ADMIN);
@@ -47,7 +51,7 @@ public class AdminSeeder implements ApplicationListener<ApplicationReadyEvent> {
             admin.setAdminId(userId);
             admin.setFirstName("Super");
             admin.setLastName("Admin");
-            // admin.setUser(user);  // uncomment if you have a relation
+            // admin.setUser(user); // uncomment if you have a relation
 
             adminRepository.save(admin);
 

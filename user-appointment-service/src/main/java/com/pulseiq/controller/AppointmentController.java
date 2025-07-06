@@ -52,9 +52,9 @@ public class AppointmentController {
         }
         
         String token = authHeader.substring(7);
-        String userId = jwtUtil.extractUsername(token);
+        String username = jwtUtil.extractUsername(token);
         
-        Optional<User> userOpt = userRepository.findByUserIdIgnoreCase(userId);
+        Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
             throw new RuntimeException("User not found");
         }
@@ -124,9 +124,9 @@ public class AppointmentController {
             List<AppointmentResponseDto> appointments;
             
             if ("patient".equals(userInfo.getRole())) {
-                appointments = appointmentService.getUpcomingPatientAppointments(userInfo.getUserId());
+                appointments = appointmentService.getUpcomingAppointments(userInfo.getUserId());
             } else if ("doctor".equals(userInfo.getRole())) {
-                appointments = appointmentService.getUpcomingDoctorAppointments(userInfo.getUserId());
+                appointments = appointmentService.getUpcomingAppointments(userInfo.getUserId());
             } else {
                 Map<String, String> errorResponse = new HashMap<>();
                 errorResponse.put("error", "Unauthorized role");
@@ -179,10 +179,9 @@ public class AppointmentController {
                 cancellationReason = requestBody.get("cancellationReason");
             }
             
-            AppointmentResponseDto appointment = appointmentService
-                .cancelAppointment(appointmentId, userInfo.getUserId(), userInfo.getRole(), cancellationReason);
+            appointmentService.cancelAppointment(appointmentId, userInfo.getUserId(), userInfo.getRole(), cancellationReason);
             
-            return ResponseEntity.ok(appointment);
+            return ResponseEntity.noContent().build(); // Return 204 No Content for successful cancellation
             
         } catch (RuntimeException e) {
             Map<String, String> errorResponse = new HashMap<>();

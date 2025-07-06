@@ -108,6 +108,23 @@ public class AppointmentService {
             .collect(Collectors.toList());
     }
 
+    // Generic method for getting upcoming appointments (used by both patients and doctors)
+    public List<AppointmentResponseDto> getUpcomingAppointments(String userId) {
+        // First try as patient
+        List<Appointment> appointments = appointmentRepository
+            .findUpcomingAppointmentsByPatient(userId, LocalDateTime.now(), AppointmentStatus.SCHEDULED);
+        
+        // If no appointments found, try as doctor
+        if (appointments.isEmpty()) {
+            appointments = appointmentRepository
+                .findUpcomingAppointmentsByDoctor(userId, LocalDateTime.now(), AppointmentStatus.SCHEDULED);
+        }
+        
+        return appointments.stream()
+            .map(this::mapToResponseDto)
+            .collect(Collectors.toList());
+    }
+
     public AppointmentResponseDto updateAppointmentStatus(Long appointmentId, AppointmentStatus status, String userId, String userRole) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
             .orElseThrow(() -> new RuntimeException("Appointment not found"));
@@ -151,6 +168,11 @@ public class AppointmentService {
         appointment = appointmentRepository.save(appointment);
         
         return mapToResponseDto(appointment);
+    }
+
+    // Overloaded method for backward compatibility with tests (takes only appointmentId and userId)
+    public void cancelAppointment(Long appointmentId, String userId) {
+        cancelAppointment(appointmentId, userId, "patient", "");
     }
 
     public List<DoctorListDto> getAllAvailableDoctors() {

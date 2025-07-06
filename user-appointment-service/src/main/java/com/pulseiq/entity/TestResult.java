@@ -3,6 +3,8 @@ package com.pulseiq.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import java.sql.Types;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,7 +32,8 @@ public class TestResult {
 
     // PDF file stored as binary data
     @Lob
-    @Column(name = "pdf_data", nullable = false)
+    @Column(name = "pdf_data", nullable = false, columnDefinition = "LONGVARBINARY")
+    @JdbcTypeCode(Types.BINARY)
     @NotNull(message = "PDF data is required")
     private byte[] pdfData;
 

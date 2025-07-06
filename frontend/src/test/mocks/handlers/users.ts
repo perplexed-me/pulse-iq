@@ -1,5 +1,16 @@
 import { http, HttpResponse } from 'msw'
 
+// Types for request bodies
+interface UpdateUserProfileRequest {
+  firstName: string
+  lastName: string
+  age: number
+  gender: string
+  bloodGroup: string
+  email: string
+  phone: string
+}
+
 export const userHandlers = [
   // Mock get patients endpoint
   http.get('/api/users/patients', () => {
@@ -110,7 +121,7 @@ export const userHandlers = [
 
   // Mock update user profile endpoint
   http.put('/api/auth/profile', async ({ request }) => {
-    const body = await request.json() as any
+    const body = await request.json() as UpdateUserProfileRequest
     
     return HttpResponse.json({
       status: 'success',

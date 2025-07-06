@@ -1,5 +1,16 @@
 import { http, HttpResponse } from 'msw'
 
+// Types for request bodies
+interface PatientRegistrationRequest {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  phone: string
+  age: number
+  gender: string
+}
+
 export const authHandlers = [
   // Mock login endpoint
   http.post('/api/auth/login', async ({ request }) => {
@@ -32,7 +43,7 @@ export const authHandlers = [
   
   // Mock patient registration endpoint
   http.post('/api/auth/register/patient', async ({ request }) => {
-    const body = await request.json() as any
+    const body = await request.json() as PatientRegistrationRequest
     
     // Mock validation errors
     if (!body.firstName || !body.lastName || !body.email || !body.password || 

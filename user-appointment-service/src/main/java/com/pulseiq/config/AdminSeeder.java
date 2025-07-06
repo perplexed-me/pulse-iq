@@ -3,6 +3,7 @@ package com.pulseiq.config;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.pulseiq.entity.Admin;
@@ -19,15 +20,25 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("!test & !integration & !ci") // Don't run in test, integration, or ci environment
+@Profile("!(test | integration | ci)") // Don't run in test, integration, or ci environment
 public class AdminSeeder implements ApplicationListener<ApplicationReadyEvent> {
 
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
+    private final Environment environment;
 
     @Override
     @Transactional
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        
+        // Double-check that we're not in test profiles
+        String[] activeProfiles = environment.getActiveProfiles();
+        for (String profile : activeProfiles) {
+            if ("test".equals(profile) || "integration".equals(profile) || "ci".equals(profile)) {
+                log.info("Skipping AdminSeeder in {} profile", profile);
+                return;
+            }
+        }
 
         final String userId = "A202506001";
 

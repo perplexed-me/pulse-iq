@@ -1,5 +1,17 @@
 import { http, HttpResponse } from 'msw'
 
+// Types for request bodies
+interface BookAppointmentRequest {
+  patientId: string
+  doctorId: string
+  appointmentDate: string
+  notes?: string
+}
+
+interface CancelAppointmentRequest {
+  reason: string
+}
+
 export const appointmentHandlers = [
   // Mock get appointments endpoint
   http.get('/api/appointments', () => {
@@ -125,7 +137,7 @@ export const appointmentHandlers = [
 
   // Mock book appointment endpoint
   http.post('/api/appointments/book', async ({ request }) => {
-    const body = await request.json() as any
+    const body = await request.json() as BookAppointmentRequest
     
     return HttpResponse.json({
       status: 'success',
@@ -156,7 +168,7 @@ export const appointmentHandlers = [
   // Mock cancel appointment endpoint
   http.post('/api/appointments/:id/cancel', async ({ params, request }) => {
     const { id } = params
-    const body = await request.json() as any
+    const body = await request.json() as CancelAppointmentRequest
     
     return HttpResponse.json({
       status: 'success',

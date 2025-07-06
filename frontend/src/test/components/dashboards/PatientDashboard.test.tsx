@@ -73,7 +73,7 @@ vi.mock('react-router-dom', async () => {
 })
 
 // Helper function to create mock responses
-const createMockResponse = (data: any) => ({
+const createMockResponse = (data: unknown) => ({
   ok: true,
   status: 200,
   json: () => Promise.resolve(data),

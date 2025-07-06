@@ -1,5 +1,10 @@
 import { http, HttpResponse } from 'msw'
 
+// Types for request bodies
+interface UpdateTestStatusRequest {
+  status: string
+}
+
 export const testResultHandlers = [
   // Mock get test results endpoint
   http.get('/api/test-results/my-tests', () => {
@@ -96,7 +101,7 @@ export const testResultHandlers = [
   // Mock update test status endpoint
   http.put('/api/test-results/:id/status', async ({ params, request }) => {
     const { id } = params
-    const body = await request.json() as any
+    const body = await request.json() as UpdateTestStatusRequest
     
     return HttpResponse.json({
       status: 'success',

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import java.sql.Types;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,8 +35,9 @@ public class Appointment {
     @Column(name = "reason", length = 500)
     private String reason;
 
-    @Column(name = "notes")
+    @Column(name = "notes", columnDefinition = "LONGVARCHAR")
     @Lob
+    @JdbcTypeCode(Types.CLOB)
     private String notes;
 
     @Column(name = "created_at")

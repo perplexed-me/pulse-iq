@@ -85,7 +85,7 @@ const mockDoctors = [
 ]
 
 // Helper function to create mock responses
-const createMockResponse = (data: any, ok: boolean = true) => ({
+const createMockResponse = (data: unknown, ok: boolean = true) => ({
   ok,
   status: ok ? 200 : 400,
   json: () => Promise.resolve(data),

@@ -56,7 +56,7 @@ public class Doctor {
     private Boolean isAvailable = true;
 
     @Lob
-    @Column(name = "profile_picture", columnDefinition = "bytea")
+    @Column(name = "profile_picture", columnDefinition = "LONGVARBINARY")
     @JdbcTypeCode(SqlTypes.BINARY)
     private byte[] profilePicture;
 

@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/auth/register/**", "/api/auth/google-patient",
                                 "/api/auth/health")
                         .permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/users/**","/api/appointments/**","/api/test-results/**","/api/doctors/**").permitAll()
                         .requestMatchers("/api/auth/validate", "/api/auth/profile").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

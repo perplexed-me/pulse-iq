@@ -119,6 +119,15 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
+      - name: Verify Java installation
+        run: |
+          echo "Java version:"
+          java -version
+          echo "JAVA_HOME:"
+          echo $JAVA_HOME
+          echo "Maven version:"
+          mvn -version
+
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
@@ -162,6 +171,8 @@ jobs:
         run: |
           # Set ci profile to use PostgreSQL database 
           export SPRING_PROFILES_ACTIVE=ci
+          # Ensure Maven uses the correct Java version
+          export JAVA_HOME=$JAVA_HOME
           # Use Maven wrapper if available, otherwise system Maven
           if [ -f "./mvnw" ] && [ -x "./mvnw" ] && [ -f ".mvn/wrapper/maven-wrapper.properties" ]; then
             echo "Using Maven wrapper"

@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -110,8 +111,8 @@ class AppointmentControllerTest {
         @Test
         void bookAppointment_Success() throws Exception {
                 // Arrange
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("patient@example.com");
-                when(userRepository.findByUsername("patient@example.com")).thenReturn(Optional.of(patientUser));
+                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(patientUserId);
+                when(userRepository.findByUserId(patientUserId)).thenReturn(Optional.of(patientUser));
                 when(appointmentService.bookAppointment(eq(patientUserId), any(AppointmentRequestDto.class)))
                                 .thenReturn(appointmentResponse);
 
@@ -144,8 +145,8 @@ class AppointmentControllerTest {
         @Test
         void bookAppointment_NonPatientUser_ReturnsForbidden() throws Exception {
                 // Arrange
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("doctor@example.com");
-                when(userRepository.findByUsername("doctor@example.com")).thenReturn(Optional.of(doctorUser));
+                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(doctorUserId);
+                when(userRepository.findByUserId(doctorUserId)).thenReturn(Optional.of(doctorUser));
 
                 // Act & Assert
                 mockMvc.perform(post("/api/appointments/book")
@@ -159,8 +160,8 @@ class AppointmentControllerTest {
         void getPatientAppointments_Success() throws Exception {
                 // Arrange
                 List<AppointmentResponseDto> appointments = Arrays.asList(appointmentResponse);
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("patient@example.com");
-                when(userRepository.findByUsername("patient@example.com")).thenReturn(Optional.of(patientUser));
+                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(patientUserId);
+                when(userRepository.findByUserId(patientUserId)).thenReturn(Optional.of(patientUser));
                 when(appointmentService.getPatientAppointments(patientUserId)).thenReturn(appointments);
 
                 // Act & Assert
@@ -177,8 +178,8 @@ class AppointmentControllerTest {
         void getDoctorAppointments_Success() throws Exception {
                 // Arrange
                 List<AppointmentResponseDto> appointments = Arrays.asList(appointmentResponse);
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("doctor@example.com");
-                when(userRepository.findByUsername("doctor@example.com")).thenReturn(Optional.of(doctorUser));
+                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(doctorUserId);
+                when(userRepository.findByUserId(doctorUserId)).thenReturn(Optional.of(doctorUser));
                 when(appointmentService.getDoctorAppointments(doctorUserId)).thenReturn(appointments);
 
                 // Act & Assert
@@ -195,8 +196,8 @@ class AppointmentControllerTest {
         void getUpcomingAppointments_Success() throws Exception {
                 // Arrange
                 List<AppointmentResponseDto> appointments = Arrays.asList(appointmentResponse);
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("patient@example.com");
-                when(userRepository.findByUsername("patient@example.com")).thenReturn(Optional.of(patientUser));
+                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(patientUserId);
+                when(userRepository.findByUserId(patientUserId)).thenReturn(Optional.of(patientUser));
                 when(appointmentService.getUpcomingAppointments(patientUserId)).thenReturn(appointments);
 
                 // Act & Assert
@@ -213,8 +214,8 @@ class AppointmentControllerTest {
         void cancelAppointment_Success() throws Exception {
                 // Arrange
                 Long appointmentId = 1L;
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("patient@example.com");
-                when(userRepository.findByUsername("patient@example.com")).thenReturn(Optional.of(patientUser));
+                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(patientUserId);
+                when(userRepository.findByUserId(patientUserId)).thenReturn(Optional.of(patientUser));
                 // cancelAppointment returns void, so no return value needed
 
                 // Act & Assert
@@ -229,8 +230,8 @@ class AppointmentControllerTest {
         void cancelAppointment_AppointmentNotFound_ReturnsNotFound() throws Exception {
                 // Arrange
                 Long appointmentId = 999L;
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("patient@example.com");
-                when(userRepository.findByUsername("patient@example.com")).thenReturn(Optional.of(patientUser));
+                lenient().when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(patientUserId);
+                lenient().when(userRepository.findByUserId(patientUserId)).thenReturn(Optional.of(patientUser));
                 doThrow(new RuntimeException("Appointment not found"))
                                 .when(appointmentService)
                                 .cancelAppointment(appointmentId, patientUserId, "patient", "");
@@ -245,8 +246,8 @@ class AppointmentControllerTest {
         @Test
         void bookAppointment_ServiceException_ReturnsInternalServerError() throws Exception {
                 // Arrange
-                when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn("patient@example.com");
-                when(userRepository.findByUsername("patient@example.com")).thenReturn(Optional.of(patientUser));
+                lenient().when(jwtUtil.extractUsername("valid.jwt.token")).thenReturn(patientUserId);
+                lenient().when(userRepository.findByUserId(patientUserId)).thenReturn(Optional.of(patientUser));
                 when(appointmentService.bookAppointment(eq(patientUserId), any(AppointmentRequestDto.class)))
                                 .thenThrow(new RuntimeException("Database error"));
 

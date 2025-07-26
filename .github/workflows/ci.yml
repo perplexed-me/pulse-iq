@@ -42,7 +42,7 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Build all Docker images (includes testing)
+      - name: Build all Docker images 
         env:
           # Use GitHub secrets for secure environment variables
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -55,11 +55,11 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
         run: |
-          # Build user-appointment-service (tests are run during Docker build)
-          docker build -t pulseiq-user-appointment:latest ./user-appointment-service
+          # Build user-appointment-service using production Dockerfile (includes Maven build and tests)
+          docker build -f ./user-appointment-service/Dockerfile.prod -t pulseiq-user-appointment:latest ./user-appointment-service
           
-          # Build payment-service (tests are run during Docker build)
-          docker build -t pulseiq-payment-service:latest ./payment-service
+          # Build payment-service using production Dockerfile (includes Maven build and tests)
+          docker build -f ./payment-service/Dockerfile.prod -t pulseiq-payment-service:latest ./payment-service
           
           # Build AI service
           docker build -t pulseiq-ai-service:latest ./ai-service

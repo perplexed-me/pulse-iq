@@ -2,7 +2,7 @@ name: CI Build & Test All Services
 
 on:
   push:
-    branches: [main, fix/docker-build-ci]
+    branches: [main]
   pull_request:
     branches: [main]
 

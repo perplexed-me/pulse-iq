@@ -88,7 +88,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           # Start services with proper environment variables
-          docker-compose up -d
+          docker compose up -d
           
           # Wait for services to be healthy
           for i in {1..30}; do
@@ -114,4 +114,4 @@ jobs:
           curl --retry 5 --retry-delay 2 http://localhost:8080/ || echo "Frontend may take longer to start"
           
           # Clean up
-          docker-compose down -v
+          docker compose down -v

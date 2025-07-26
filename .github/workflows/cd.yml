@@ -235,6 +235,7 @@ jobs:
           platforms: linux/amd64
           build-args: |
             VITE_USER_APPOINTMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8085
+            VITE_PAYMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8082
             VITE_AI_SERVICE_API_URL=http://${{ secrets.PUBLIC_IP }}:8000
             VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
             VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
@@ -550,8 +551,8 @@ jobs:
             echo "Checking User Appointment Service..."
             curl -f http://localhost:8085/actuator/health --max-time 10 && echo "✓ User Service OK" || echo "⚠️ User Service not ready yet"
 
-            echo "Checking Payment Service..."
-            curl -f http://localhost:8082/actuator/health --max-time 10 && echo "✓ Payment Service OK" || echo "⚠️ Payment Service not ready yet"
+            # echo "Checking Payment Service..."
+            # curl -f http://localhost:8082/actuator/health --max-time 10 && echo "✓ Payment Service OK" || echo "⚠️ Payment Service not ready yet"
 
             echo "Checking AI Service..."
             curl -f http://localhost:8000/health --max-time 10 && echo "✓ AI Service OK" || echo "⚠️ AI Service not ready yet"

@@ -39,6 +39,16 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
+      - name: Extract metadata for payment-service
+        id: meta-payment-service
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/pulseiq-payment-service
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
       - name: Extract metadata for ai-service
         id: meta-ai-service
         uses: docker/metadata-action@v5
@@ -191,6 +201,17 @@ jobs:
           cache-to: type=gha,mode=max,scope=user-appointment
           platforms: linux/amd64
 
+      - name: Build and push payment-service image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./payment-service
+          push: true
+          tags: ${{ steps.meta-payment-service.outputs.tags }}
+          labels: ${{ steps.meta-payment-service.outputs.labels }}
+          cache-from: type=gha,scope=payment-service
+          cache-to: type=gha,mode=max,scope=payment-service
+          platforms: linux/amd64
+
       - name: Build and push ai-service image
         uses: docker/build-push-action@v5
         with:
@@ -331,12 +352,14 @@ jobs:
             echo "=== Configuring Firewall ==="
             sudo ufw allow 8080/tcp || true  # Frontend
             sudo ufw allow 8085/tcp || true  # User Appointment Service
+            sudo ufw allow 8082/tcp || true  # Payment Service
             sudo ufw allow 8000/tcp || true  # AI Service
             sudo ufw status || true
 
             # Pull latest images for all services
             echo "=== Pulling Latest Images ==="
             docker pull ${DOCKER_USERNAME}/pulseiq-user-appointment:latest
+            docker pull ${DOCKER_USERNAME}/pulseiq-payment-service:latest
             docker pull ${DOCKER_USERNAME}/pulseiq-ai-service:latest
             docker pull ${DOCKER_USERNAME}/pulseiq-frontend:latest
             docker pull postgres:15-alpine
@@ -347,8 +370,8 @@ jobs:
 
             # Stop and remove existing containers
             echo "=== Stopping Existing Containers ==="
-            docker stop pulseiq_postgres pulseiq_user_appointment pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
-            docker rm pulseiq_postgres pulseiq_user_appointment pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
+            docker stop pulseiq_postgres pulseiq_user_appointment pulseiq_payment_service pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
+            docker rm pulseiq_postgres pulseiq_user_appointment pulseiq_payment_service pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
 
             # Clean up old networks
             docker network rm pulseiq-network 2>/dev/null || true
@@ -453,6 +476,28 @@ jobs:
               fi
             done
 
+            # Start payment service
+            echo "Starting Payment service..."
+            docker run -d \
+              --name pulseiq_payment_service \
+              --network pulseiq-network \
+              --restart unless-stopped \
+              -e SPRING_DATASOURCE_URL=jdbc:postgresql://pulseiq_postgres:5432/pulseiq_db \
+              -e SPRING_DATASOURCE_USERNAME=pulseiq_user \
+              -e SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD} \
+              -e JWT_SECRET=${JWT_SECRET} \
+              -e FRONTEND_ORIGIN=${FRONTEND_URL} \
+              -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
+              -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=pulseiq \
+              -e SERVER_PORT=8082 \
+              -e SERVER_ADDRESS=0.0.0.0 \
+              -p 8082:8082 \
+              ${DOCKER_USERNAME}/pulseiq-payment-service:latest
+
+            # Wait for payment service to start
+            echo "Waiting 15 seconds for payment service to start..."
+            sleep 15
+
             # Start AI service
             echo "Starting AI service..."
             docker run -d \
@@ -505,6 +550,9 @@ jobs:
             echo "Checking User Appointment Service..."
             curl -f http://localhost:8085/actuator/health --max-time 10 && echo "✓ User Service OK" || echo "⚠️ User Service not ready yet"
 
+            echo "Checking Payment Service..."
+            curl -f http://localhost:8082/actuator/health --max-time 10 && echo "✓ Payment Service OK" || echo "⚠️ Payment Service not ready yet"
+
             echo "Checking AI Service..."
             curl -f http://localhost:8000/health --max-time 10 && echo "✓ AI Service OK" || echo "⚠️ AI Service not ready yet"
 
@@ -521,6 +569,9 @@ jobs:
             echo "User Appointment Service logs:"
             docker logs --tail=20 pulseiq_user_appointment 2>/dev/null || echo "No logs available"
 
+            echo "Payment Service logs:"
+            docker logs --tail=20 pulseiq_payment_service 2>/dev/null || echo "No logs available"
+
             echo "AI Service logs:"
             docker logs --tail=20 pulseiq_ai_service 2>/dev/null || echo "No logs available"
 
@@ -535,13 +586,14 @@ jobs:
             echo "Testing service endpoints (best effort)..."
 
             curl -f -s http://localhost:8085/actuator/health --max-time 5 && echo "✓ User Service responding" || echo "⚠️ User Service not responding"
+            curl -f -s http://localhost:8082/actuator/health --max-time 5 && echo "✓ Payment Service responding" || echo "⚠️ Payment Service not responding"
             curl -f -s http://localhost:8000/health --max-time 5 && echo "✓ AI Service responding" || echo "⚠️ AI Service not responding"
             curl -f -s http://localhost:8080/ --max-time 5 >/dev/null && echo "✓ Frontend responding" || echo "⚠️ Frontend not responding"
 
             # Show network information for debugging
             echo "=== Network Information ==="
             echo "Active ports:"
-            netstat -tlnp | grep -E ':(8080|8085|8000)' || echo "No services listening on expected ports"
+            netstat -tlnp | grep -E ':(8080|8085|8082|8000)' || echo "No services listening on expected ports"
 
             echo "Docker networks:"
             docker network ls | grep pulseiq || echo "No PulseIQ networks found"
@@ -560,10 +612,12 @@ jobs:
             echo "✅ Deployment completed successfully using direct Docker containers!"
             echo "🌐 Frontend: http://${{ secrets.PUBLIC_IP }}:8080"
             echo "🏥 User Appointment Service: http://${{ secrets.PUBLIC_IP }}:8085"
+            echo "💳 Payment Service: http://${{ secrets.PUBLIC_IP }}:8082"
             echo "🤖 AI Service: http://${{ secrets.PUBLIC_IP }}:8000"
             echo "🐘 Database: PostgreSQL on port 5432"
             echo "💚 Health Checks:"
             echo "   - User Service: http://${{ secrets.PUBLIC_IP }}:8085/actuator/health"
+            echo "   - Payment Service: http://${{ secrets.PUBLIC_IP }}:8082/actuator/health"
             echo "   - AI Service: http://${{ secrets.PUBLIC_IP }}:8000/health"
             echo ""
             echo "🔗 All services are connected via pulseiq-network Docker network"

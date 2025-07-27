@@ -15,7 +15,9 @@ const getAiServiceApiUrl = (): string => {
 };
 
 const getPaymentServiceApiUrl = (): string => {
-  return import.meta.env.VITE_PAYMENT_SERVICE_API_URL || 'http://localhost:8082';
+  const baseUrl = import.meta.env.VITE_PAYMENT_SERVICE_API_URL || 'http://localhost:8082';
+  // Add /payment context path since the payment service runs with this context
+  return `${baseUrl}/payment`;
 }
 
 // API endpoints configuration
@@ -131,10 +133,10 @@ export const API_CONFIG = {
 
   // Payment Service endpoints
   PAYMENT: {
-    INITIATE: `${getPaymentServiceApiUrl()}/payment/payments/initiate-direct`,
-    INITIATE_DIRECT: `${getPaymentServiceApiUrl()}/payment/payments/initiate-direct`,
-    VERIFY: `${getPaymentServiceApiUrl()}/payment/payments/verify`,
-    RECEIPT: (transactionId: string) => `${getPaymentServiceApiUrl()}/payment/payments/receipt/${transactionId}`,
+    INITIATE: `${getPaymentServiceApiUrl()}/payments/initiate-direct`,
+    INITIATE_DIRECT: `${getPaymentServiceApiUrl()}/payments/initiate-direct`,
+    VERIFY: `${getPaymentServiceApiUrl()}/payments/verify`,
+    RECEIPT: (transactionId: string) => `${getPaymentServiceApiUrl()}/payments/receipt/${transactionId}`,
     ME: `${getUserAppointmentApiUrl()}/api/patients/me`,
   },
 };

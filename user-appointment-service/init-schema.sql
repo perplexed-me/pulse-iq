@@ -117,7 +117,13 @@ INSERT INTO pulseiq.medicine (medicine_name, medicine_power, medicine_image, des
 -- Allergy
 ('Loratadine', '10mg', '/images/medicines/loratadine.jpg', 'Antihistamine for allergies', 'Allergy', 'Claritin', 22.00, true),
 ('Cetirizine', '10mg', '/images/medicines/cetirizine.jpg', 'Antihistamine for allergies', 'Allergy', 'Zyrtec', 24.00, true)
-ON CONFLICT (medicine_name, medicine_power) DO NOTHING;
+ON CONFLICT (medicine_name, medicine_power) DO UPDATE SET 
+    description = EXCLUDED.description,
+    category = EXCLUDED.category,
+    manufacturer = EXCLUDED.manufacturer,
+    price = EXCLUDED.price,
+    medicine_image = EXCLUDED.medicine_image,
+    is_active = EXCLUDED.is_active;
 
 -- Grant permissions on newly created tables
 GRANT ALL PRIVILEGES ON TABLE pulseiq.medicine TO pulseiq_user;

@@ -14,7 +14,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
     Optional<Doctor> findByDoctorId(String doctorId);
     boolean existsByLicenseNumber(String licenseNumber);
     boolean existsByDoctorId(String doctorId);
-    boolean existsByAssistantNumber(String assistantNumber);
     @Query(value = "SELECT d.doctor_id, d.first_name, d.last_name, d.specialization " +
                    "FROM \"pulseiq\".doctors d " +
                    "ORDER BY d.doctor_id", nativeQuery = true)

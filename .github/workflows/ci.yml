@@ -12,77 +12,11 @@ env:
   PYTHON_VERSION: "3.11"
 
 jobs:
-  # Test Frontend Service
-  test-frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Update npm to latest version
-        run: npm install -g npm@latest
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: |
-          echo "Node.js version: $(node --version)"
-          echo "npm version: $(npm --version)"
-
-          # Check if package-lock.json exists and is valid
-          if [ -f "package-lock.json" ]; then
-            echo "package-lock.json found, attempting npm ci"
-            # Try npm ci first, fall back to npm install if lock file is out of sync
-            if ! npm ci; then
-              echo "npm ci failed, likely due to package-lock.json being out of sync"
-              echo "Falling back to npm install to fix dependency issues"
-              rm -f package-lock.json
-              npm install
-            fi
-          else
-            echo "package-lock.json not found, using npm install"
-            npm install
-          fi
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Type check
-        run: npm run type-check
-
-      - name: Run tests
-        run: npm run test:run
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist/
-          retention-days: 1
-
-  # Test User Appointment Service (Java Spring Boot)
-  test-user-appointment-service:
+  # Build and test all services using Docker (no redundant builds)
+  docker-build-test:
     runs-on: ubuntu-latest
 
-    # Add PostgreSQL service for testing
+    # Add PostgreSQL service for integration testing
     services:
       postgres:
         image: postgres:15
@@ -98,243 +32,50 @@ jobs:
         ports:
           - 5432:5432
 
-    env:
-      # Use local test database
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/pulseiq_db_test?currentSchema=pulseiq
-      SPRING_DATASOURCE_USERNAME: test_user
-      SPRING_DATASOURCE_PASSWORD: test_password
-      JWT_SECRET: test_jwt_secret_for_ci_only_minimum_32_characters_long_enough
-
-    defaults:
-      run:
-        working-directory: user-appointment-service
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 21 (for Java services)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Verify Java installation
-        run: |
-          echo "Java version:"
-          java -version
-          echo "JAVA_HOME:"
-          echo $JAVA_HOME
-          echo "Maven version:"
-          mvn -version
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('user-appointment-service/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Install PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-
-      - name: Wait for PostgreSQL (30×2s timeout)
-        run: |
-          for i in {1..30}; do
-            if pg_isready -h localhost -p 5432 -U test_user; then
-              echo "PostgreSQL is ready!"
-              break
-            fi
-            echo "Waiting for PostgreSQL… ($i/30)"
-            sleep 2
-          done
-
-          # Final check
-          if ! pg_isready -h localhost -p 5432 -U test_user; then
-            echo "❌ Postgres failed to start in time" >&2
-            exit 1
-          fi
-
-      - name: Create test schema
-        run: |
-          PGPASSWORD=test_password psql -h localhost -p 5432 -U test_user -d pulseiq_db_test -c "CREATE SCHEMA IF NOT EXISTS pulseiq;"
-
-      - name: Setup Maven wrapper
-        run: |
-          chmod +x ./setup-maven.sh
-          ./setup-maven.sh
-
-      - name: Build & test with Maven (FAST)
-        run: |
-          # Set ci profile to use PostgreSQL database 
-          export SPRING_PROFILES_ACTIVE=ci
-          # Ensure Maven uses the correct Java version
-          export JAVA_HOME=$JAVA_HOME
-          # Use Maven wrapper if available, otherwise system Maven
-          if [ -f "./mvnw" ] && [ -x "./mvnw" ] && [ -f ".mvn/wrapper/maven-wrapper.properties" ]; then
-            echo "Using Maven wrapper"
-            ./mvnw clean compile -B --quiet -Dspring.profiles.active=ci
-            ./mvnw test -B --quiet -Dspring.profiles.active=ci
-          else
-            echo "Using system Maven"
-            mvn clean compile -B --quiet -Dspring.profiles.active=ci
-            mvn test -B --quiet -Dspring.profiles.active=ci
-          fi
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: user-appointment-test-results
-          path: user-appointment-service/target/surefire-reports/
-          retention-days: 1
-
-  # Test AI Service (Python FastAPI)
-  test-ai-service:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ai-service
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: "pip"
-          cache-dependency-path: ai-service/requirements.txt
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-asyncio httpx
-
-      - name: Run Python linting (flake8)
-        run: |
-          pip install flake8
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-      - name: Test AI Service
+      - name: Build all Docker images 
         env:
-          OPENAI_API_KEY: test_key_for_ci
+          # Use GitHub secrets for secure environment variables
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
         run: |
-          # Basic import test
-          python -c "import main; print('AI Service imports successfully')"
-
-          # If you have pytest tests, uncomment below:
-          # pytest tests/ -v
-
-      - name: Upload test coverage
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ai-service-coverage
-          path: ai-service/htmlcov/
-          retention-days: 1
-
-  # Integration Test - Simple Docker Build & Container Test
-  integration-test:
-    runs-on: ubuntu-latest
-    needs:
-      - test-frontend
-      - test-user-appointment-service
-      - test-ai-service
-    if: >
-      always() &&
-      needs.test-frontend.result == 'success' &&
-      needs.test-user-appointment-service.result == 'success' &&
-      needs.test-ai-service.result == 'success'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: ${{ env.JAVA_VERSION }}
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('user-appointment-service/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" \
-            -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
-
-      - name: Build service images
-        run: |
-          # Java service
-          cd user-appointment-service
-          chmod +x ./setup-maven.sh && ./setup-maven.sh
-          ./mvnw clean package -DskipTests -B -Dspring.profiles.active=ci
-          cd ..
-
-          docker build -t test/pulseiq-user-appointment:latest ./user-appointment-service
-          docker build -t test/pulseiq-ai-service:latest ./ai-service
-
+          # Build user-appointment-service using production Dockerfile (includes Maven build and tests)
+          docker build -f ./user-appointment-service/Dockerfile -t pulseiq-user-appointment:latest ./user-appointment-service
+          
+          # Build payment-service using production Dockerfile (includes Maven build and tests)
+          docker build -f ./payment-service/Dockerfile -t pulseiq-payment-service:latest ./payment-service
+          
+          # Build AI service
+          docker build -t pulseiq-ai-service:latest ./ai-service
+          
+          # Build frontend with proper environment variables
           cd frontend
-          docker build -t test/pulseiq-frontend:latest \
+          docker build -t pulseiq-frontend:latest \
             --build-arg VITE_USER_APPOINTMENT_API_URL=http://localhost:8085 \
+            --build-arg VITE_PAYMENT_API_URL=http://localhost:8082 \
             --build-arg VITE_AI_SERVICE_API_URL=http://localhost:8000 \
+            --build-arg VITE_FIREBASE_API_KEY="$VITE_FIREBASE_API_KEY" \
+            --build-arg VITE_FIREBASE_AUTH_DOMAIN="$VITE_FIREBASE_AUTH_DOMAIN" \
+            --build-arg VITE_FIREBASE_PROJECT_ID="$VITE_FIREBASE_PROJECT_ID" \
+            --build-arg VITE_FIREBASE_STORAGE_BUCKET="$VITE_FIREBASE_STORAGE_BUCKET" \
+            --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID="$VITE_FIREBASE_MESSAGING_SENDER_ID" \
+            --build-arg VITE_FIREBASE_APP_ID="$VITE_FIREBASE_APP_ID" \
+            --build-arg VITE_FIREBASE_MEASUREMENT_ID="$VITE_FIREBASE_MEASUREMENT_ID" \
             .
           cd ..
-
-      - name: Start all containers
-        run: docker-compose -f docker-compose.test.yml up -d db user-appointment-service ai-service
-
-      - name: Wait for PostgreSQL (max 60s)
-        id: wait-postgres
-        run: |
-          for i in {1..30}; do
-            docker exec pulseiq_postgres_test pg_isready -U test_user && break
-            echo "Waiting for Postgres ($i/30)…"; sleep 2
-          done
-          docker exec pulseiq_postgres_test pg_isready -U test_user \
-            || { echo "❌ Postgres never became ready"; exit 1; }
-
-      - name: Wait for AI service (max 60s)
-        run: |
-          for i in {1..30}; do
-            curl --silent --fail http://localhost:8000/health && break
-            echo "Waiting for AI Service ($i/30)…"; sleep 2
-          done
-          curl --silent --fail http://localhost:8000/health \
-            || { echo "❌ AI Service never became healthy"; exit 1; }
-
-      # - name: Wait for User service (max 60s)
-      #   run: |
-      #     for i in {1..30}; do
-      #       curl --silent --fail http://localhost:8085/actuator/health && break
-      #       echo "Waiting for User Service ($i/30)…"; sleep 2
-      #     done
-      #     curl --silent --fail http://localhost:8085/actuator/health \
-      #       || { echo "❌ User Service never became healthy"; exit 1; }
-
-      - name: Dump recent logs for debugging
-        run: |
-          echo "=== Postgres Logs ==="
-          docker logs pulseiq_postgres_test --tail 5
-          echo "=== AI Service Logs ==="
-          docker logs pulseiq_ai_service_test --tail 10
-          echo "=== User Service Logs ==="
-          docker logs pulseiq_user_appointment_test --tail 10
-
-      - name: Tear down
-        run: docker-compose -f docker-compose.test.yml down -v

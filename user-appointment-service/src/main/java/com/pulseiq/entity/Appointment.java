@@ -4,6 +4,7 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,9 +51,11 @@ public class Appointment {
     @Column(name = "reason", length = 500)
     private String reason;
 
-    @Column(name = "notes", columnDefinition = "LONGVARCHAR")
+    // @Column(name = "notes", columnDefinition = "LONGVARCHAR")
+    @Column(name = "notes")
     @Lob
-    @JdbcTypeCode(Types.CLOB)
+    // @JdbcTypeCode(Types.CLOB)
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String notes;
 
     @Column(name = "created_at")

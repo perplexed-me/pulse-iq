@@ -8,6 +8,13 @@ export interface User {
   role: 'doctor' | 'patient' | 'technician' | 'admin';
   name: string;
   status?: 'pending' | 'approved' | 'rejected';
+  // Doctor-specific fields
+  specialization?: string;
+  degree?: string;
+  // Patient-specific fields
+  age?: number;
+  gender?: string;
+  bloodGroup?: string;
 }
 
 interface AuthContextType {
@@ -18,6 +25,7 @@ interface AuthContextType {
   setUser: (user: User | null) => void;
   token: string | null;
   lastLoginError: string;
+  updateUserProfile: (updatedData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,51 +65,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateUser = (newUser: User | null) => {
-    setUser(newUser);
-    if (newUser) {
-      localStorage.setItem('pulseiq_user', JSON.stringify(newUser));
-    } else {
-      localStorage.removeItem('pulseiq_user');
-      localStorage.removeItem('token');
-      setToken(null);
+  // Function to clear all appointment-related data
+  const clearAllAppointmentData = () => {
+    // Clear all sessionStorage appointment data
+    sessionStorage.removeItem('paymentCompletionData');
+    
+    // Clear user-specific sessionStorage and localStorage data
+    const keys = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.includes('paymentCompletionData_')) {
+        keys.push(key);
+      }
     }
+    keys.forEach(key => sessionStorage.removeItem(key));
+    
+    // Clear localStorage appointment data
+    const localKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('appointment') || key.includes('payment') || key.includes('booking') || key.includes('pendingPayment'))) {
+        localKeys.push(key);
+      }
+    }
+    localKeys.forEach(key => localStorage.removeItem(key));
   };
 
-  // Effect for initial auth and periodic validation
+  const updateUser = (newUser: User | null) => {
+    console.log('=== UPDATE USER DEBUG ===');
+    console.log('Setting user to:', newUser);
+    if (newUser) {
+      console.log('User specialization being saved:', newUser.specialization);
+      console.log('User degree being saved:', newUser.degree);
+    }
+    setUser(newUser);
+    if (newUser) {
+      // Use sessionStorage for tab-specific sessions
+      const userJson = JSON.stringify(newUser);
+      console.log('Saving user JSON to sessionStorage:', userJson);
+      sessionStorage.setItem('pulseiq_user', userJson);
+    } else {
+      sessionStorage.removeItem('pulseiq_user');
+      sessionStorage.removeItem('token');
+      setToken(null);
+    }
+    console.log('=== END UPDATE USER DEBUG ===');
+  };
+
+  // Function to handle API authentication errors
+  const handleAuthError = () => {
+    console.log('Authentication error detected - logging out');
+    updateUser(null);
+  };
+
+  // Make handleAuthError available globally for API calls
+  (window as any).handleAuthError = handleAuthError;
+
+  // Effect for initial auth only
   useEffect(() => {
-    const checkAuth = async () => {
-      const storedUser = localStorage.getItem('pulseiq_user');
-      const storedToken = localStorage.getItem('token');
+    const initAuth = () => {
+      // Check sessionStorage for this tab's session
+      const storedUser = sessionStorage.getItem('pulseiq_user');
+      const storedToken = sessionStorage.getItem('token');
       
       if (storedUser && storedToken) {
-        const isValid = await validateToken(storedToken);
-        if (isValid) {
-          if (!user) { // Only update if user is not already set
-            updateUser(JSON.parse(storedUser));
-            setToken(storedToken);
-          }
-        } else {
+        try {
+          console.log('=== LOADING USER FROM SESSION STORAGE ===');
+          console.log('Stored user JSON:', storedUser);
+          const parsedUser = JSON.parse(storedUser);
+          console.log('Parsed user object:', parsedUser);
+          console.log('User specialization from storage:', parsedUser.specialization);
+          console.log('User degree from storage:', parsedUser.degree);
+          setUser(parsedUser);
+          setToken(storedToken);
+          console.log('=== END SESSION STORAGE LOAD ===');
+        } catch (error) {
+          console.error('Error parsing stored user:', error);
           updateUser(null);
         }
-      } else {
-        updateUser(null);
       }
       setIsLoading(false);
     };
 
-    // Initial check
-    checkAuth();
-
-    // Set up periodic validation every 5 minutes
-    const intervalId = setInterval(checkAuth, 5 * 60 * 1000);
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [user]); // Added user to dependencies
+    initAuth();
+  }, []); // Run only once on mount
 
   const login = async (credentials: { identifier: string; password: string }): Promise<{ success: boolean; errorMessage?: string; user?: User }> => {
     setIsLoading(true);
@@ -154,10 +201,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(data.message || 'Your account has been rejected. Please contact support.');
       }
       
-      console.log('Profile data:', {  // Debug log
+      console.log('=== LOGIN RESPONSE DEBUG ===');
+      console.log('Full login response data:', data);
+      console.log('Raw specialization:', data.specialization);
+      console.log('Raw degree:', data.degree);
+      console.log('User role:', data.role);
+      console.log('Profile data being extracted:', {
         firstName: data.firstName,
         lastName: data.lastName,
-        name: data.name
+        name: data.name,
+        specialization: data.specialization,
+        degree: data.degree,
+        age: data.age,
+        gender: data.gender,
+        bloodGroup: data.bloodGroup
       });
       
       const userRole = (data.role || '').toLowerCase();
@@ -172,14 +229,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phone: data.phone,
         role: userRole as User['role'],
         name: data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : data.name || `${userRole.charAt(0).toUpperCase() + userRole.slice(1)} User`,
-        status: data.status || 'approved'
+        status: data.status || 'approved',
+        // Include role-specific profile data
+        ...(userRole === 'doctor' && {
+          specialization: data.specialization,
+          degree: data.degree
+        }),
+        ...(userRole === 'patient' && {
+          age: data.age,
+          gender: data.gender,
+          bloodGroup: data.bloodGroup
+        })
       };
 
-      console.log('Created user object:', loggedUser); // Debug log
+      console.log('=== USER OBJECT CREATED ===');
+      console.log('Created user object:', loggedUser);
+      console.log('User specialization:', loggedUser.specialization);
+      console.log('User degree:', loggedUser.degree);
+      console.log('=== END USER CREATION DEBUG ===');
 
-      localStorage.setItem('token', data.token);
+      // Store token in sessionStorage for tab-specific sessions
+      sessionStorage.setItem('token', data.token);
       setToken(data.token);
+      
+      // Clear any existing appointment data before setting new user
+      clearAllAppointmentData();
+      
       updateUser(loggedUser);
+      
       return { success: true, user: loggedUser };
     } catch (err: unknown) {
       console.error("Login failed:", err);
@@ -192,8 +269,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Function to update user profile without full re-authentication
+  const updateUserProfile = (updatedData: Partial<User>) => {
+    console.log('=== UPDATE USER PROFILE DEBUG ===');
+    console.log('Current user:', user);
+    console.log('Update data received:', updatedData);
+    if (user) {
+      const updatedUser = { ...user, ...updatedData };
+      console.log('Updated user object:', updatedUser);
+      setUser(updatedUser);
+      sessionStorage.setItem('pulseiq_user', JSON.stringify(updatedUser));
+      console.log('User saved to sessionStorage');
+    } else {
+      console.log('No user found to update');
+    }
+    console.log('=== END UPDATE PROFILE DEBUG ===');
+  };
+
   const logout = () => {
+    // Clear all user-specific data on logout
+    const currentUserId = user?.id;
+    
+    // Only logout this specific tab - no cross-tab synchronization
     updateUser(null);
+    
+    // Clear appointment-related data (both old and new formats)
+    sessionStorage.removeItem('paymentCompletionData');
+    if (currentUserId) {
+      sessionStorage.removeItem(`paymentCompletionData_${currentUserId}`);
+      localStorage.removeItem(`paymentCompletionData_${currentUserId}`);
+    }
+    
+    // Clear user-specific localStorage data
+    if (currentUserId) {
+      localStorage.removeItem(`pendingPayment_${currentUserId}`);
+      localStorage.removeItem(`appointmentData_${currentUserId}`);
+      localStorage.removeItem(`selectedDoctor_${currentUserId}`);
+      localStorage.removeItem(`bookingState_${currentUserId}`);
+    }
+    
+    // Clear any other potential user data that might persist
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('appointment') || key.includes('payment') || key.includes('booking'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
   };
 
   return (
@@ -204,7 +327,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isLoading, 
       setUser: updateUser,
       token,
-      lastLoginError
+      lastLoginError,
+      updateUserProfile
     }}>
       {children}
     </AuthContext.Provider>

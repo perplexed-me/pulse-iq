@@ -14,10 +14,15 @@ const getAiServiceApiUrl = (): string => {
   return import.meta.env.VITE_AI_SERVICE_API_URL || 'http://localhost:8000';
 };
 
+const getPaymentServiceApiUrl = (): string => {
+  return import.meta.env.VITE_PAYMENT_SERVICE_API_URL || 'http://localhost:8082';
+}
+
 // API endpoints configuration
 export const API_CONFIG = {
   USER_APPOINTMENT_BASE_URL: getUserAppointmentApiUrl(),
   AI_SERVICE_BASE_URL: getAiServiceApiUrl(),
+  PAYMENT_SERVICE_BASE_URL: getPaymentServiceApiUrl(),
   
   // User Appointment Service endpoints
   AUTH: {
@@ -50,6 +55,12 @@ export const API_CONFIG = {
     DOWNLOAD: (testId: string | number) => `${getUserAppointmentApiUrl()}/api/test-results/${testId}/download`,
     DOCTOR_TESTS: (doctorId: string) => `${getUserAppointmentApiUrl()}/api/test-results/doctor/${doctorId}`,
     UPDATE_STATUS: (testId: string | number, status: string) => `${getUserAppointmentApiUrl()}/api/test-results/${testId}/status?status=${status}`,
+    // New test type-based endpoints
+    GET_TEST_TYPES_BY_PATIENT: (patientId: string) => `${getUserAppointmentApiUrl()}/api/test-results/patient/${patientId}/test-types`,
+    REQUEST_OTP_FOR_TEST_TYPE: (patientId: string, testType: string) => `${getUserAppointmentApiUrl()}/api/test-results/patient/${patientId}/test-type/${testType}/request-otp`,
+    VERIFY_OTP_FOR_TEST_TYPE: (patientId: string, testType: string) => `${getUserAppointmentApiUrl()}/api/test-results/patient/${patientId}/test-type/${testType}/verify-otp`,
+    CANCEL_OTP_FOR_TEST_TYPE: (patientId: string, testType: string) => `${getUserAppointmentApiUrl()}/api/test-results/patient/${patientId}/test-type/${testType}/cancel-otp`,
+    DOWNLOAD_WITH_OTP: (testId: string | number) => `${getUserAppointmentApiUrl()}/api/test-results/${testId}/download-with-otp`,
   },
   
   USERS: {
@@ -60,6 +71,13 @@ export const API_CONFIG = {
   DOCTORS: {
     PROFILE: (doctorId: string) => `${getUserAppointmentApiUrl()}/api/doctors/${doctorId}/profile`,
     PROFILE_PICTURE: (doctorId: string) => `${getUserAppointmentApiUrl()}/api/doctors/${doctorId}/profile-picture`,
+    COMPLETED_PATIENTS: (doctorId: string) => `${getUserAppointmentApiUrl()}/api/doctors/${doctorId}/completed-patients`,
+    APPOINTMENT_STATS: (doctorId: string) => `${getUserAppointmentApiUrl()}/api/doctors/${doctorId}/appointment-stats`,
+    AVAILABILITY: (doctorId: string) => `${getUserAppointmentApiUrl()}/api/doctors/${doctorId}/availability`,
+    REQUEST_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/request-otp`,
+    VERIFY_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/verify-otp`,
+    CANCEL_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/cancel-otp`,
+    DOWNLOAD_WITH_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/download-with-otp`,
   },
   
   ADMIN: {
@@ -68,6 +86,36 @@ export const API_CONFIG = {
     REJECTED: `${getUserAppointmentApiUrl()}/api/admin/rejected`,
     APPROVE: (userId: string) => `${getUserAppointmentApiUrl()}/api/admin/approve/${userId}`,
     REJECT: (userId: string) => `${getUserAppointmentApiUrl()}/api/admin/reject/${userId}`,
+  },
+
+  NOTIFICATIONS: {
+    CREATE: `${getUserAppointmentApiUrl()}/api/notifications`,
+    ALL: `${getUserAppointmentApiUrl()}/api/notifications`,
+    MY_NOTIFICATIONS: `${getUserAppointmentApiUrl()}/api/notifications/my`,
+    MARK_READ: (notificationId: string | number) => `${getUserAppointmentApiUrl()}/api/notifications/${notificationId}/read`,
+    MARK_ALL_READ: `${getUserAppointmentApiUrl()}/api/notifications/read-all`,
+    UNREAD_COUNT: `${getUserAppointmentApiUrl()}/api/notifications/unread/count`,
+  },
+  
+  PRESCRIPTIONS: {
+    CREATE: `${getUserAppointmentApiUrl()}/api/prescriptions`,
+    MY_PRESCRIPTIONS: `${getUserAppointmentApiUrl()}/api/prescriptions/my-prescriptions`,
+    MY_CREATED_PRESCRIPTIONS: `${getUserAppointmentApiUrl()}/api/prescriptions/my-created-prescriptions`,
+    BY_APPOINTMENT: (appointmentId: string | number) => `${getUserAppointmentApiUrl()}/api/prescriptions/appointment/${appointmentId}`,
+    BY_ID: (prescriptionId: string | number) => `${getUserAppointmentApiUrl()}/api/prescriptions/${prescriptionId}`,
+    DOWNLOAD_PDF: (prescriptionId: string | number) => `${getUserAppointmentApiUrl()}/api/prescriptions/${prescriptionId}/pdf`,
+    BY_PATIENT: (patientId: string) => `${getUserAppointmentApiUrl()}/api/prescriptions/patient/${patientId}`,
+    BY_DOCTOR: (doctorId: string) => `${getUserAppointmentApiUrl()}/api/prescriptions/doctor/${doctorId}`,
+  },
+  
+  MEDICINES: {
+    ALL: `${getUserAppointmentApiUrl()}/api/medicines`,
+    SEARCH: (name: string) => `${getUserAppointmentApiUrl()}/api/medicines/search?name=${encodeURIComponent(name)}`,
+    BY_LETTER: (letter: string) => `${getUserAppointmentApiUrl()}/api/medicines/filter/letter/${letter}`,
+    BY_CATEGORY: (category: string) => `${getUserAppointmentApiUrl()}/api/medicines/filter/category/${encodeURIComponent(category)}`,
+    CATEGORIES: `${getUserAppointmentApiUrl()}/api/medicines/categories`,
+    LETTERS: `${getUserAppointmentApiUrl()}/api/medicines/letters`,
+    BY_ID: (medicineId: string | number) => `${getUserAppointmentApiUrl()}/api/medicines/${medicineId}`,
   },
   
   HEALTH: {
@@ -79,7 +127,15 @@ export const API_CONFIG = {
   AI: {
     CHAT: `${getAiServiceApiUrl()}/chat`,
     HEALTH: `${getAiServiceApiUrl()}/health`,
-  }
+  },
+
+  // Payment Service endpoints
+  PAYMENT: {
+    INITIATE: `${getPaymentServiceApiUrl()}/payment-api/initiate`,
+    VERIFY: `${getPaymentServiceApiUrl()}/payment-api/verify`,
+    RECEIPT: (transactionId: string) => `${getPaymentServiceApiUrl()}/payment/payments/receipt/${transactionId}`,
+    ME: `${getUserAppointmentApiUrl()}/api/patients/me`,
+  },
 };
 
 // Helper function to get headers with authentication
@@ -89,7 +145,8 @@ export const getAuthHeaders = (includeAuth: boolean = true) => {
   };
   
   if (includeAuth) {
-    const token = localStorage.getItem('token');
+    // Use sessionStorage for tab-specific tokens
+    const token = sessionStorage.getItem('token');
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
@@ -111,5 +168,15 @@ export const apiCall = async (
     ...options,
   };
 
-  return fetch(url, defaultOptions);
+  const response = await fetch(url, defaultOptions);
+  
+  // Handle authentication errors globally
+  if (response.status === 401 && includeAuth) {
+    // Call global auth error handler if available
+    if (typeof (window as any).handleAuthError === 'function') {
+      (window as any).handleAuthError();
+    }
+  }
+  
+  return response;
 };

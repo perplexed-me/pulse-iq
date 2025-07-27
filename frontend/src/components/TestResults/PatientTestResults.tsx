@@ -175,62 +175,83 @@ const PatientTestResults = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <span className="ml-2">Loading your test results...</span>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Loader2 className="w-8 h-8 animate-spin text-white" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Loading Test Results</h3>
+          <p className="text-gray-600">Please wait while we fetch your medical reports...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6 bg-gradient-to-br from-blue-50 via-white to-cyan-50 min-h-screen">
+      {/* Header Section */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+          Test Results Dashboard
+        </h1>
+        <p className="text-lg text-gray-600">View and download your medical test reports</p>
+      </div>
+
       {/* Statistics Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Tests</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalTests}</p>
+                  <p className="text-sm font-medium text-blue-700">Total Tests</p>
+                  <p className="text-3xl font-bold text-blue-900">{stats.totalTests}</p>
                 </div>
-                <FileText className="w-8 h-8 text-blue-500" />
+                <div className="bg-blue-500 p-3 rounded-xl">
+                  <FileText className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Completed</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.completedTests}</p>
+                  <p className="text-sm font-medium text-green-700">Completed</p>
+                  <p className="text-3xl font-bold text-green-900">{stats.completedTests}</p>
                 </div>
-                <Clock className="w-8 h-8 text-green-500" />
+                <div className="bg-green-500 p-3 rounded-xl">
+                  <Clock className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">This Month</p>
-                  <p className="text-2xl font-bold text-purple-600">{stats.testsThisMonth}</p>
+                  <p className="text-sm font-medium text-purple-700">This Month</p>
+                  <p className="text-3xl font-bold text-purple-900">{stats.testsThisMonth}</p>
                 </div>
-                <Calendar className="w-8 h-8 text-purple-500" />
+                <div className="bg-purple-500 p-3 rounded-xl">
+                  <Calendar className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-4">
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Last Test Type</p>
-                  <p className="text-sm font-bold text-gray-900">{getLastTestType()}</p>
+                  <p className="text-sm font-medium text-orange-700">Last Test Type</p>
+                  <p className="text-sm font-bold text-orange-900">{getLastTestType()}</p>
                 </div>
-                <User className="w-8 h-8 text-orange-500" />
+                <div className="bg-orange-500 p-3 rounded-xl">
+                  <User className="w-8 h-8 text-white" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -238,8 +259,15 @@ const PatientTestResults = () => {
       )}
 
       {/* Search and Filter */}
-      <Card>
-        <CardContent className="p-4">
+      <Card className="bg-white/80 backdrop-blur-sm border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
+        <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-t-lg">
+          <CardTitle className="text-gray-800 flex items-center">
+            <Filter className="w-5 h-5 mr-2 text-cyan-600" />
+            Search & Filter
+          </CardTitle>
+          <CardDescription className="text-gray-600">Find specific test results quickly</CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
@@ -248,13 +276,13 @@ const PatientTestResults = () => {
                   placeholder="Search test results..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </div>
             
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 border-gray-300 focus:border-blue-500">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
@@ -266,7 +294,7 @@ const PatientTestResults = () => {
             </Select>
 
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full md:w-48 border-gray-300 focus:border-blue-500">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -283,79 +311,106 @@ const PatientTestResults = () => {
       </Card>
 
       {/* Test Results List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Test Results</CardTitle>
-          <CardDescription>
+      <Card className="bg-white/80 backdrop-blur-sm border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-t-lg">
+          <CardTitle className="text-gray-800 flex items-center">
+            <FileText className="w-5 h-5 mr-2 text-blue-600" />
+            Your Test Results
+          </CardTitle>
+          <CardDescription className="text-gray-600">
             View and download your medical test reports
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {filteredResults.length === 0 ? (
-            <div className="text-center py-8">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-10 h-10 text-blue-500" />
+              </div>
+              <p className="text-gray-500 text-lg font-medium">
                 {testResults.length === 0 
                   ? "No test results found." 
                   : "No test results match your search criteria."
                 }
               </p>
+              <p className="text-gray-400 text-sm mt-2">Check back later or adjust your filters</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {filteredResults.map((result) => (
                 <div
                   key={result.testId}
-                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  className="border border-gray-200 rounded-xl p-6 bg-gradient-to-r from-white to-gray-50/50 hover:from-blue-50/30 hover:to-cyan-50/30 hover:border-blue-200 transition-all duration-300 shadow-sm hover:shadow-lg"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-gray-900">{result.testName}</h3>
-                        <Badge variant="outline" className={getStatusColor(result.status)}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <h3 className="font-bold text-xl text-gray-900">{result.testName}</h3>
+                        <Badge variant="outline" className={`${getStatusColor(result.status)} px-3 py-1 font-medium`}>
                           {result.status}
                         </Badge>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div>
-                          <p><span className="font-medium">Test Type:</span> {result.testType}</p>
-                          <p><span className="font-medium">Doctor:</span> {result.doctorName || result.doctorId}</p>
-                          <p><span className="font-medium">Technician:</span> {result.technicianName || result.technicianId}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                        <div className="space-y-2">
+                          <p className="flex items-center">
+                            <span className="font-semibold text-gray-700 mr-2">Test Type:</span> 
+                            <span className="text-blue-600 font-medium">{result.testType}</span>
+                          </p>
+                          <p className="flex items-center">
+                            <span className="font-semibold text-gray-700 mr-2">Doctor:</span> 
+                            <span className="text-gray-800">{result.doctorName || result.doctorId}</span>
+                          </p>
+                          <p className="flex items-center">
+                            <span className="font-semibold text-gray-700 mr-2">Technician:</span> 
+                            <span className="text-gray-800">{result.technicianName || result.technicianId}</span>
+                          </p>
                         </div>
-                        <div>
-                          <p><span className="font-medium">Test Date:</span> {result.testDate ? formatDate(result.testDate) : 'N/A'}</p>
-                          <p><span className="font-medium">Uploaded:</span> {formatDate(result.uploadedAt)}</p>
-                          <p><span className="font-medium">File Size:</span> {formatFileSize(result.fileSize)}</p>
+                        <div className="space-y-2">
+                          <p className="flex items-center">
+                            <span className="font-semibold text-gray-700 mr-2">Test Date:</span> 
+                            <span className="text-purple-600 font-medium">{result.testDate ? formatDate(result.testDate) : 'N/A'}</span>
+                          </p>
+                          <p className="flex items-center">
+                            <span className="font-semibold text-gray-700 mr-2">Uploaded:</span> 
+                            <span className="text-gray-800">{formatDate(result.uploadedAt)}</span>
+                          </p>
+                          <p className="flex items-center">
+                            <span className="font-semibold text-gray-700 mr-2">File Size:</span> 
+                            <span className="text-green-600 font-medium">{formatFileSize(result.fileSize)}</span>
+                          </p>
                         </div>
                       </div>
 
                       {result.description && (
-                        <p className="text-sm text-gray-600 mt-2">
-                          <span className="font-medium">Description:</span> {result.description}
-                        </p>
+                        <div className="mt-4 p-3 bg-blue-50/50 rounded-lg border-l-4 border-blue-400">
+                          <p className="text-sm text-gray-700">
+                            <span className="font-semibold text-blue-700">Description:</span> {result.description}
+                          </p>
+                        </div>
                       )}
 
                       {result.notes && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          <span className="font-medium">Notes:</span> {result.notes}
-                        </p>
+                        <div className="mt-3 p-3 bg-green-50/50 rounded-lg border-l-4 border-green-400">
+                          <p className="text-sm text-gray-700">
+                            <span className="font-semibold text-green-700">Notes:</span> {result.notes}
+                          </p>
+                        </div>
                       )}
                     </div>
 
                     <Button
                       onClick={() => downloadPdf(result.testId, result.pdfFilename)}
                       disabled={downloadingId === result.testId}
-                      variant="outline"
-                      size="sm"
-                      className="ml-4"
+                      className="ml-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 px-6 py-3"
+                      size="lg"
                     >
                       {downloadingId === result.testId ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin" />
                       ) : (
-                        <Download className="w-4 h-4" />
+                        <Download className="w-5 h-5" />
                       )}
-                      <span className="ml-2 hidden sm:inline">Download</span>
+                      <span className="ml-2 font-medium">Download</span>
                     </Button>
                   </div>
                 </div>

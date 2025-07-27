@@ -34,17 +34,20 @@ public class AppointmentService {
         Doctor doctor = doctorRepository.findByDoctorId(request.getDoctorId())
             .orElseThrow(() -> new RuntimeException("Doctor not found"));
         
-        if (!doctor.getIsAvailable()) {
+        if (!doctor.getAvailable()) {
             throw new RuntimeException("Doctor is not available for appointments");
         }
+        
+        // Validate appointment date/time against doctor's availability
+        validateDoctorAvailability(doctor, request.getAppointmentDate());
         
         // Validate patient exists
         Patient patient = patientRepository.findByPatientId(patientId)
             .orElseThrow(() -> new RuntimeException("Patient not found"));
         
-        // Check for appointment conflicts (same doctor, same time slot within 1 hour)
-        LocalDateTime startTime = request.getAppointmentDate().minusMinutes(30);
-        LocalDateTime endTime = request.getAppointmentDate().plusMinutes(30);
+        // Check for appointment conflicts (same doctor, same time slot within 14 minutes)
+        LocalDateTime startTime = request.getAppointmentDate().minusMinutes(7);
+        LocalDateTime endTime = request.getAppointmentDate().plusMinutes(7);
         
         List<Appointment> conflictingAppointments = appointmentRepository
             .findByDoctorIdAndDateRangeAndStatus(
@@ -55,7 +58,10 @@ public class AppointmentService {
             );
         
         if (!conflictingAppointments.isEmpty()) {
-            throw new RuntimeException("Doctor is not available at the selected time. Please choose another time slot.");
+            Appointment conflictingAppointment = conflictingAppointments.get(0);
+            throw new RuntimeException("Doctor already has an appointment scheduled at " + 
+                conflictingAppointment.getAppointmentDate().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) +
+                ". Please choose a time slot at least 15 minutes away from existing appointments.");
         }
         
         // Create appointment
@@ -259,5 +265,65 @@ public class AppointmentService {
     private String encodeProfilePicture(byte[] profilePicture) {
         if (profilePicture == null || profilePicture.length == 0) return null;
         return java.util.Base64.getEncoder().encodeToString(profilePicture);
+    }
+
+    /**
+     * Validates if the appointment date/time falls within doctor's availability
+     */
+    private void validateDoctorAvailability(Doctor doctor, LocalDateTime appointmentDate) {
+        // Check if doctor has availability settings
+        if (doctor.getAvailableDays() == null || doctor.getAvailableDays().isEmpty()) {
+            throw new RuntimeException("Doctor availability is not configured. Please contact support.");
+        }
+
+        // Get day of week from appointment date
+        String dayOfWeek = appointmentDate.getDayOfWeek().name(); // MONDAY, TUESDAY, etc.
+        
+        // Check if appointment day is in doctor's available days
+        String[] availableDays = doctor.getAvailableDays().split(",");
+        boolean isDayAvailable = false;
+        for (String availableDay : availableDays) {
+            if (availableDay.trim().equalsIgnoreCase(dayOfWeek)) {
+                isDayAvailable = true;
+                break;
+            }
+        }
+        
+        if (!isDayAvailable) {
+            throw new RuntimeException("Doctor is not available on " + dayOfWeek.toLowerCase() + 
+                ". Available days: " + doctor.getAvailableDays().replace(",", ", "));
+        }
+
+        // Check time range
+        if (doctor.getAvailableTimeStart() != null && doctor.getAvailableTimeEnd() != null) {
+            try {
+                // Parse doctor's available time range
+                String[] startParts = doctor.getAvailableTimeStart().split(":");
+                String[] endParts = doctor.getAvailableTimeEnd().split(":");
+                
+                int startHour = Integer.parseInt(startParts[0]);
+                int startMinute = Integer.parseInt(startParts[1]);
+                int endHour = Integer.parseInt(endParts[0]);
+                int endMinute = Integer.parseInt(endParts[1]);
+                
+                // Get appointment time
+                int appointmentHour = appointmentDate.getHour();
+                int appointmentMinute = appointmentDate.getMinute();
+                
+                // Convert to minutes for easier comparison
+                int startTimeMinutes = startHour * 60 + startMinute;
+                int endTimeMinutes = endHour * 60 + endMinute;
+                int appointmentTimeMinutes = appointmentHour * 60 + appointmentMinute;
+                
+                if (appointmentTimeMinutes < startTimeMinutes || appointmentTimeMinutes > endTimeMinutes) {
+                    throw new RuntimeException("Doctor is not available at " + 
+                        String.format("%02d:%02d", appointmentHour, appointmentMinute) +
+                        ". Available time: " + doctor.getAvailableTimeStart() + " - " + doctor.getAvailableTimeEnd());
+                }
+                
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Invalid doctor availability time format. Please contact support.");
+            }
+        }
     }
 }

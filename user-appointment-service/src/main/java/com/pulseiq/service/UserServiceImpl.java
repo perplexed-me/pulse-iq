@@ -373,8 +373,6 @@ public class UserServiceImpl implements UserService {
         doctor.setSpecialization(req.getSpecialization());
         doctor.setDegree(req.getDegree());
         doctor.setLicenseNumber(req.getLicenseNumber());
-        doctor.setAssistantName(req.getAssistantName());
-        doctor.setAssistantNumber(req.getAssistantNumber());
         doctor.setConsultationFee(
                 req.getConsultationFee() != null ? new BigDecimal(req.getConsultationFee()) : BigDecimal.ZERO);
         doctorRepo.save(doctor);
@@ -1030,6 +1028,65 @@ public class UserServiceImpl implements UserService {
 
                     if (profileUpdated) {
                         patientRepo.save(patient);
+                    }
+                }
+            } else if (user.getRole() == UserRole.TECHNICIAN) {
+                Optional<Technician> technicianOpt = technicianRepo.findByTechnicianId(user.getUserId());
+                if (technicianOpt.isPresent()) {
+                    Technician technician = technicianOpt.get();
+
+                    if (profileUpdate.containsKey("firstName")) {
+                        technician.setFirstName((String) profileUpdate.get("firstName"));
+                        profileUpdated = true;
+                    }
+                    if (profileUpdate.containsKey("lastName")) {
+                        technician.setLastName((String) profileUpdate.get("lastName"));
+                        profileUpdated = true;
+                    }
+                    if (profileUpdate.containsKey("specialization")) {
+                        technician.setSpecialization((String) profileUpdate.get("specialization"));
+                        profileUpdated = true;
+                    }
+
+                    if (profileUpdated) {
+                        technicianRepo.save(technician);
+                    }
+                }
+            } else if (user.getRole() == UserRole.DOCTOR) {
+                Optional<Doctor> doctorOpt = doctorRepo.findByDoctorId(user.getUserId());
+                if (doctorOpt.isPresent()) {
+                    Doctor doctor = doctorOpt.get();
+
+                    if (profileUpdate.containsKey("firstName")) {
+                        doctor.setFirstName((String) profileUpdate.get("firstName"));
+                        profileUpdated = true;
+                    }
+                    if (profileUpdate.containsKey("lastName")) {
+                        doctor.setLastName((String) profileUpdate.get("lastName"));
+                        profileUpdated = true;
+                    }
+                    if (profileUpdate.containsKey("specialization")) {
+                        doctor.setSpecialization((String) profileUpdate.get("specialization"));
+                        profileUpdated = true;
+                    }
+                    if (profileUpdate.containsKey("degree")) {
+                        doctor.setDegree((String) profileUpdate.get("degree"));
+                        profileUpdated = true;
+                    }
+                    if (profileUpdate.containsKey("licenseNumber")) {
+                        doctor.setLicenseNumber((String) profileUpdate.get("licenseNumber"));
+                        profileUpdated = true;
+                    }
+                    if (profileUpdate.containsKey("consultationFee")) {
+                        Object feeObj = profileUpdate.get("consultationFee");
+                        if (feeObj instanceof Number) {
+                            doctor.setConsultationFee(new java.math.BigDecimal(feeObj.toString()));
+                            profileUpdated = true;
+                        }
+                    }
+
+                    if (profileUpdated) {
+                        doctorRepo.save(doctor);
                     }
                 }
             }

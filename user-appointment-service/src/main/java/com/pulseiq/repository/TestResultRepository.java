@@ -57,4 +57,11 @@ public interface TestResultRepository extends JpaRepository<TestResult, Long> {
                                              @Param("technicianId") String technicianId,
                                              @Param("testType") String testType,
                                              @Param("status") TestResult.TestStatus status);
+
+    // Get distinct test types for a specific patient
+    @Query("SELECT DISTINCT tr.testType FROM TestResult tr WHERE tr.patientId = :patientId ORDER BY tr.testType")
+    List<String> findDistinctTestTypesByPatientId(@Param("patientId") String patientId);
+
+    // Find test results by patient and test type ordered by test date
+    List<TestResult> findByPatientIdAndTestTypeOrderByTestDateDesc(String patientId, String testType);
 }

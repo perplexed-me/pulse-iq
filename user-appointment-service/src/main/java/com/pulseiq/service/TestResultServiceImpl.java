@@ -4,7 +4,9 @@ import com.pulseiq.dto.TestResultUploadDto;
 import com.pulseiq.dto.TestResultResponseDto;
 import com.pulseiq.dto.TestResultStatsDto;
 import com.pulseiq.entity.TestResult;
+import com.pulseiq.entity.Appointment.AppointmentStatus;
 import com.pulseiq.repository.TestResultRepository;
+import com.pulseiq.repository.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class TestResultServiceImpl implements TestResultService {
 
     private final TestResultRepository testResultRepository;
+    private final AppointmentRepository appointmentRepository;
     private final TestResultValidationService validationService;
 
     @Override
@@ -55,7 +58,13 @@ public class TestResultServiceImpl implements TestResultService {
         testResult.setTestType(uploadDto.getTestType());
         testResult.setDescription(uploadDto.getDescription());
         testResult.setPatientId(uploadDto.getPatientId());
-        testResult.setDoctorId(uploadDto.getDoctorId());
+        
+        // Set doctor ID only if it's provided and not empty
+        String doctorId = uploadDto.getDoctorId();
+        if (doctorId != null && !doctorId.trim().isEmpty()) {
+            testResult.setDoctorId(doctorId.trim());
+        }
+        
         testResult.setTechnicianId(technicianId);
         testResult.setPdfFilename(pdfFile.getOriginalFilename());
         testResult.setFileSize(pdfFile.getSize());
@@ -119,6 +128,30 @@ public class TestResultServiceImpl implements TestResultService {
         // Check if user has permission to download (patient, doctor, or technician involved)
         if (!hasDownloadPermission(testResult, userId)) {
             throw new RuntimeException("You don't have permission to download this test result");
+        }
+
+        ByteArrayResource resource = new ByteArrayResource(testResult.getPdfData());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(testResult.getFileSize())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testResult.getPdfFilename() + "\"")
+                .body(resource);
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadTestResultForPatient(Long testId, String doctorId, String patientId) {
+        TestResult testResult = testResultRepository.findById(testId)
+                .orElseThrow(() -> new RuntimeException("Test result not found with ID: " + testId));
+
+        // Validate that the test result belongs to the specified patient
+        if (!testResult.getPatientId().equals(patientId)) {
+            throw new RuntimeException("Test result does not belong to the specified patient");
+        }
+
+        // Validate that the doctor has completed appointments with this patient
+        if (!hasCompletedAppointmentWithPatient(doctorId, patientId)) {
+            throw new RuntimeException("You don't have permission to access this patient's test results");
         }
 
         ByteArrayResource resource = new ByteArrayResource(testResult.getPdfData());
@@ -291,6 +324,13 @@ public class TestResultServiceImpl implements TestResultService {
         return false;
     }
 
+    private boolean hasCompletedAppointmentWithPatient(String doctorId, String patientId) {
+        // Check if doctor has any completed appointments with this patient
+        return appointmentRepository.existsByDoctorIdAndPatientIdAndStatus(
+            doctorId, patientId, AppointmentStatus.COMPLETED
+        );
+    }
+
     @Override
     public long getTotalTestResultCount() {
         return testResultRepository.count();
@@ -299,5 +339,29 @@ public class TestResultServiceImpl implements TestResultService {
     @Override
     public List<TestResult> getAllTestResults() {
         return testResultRepository.findAll();
+    }
+
+    @Override
+    public List<String> getTestTypesByPatient(String patientId) {
+        return testResultRepository.findDistinctTestTypesByPatientId(patientId);
+    }
+
+    @Override
+    public List<TestResultResponseDto> getTestResultsByPatientAndTestTypeForDoctor(String patientId, String testType, String doctorId) {
+        // Validate that doctor has completed appointments with this patient
+        if (!hasCompletedAppointmentWithPatient(doctorId, patientId)) {
+            throw new RuntimeException("Doctor does not have permission to access this patient's test results");
+        }
+        
+        // Get test results for the specific test type
+        List<TestResult> testResults = testResultRepository.findByPatientIdAndTestTypeOrderByTestDateDesc(patientId, testType);
+        
+        return testResults.stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    private TestResultResponseDto convertToResponseDto(TestResult testResult) {
+        return new TestResultResponseDto(testResult);
     }
 }

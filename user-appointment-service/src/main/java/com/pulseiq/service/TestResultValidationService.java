@@ -140,9 +140,28 @@ public class TestResultValidationService {
             return ValidationResult.invalid("Patient not found with ID: " + patientId);
         }
 
-        // Validate doctor
-        if (!isValidDoctor(doctorId)) {
-            return ValidationResult.invalid("Doctor not found with ID: " + doctorId);
+        // Validate doctor only if doctorId is provided, not empty, and looks like a doctor ID (starts with D followed by numbers)
+        if (doctorId != null && !doctorId.trim().isEmpty()) {
+            String cleanDoctorId = doctorId.trim();
+            System.out.println("=== DOCTOR VALIDATION DEBUG ===");
+            System.out.println("Doctor ID received: '" + doctorId + "'");
+            System.out.println("Doctor ID after trim: '" + cleanDoctorId + "'");
+            
+            // Only validate if it looks like a real doctor ID (D followed by numbers)
+            if (cleanDoctorId.matches("D\\d+")) {
+                System.out.println("Doctor ID matches pattern D+numbers, validating against database...");
+                if (!isValidDoctor(cleanDoctorId)) {
+                    System.out.println("Doctor validation FAILED for ID: " + cleanDoctorId);
+                    return ValidationResult.invalid("Doctor not found with ID: " + cleanDoctorId);
+                }
+                System.out.println("Doctor validation PASSED for ID: " + cleanDoctorId);
+            } else {
+                System.out.println("Doctor ID does not match pattern D+numbers, treating as custom doctor name: " + cleanDoctorId);
+                System.out.println("Skipping database validation for custom doctor name");
+            }
+        } else {
+            System.out.println("=== DOCTOR VALIDATION SKIPPED ===");
+            System.out.println("Doctor ID is null or empty: " + doctorId);
         }
 
         // Validate technician

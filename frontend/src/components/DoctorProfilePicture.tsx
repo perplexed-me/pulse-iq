@@ -36,7 +36,7 @@ const DoctorProfilePicture: React.FC<Props> = ({ doctorId, profilePictureUrl, on
     const formData = new FormData();
     formData.append('file', file);
 
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       setError('Please log in to upload a profile picture');
       setLoading(false);
@@ -82,7 +82,7 @@ const DoctorProfilePicture: React.FC<Props> = ({ doctorId, profilePictureUrl, on
     setError(null);
     setLoading(true);
 
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       setError('Please log in to delete the profile picture');
       setLoading(false);
@@ -125,7 +125,7 @@ const DoctorProfilePicture: React.FC<Props> = ({ doctorId, profilePictureUrl, on
   };
 
   const getImageUrl = () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!profilePictureUrl || !token) return null;
     
     const url = new URL(`${API_CONFIG.USER_APPOINTMENT_BASE_URL}${profilePictureUrl}`);

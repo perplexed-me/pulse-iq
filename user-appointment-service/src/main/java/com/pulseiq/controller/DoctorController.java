@@ -1,7 +1,10 @@
 package com.pulseiq.controller;
 
 import com.pulseiq.entity.Doctor;
+import com.pulseiq.entity.User;
 import com.pulseiq.repository.DoctorRepository;
+import com.pulseiq.repository.UserRepository;
+import com.pulseiq.repository.AppointmentRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/doctors")
@@ -23,6 +30,12 @@ public class DoctorController {
     
     @Autowired
     private DoctorRepository doctorRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     private static final long MAX_SIZE = 2_621_440; // 2.5MB
 
@@ -31,11 +44,6 @@ public class DoctorController {
     public ResponseEntity<?> uploadProfilePicture(@PathVariable String doctorId, @RequestParam("file") MultipartFile file) {
         try {
             logger.info("Attempting to upload profile picture for doctor: {}, file size: {}", doctorId, file.getSize());
-            
-            if (file == null) {
-                logger.error("No file provided for doctor: {}", doctorId);
-                return ResponseEntity.badRequest().body("No file provided");
-            }
             
             Optional<Doctor> doctorOpt = doctorRepository.findByDoctorId(doctorId);
             if (doctorOpt.isEmpty()) {
@@ -185,10 +193,23 @@ public class DoctorController {
             profileData.put("licenseNumber", doctor.getLicenseNumber());
             profileData.put("consultationFee", doctor.getConsultationFee());
             
-            // For now, we'll use placeholder values for email and phone
-            // In a real implementation, you'd fetch these from the User table
-            profileData.put("email", "doctor" + doctorId + "@pulseiq.com");
-            profileData.put("phone", "01700000000");
+            // Add availability information
+            profileData.put("availableDays", doctor.getAvailableDays());
+            profileData.put("availableTimeStart", doctor.getAvailableTimeStart());
+            profileData.put("availableTimeEnd", doctor.getAvailableTimeEnd());
+            
+            // Fetch real email and phone from User table
+            Optional<User> userOpt = userRepository.findByUserId(doctorId);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                profileData.put("email", user.getEmail());
+                profileData.put("phone", user.getPhone());
+            } else {
+                // Fallback if user not found
+                logger.warn("User not found for doctorId: " + doctorId);
+                profileData.put("email", "doctor" + doctorId + "@pulseiq.com");
+                profileData.put("phone", "01700000000");
+            }
             
             return ResponseEntity.ok(profileData);
             
@@ -237,6 +258,20 @@ public class DoctorController {
                 }
             }
             
+            // Update availability fields
+            if (profileData.containsKey("availableDays")) {
+                doctor.setAvailableDays((String) profileData.get("availableDays"));
+            }
+            if (profileData.containsKey("availableTimeStart")) {
+                doctor.setAvailableTimeStart((String) profileData.get("availableTimeStart"));
+            }
+            if (profileData.containsKey("availableTimeEnd")) {
+                doctor.setAvailableTimeEnd((String) profileData.get("availableTimeEnd"));
+            }
+            if (profileData.containsKey("isAvailable")) {
+                doctor.setAvailable((Boolean) profileData.get("isAvailable"));
+            }
+            
             doctorRepository.save(doctor);
             
             // Return updated profile data
@@ -248,6 +283,10 @@ public class DoctorController {
             updatedProfile.put("specialization", doctor.getSpecialization());
             updatedProfile.put("licenseNumber", doctor.getLicenseNumber());
             updatedProfile.put("consultationFee", doctor.getConsultationFee());
+            updatedProfile.put("availableDays", doctor.getAvailableDays());
+            updatedProfile.put("availableTimeStart", doctor.getAvailableTimeStart());
+            updatedProfile.put("availableTimeEnd", doctor.getAvailableTimeEnd());
+            updatedProfile.put("isAvailable", doctor.getAvailable());
             updatedProfile.put("email", profileData.get("email"));
             updatedProfile.put("phone", profileData.get("phone"));
             
@@ -258,6 +297,93 @@ public class DoctorController {
             logger.error("Error updating profile for doctor: " + doctorId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error updating profile: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get patients with completed appointments for a doctor
+     */
+    @GetMapping("/{doctorId}/completed-patients")
+    public ResponseEntity<?> getCompletedPatients(@PathVariable String doctorId) {
+        try {
+            // This should delegate to a service layer
+            // For now, implementing directly until service is created
+            List<Object[]> results = appointmentRepository.findCompletedPatientsByDoctorId(doctorId);
+            
+            List<Map<String, Object>> patients = results.stream()
+                .map(row -> {
+                    Map<String, Object> patient = new HashMap<>();
+                    patient.put("patientId", row[0]);
+                    patient.put("patientName", row[1]);
+                    patient.put("lastAppointmentDate", row[2]);
+                    patient.put("completedAppointments", row[3]);
+                    return patient;
+                })
+                .collect(Collectors.toList());
+
+            return ResponseEntity.ok(patients);
+        } catch (Exception e) {
+            logger.error("Error fetching completed patients for doctor: " + doctorId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error fetching completed patients: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get appointment statistics for a doctor
+     */
+    @GetMapping("/{doctorId}/appointment-stats")
+    public ResponseEntity<?> getAppointmentStats(@PathVariable String doctorId) {
+        try {
+            Map<String, Object> stats = new HashMap<>();
+            
+            // Today's appointments count
+            long todayCount = appointmentRepository.countTodayAppointmentsByDoctorId(doctorId);
+            stats.put("todayAppointments", todayCount);
+            
+            // Future appointments count (including today)
+            long futureCount = appointmentRepository.countFutureAppointmentsByDoctorId(doctorId);
+            stats.put("totalFuturePatients", futureCount);
+            
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            logger.error("Error fetching appointment stats for doctor: " + doctorId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error fetching appointment stats: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get doctor availability for appointment booking
+     */
+    @GetMapping("/{doctorId}/availability")
+    public ResponseEntity<?> getDoctorAvailability(@PathVariable String doctorId) {
+        try {
+            logger.info("Fetching availability for doctor: {}", doctorId);
+            
+            Optional<Doctor> doctorOpt = doctorRepository.findByDoctorId(doctorId);
+            if (doctorOpt.isEmpty()) {
+                logger.error("Doctor not found with ID: {}", doctorId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Doctor not found with ID: " + doctorId);
+            }
+            
+            Doctor doctor = doctorOpt.get();
+            
+            Map<String, Object> availability = new HashMap<>();
+            availability.put("doctorId", doctor.getDoctorId());
+            availability.put("isAvailable", doctor.getAvailable());
+            availability.put("availableDays", doctor.getAvailableDays());
+            availability.put("availableTimeStart", doctor.getAvailableTimeStart());
+            availability.put("availableTimeEnd", doctor.getAvailableTimeEnd());
+            
+            logger.info("Successfully fetched availability for doctor: {}", doctorId);
+            return ResponseEntity.ok(availability);
+            
+        } catch (Exception e) {
+            logger.error("Error fetching availability for doctor: " + doctorId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error fetching availability: " + e.getMessage());
         }
     }
 }

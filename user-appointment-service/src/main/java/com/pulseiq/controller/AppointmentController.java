@@ -27,6 +27,7 @@ import com.pulseiq.entity.User;
 import com.pulseiq.repository.UserRepository;
 import com.pulseiq.security.JwtUtil;
 import com.pulseiq.service.AppointmentService;
+import com.pulseiq.service.NotificationService;
 
 import jakarta.validation.Valid;
 
@@ -43,6 +44,9 @@ public class AppointmentController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // Helper class to store user information
     private static class UserInfo {
@@ -101,6 +105,17 @@ public class AppointmentController {
             }
 
             AppointmentResponseDto appointment = appointmentService.bookAppointment(userInfo.getUserId(), request);
+
+            // Create notifications for patient and doctor
+            if (appointment != null && appointment.getDoctorId() != null) {
+                notificationService.createAppointmentNotification(
+                    userInfo.getUserId(), 
+                    appointment.getDoctorId(), 
+                    appointment.getAppointmentId().toString(),
+                    appointment.getAppointmentDate().toString()
+                );
+            }
+            
             return ResponseEntity.ok(appointment);
 
         } catch (RuntimeException e) {

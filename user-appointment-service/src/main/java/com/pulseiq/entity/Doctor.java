@@ -52,12 +52,12 @@ public class Doctor {
     @Column(name = "license_number", unique = true, nullable = false, length = 50)
     private String licenseNumber;
 
-    @Column(name = "assistant_name", length = 50)
-    private String assistantName;
-
-    @Pattern(regexp = "01\\d{9}")
-    @Column(name = "assistant_number", unique = true, length = 11)
-    private String assistantNumber;
+    // Removed assistant fields as they are not used
+    // @Column(name = "assistant_name", length = 50)
+    // private String assistantName;
+    // @Pattern(regexp = "01\\d{9}")
+    // @Column(name = "assistant_number", unique = true, length = 11)
+    // private String assistantNumber;
 
     @Column(name = "consultation_fee")
     private BigDecimal consultationFee = BigDecimal.ZERO;
@@ -65,9 +65,22 @@ public class Doctor {
     @Column(name = "is_available")
     private Boolean isAvailable = true;
 
+    // Available days (comma-separated list like "MONDAY,TUESDAY,FRIDAY")
+    @Column(name = "available_days", length = 200)
+    private String availableDays;
+
+    // Available time range (like "09:00-17:00")
+    @Column(name = "available_time_start", length = 10)
+    private String availableTimeStart;
+
+    @Column(name = "available_time_end", length = 10) 
+    private String availableTimeEnd;
+
     @Lob
-    @Column(name = "profile_picture", columnDefinition = "LONGVARBINARY")
-    @JdbcTypeCode(SqlTypes.BINARY)
+    // @Column(name = "profile_picture", columnDefinition = "LONGVARBINARY")
+    // @JdbcTypeCode(SqlTypes.BINARY)
+    @Column(name = "profile_picture")
+    @JdbcTypeCode(SqlTypes.LONGVARBINARY)
     private byte[] profilePicture;
 
     @Column(name = "profile_picture_type", length = 50)
@@ -125,28 +138,36 @@ public class Doctor {
         this.licenseNumber = licenseNumber;
     }
 
-    public String getAssistantName() {
-        return assistantName;
-    }
-
-    public void setAssistantName(String assistantName) {
-        this.assistantName = assistantName;
-    }
-
-    public String getAssistantNumber() {
-        return assistantNumber;
-    }
-
-    public void setAssistantNumber(String assistantNumber) {
-        this.assistantNumber = assistantNumber;
-    }
-
     public BigDecimal getConsultationFee() {
         return consultationFee;
     }
 
     public void setConsultationFee(BigDecimal consultationFee) {
         this.consultationFee = consultationFee;
+    }
+
+    public String getAvailableDays() {
+        return availableDays;
+    }
+
+    public void setAvailableDays(String availableDays) {
+        this.availableDays = availableDays;
+    }
+
+    public String getAvailableTimeStart() {
+        return availableTimeStart;
+    }
+
+    public void setAvailableTimeStart(String availableTimeStart) {
+        this.availableTimeStart = availableTimeStart;
+    }
+
+    public String getAvailableTimeEnd() {
+        return availableTimeEnd;
+    }
+
+    public void setAvailableTimeEnd(String availableTimeEnd) {
+        this.availableTimeEnd = availableTimeEnd;
     }
 
     public Boolean getAvailable() {

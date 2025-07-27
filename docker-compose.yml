@@ -96,6 +96,31 @@ services:
         reservations:
           memory: 512M
 
+  # Payment Service (Java Spring Boot)
+  payment-service:
+    image: ${DOCKER_USERNAME}/pulseiq-payment-service:latest
+    container_name: pulseiq_payment_service
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    networks:
+      - pulseiq-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/pulseiq_db?currentSchema=pulseiq
+      - SPRING_DATASOURCE_USERNAME=pulseiq_user
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_CORS_ALLOWED_ORIGINS=${FRONTEND_URL:-http://${PUBLIC_IP:-localhost}:8080},http://${PUBLIC_IP:-localhost}:3000,http://localhost:8080,http://localhost:3000
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
   # Frontend Service (React/Vite)
   frontend:
     image: ${DOCKER_USERNAME}/pulseiq-frontend:latest
@@ -105,12 +130,15 @@ services:
         condition: service_healthy
       ai-service:
         condition: service_healthy
+      payment-service:
+        condition: service_started
     ports:
       - "8080:80"
     networks:
       - pulseiq-network
     environment:
       - VITE_USER_APPOINTMENT_API_URL=${USER_APPOINTMENT_API_URL:-http://${PUBLIC_IP:-localhost}:8085}
+      - VITE_PAYMENT_API_URL=${PAYMENT_API_URL:-http://${PUBLIC_IP:-localhost}:8082}
       - VITE_AI_SERVICE_API_URL=${AI_SERVICE_API_URL:-http://${PUBLIC_IP:-localhost}:8000}
       - VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY}
       - VITE_FIREBASE_AUTH_DOMAIN=${VITE_FIREBASE_AUTH_DOMAIN}

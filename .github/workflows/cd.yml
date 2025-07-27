@@ -39,6 +39,16 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
+      - name: Extract metadata for payment-service
+        id: meta-payment-service
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/pulseiq-payment-service
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
       - name: Extract metadata for ai-service
         id: meta-ai-service
         uses: docker/metadata-action@v5
@@ -62,128 +72,11 @@ jobs:
       # ================================
       # Build and push all service images
       # ================================
-      - name: Setup Java for user-appointment-service
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('user-appointment-service/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Install Maven (if not available)
-        run: |
-          if ! command -v mvn &> /dev/null; then
-            echo "Installing Maven..."
-            sudo apt-get update
-            sudo apt-get install -y maven
-          else
-            echo "Maven is already available: $(mvn --version | head -1)"
-          fi
-
-          # Also install wget/curl for downloading wrapper if needed
-          if ! command -v wget &> /dev/null; then
-            echo "Installing wget..."
-            sudo apt-get install -y wget
-          fi
-
-      - name: Setup Maven wrapper for user-appointment-service
-        run: |
-          cd user-appointment-service
-
-          echo "=== Maven Wrapper Setup ==="
-
-          # Make setup script executable
-          chmod +x ./setup-maven.sh
-
-          # Run setup script with verbose output
-          if ./setup-maven.sh; then
-            echo "✅ Setup script completed successfully"
-          else
-            echo "⚠️ Setup script failed, trying manual setup..."
-            
-            # Manual Maven wrapper setup
-            echo "Creating Maven wrapper manually..."
-            
-            # Create .mvn directory structure
-            mkdir -p .mvn/wrapper
-            
-            # Download maven-wrapper.jar if not exists
-            if [ ! -f ".mvn/wrapper/maven-wrapper.jar" ]; then
-              echo "Downloading maven-wrapper.jar..."
-              wget -O .mvn/wrapper/maven-wrapper.jar \
-                https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar
-            fi
-            
-            # Create maven-wrapper.properties
-            echo "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.6/apache-maven-3.9.6-bin.zip" > .mvn/wrapper/maven-wrapper.properties
-            echo "wrapperUrl=https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar" >> .mvn/wrapper/maven-wrapper.properties
-            
-            # Use system Maven as fallback - Maven wrapper creation can be complex in CI
-            echo "Using system Maven as reliable fallback"
-          fi
-
-          # Verify files exist
-          echo "=== Verification ==="
-          echo "mvnw exists: $([ -f ./mvnw ] && echo 'YES' || echo 'NO')"
-          echo "mvnw executable: $([ -x ./mvnw ] && echo 'YES' || echo 'NO')"
-          echo "wrapper properties exists: $([ -f ./.mvn/wrapper/maven-wrapper.properties ] && echo 'YES' || echo 'NO')"
-
-          # List wrapper directory contents
-          if [ -d ".mvn/wrapper" ]; then
-            echo "Wrapper directory contents:"
-            ls -la .mvn/wrapper/
-          else
-            echo "Wrapper directory does not exist"
-          fi
-
-      - name: Build JAR for user-appointment-service
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        run: |
-          cd user-appointment-service
-
-          echo "=== Building JAR ==="
-
-          # Prefer system Maven for reliability in CI, fallback to wrapper
-          if command -v mvn &> /dev/null; then
-            echo "Using system Maven for JAR build"
-            echo "System Maven version:"
-            mvn --version
-            echo "Building with system Maven..."
-            mvn clean package -DskipTests -B
-          elif [ -f "./mvnw" ] && [ -x "./mvnw" ] && [ -f ".mvn/wrapper/maven-wrapper.properties" ]; then
-            echo "Using Maven wrapper for JAR build"
-            echo "Maven wrapper version:"
-            ./mvnw --version
-            echo "Building with Maven wrapper..."
-            ./mvnw clean package -DskipTests -B
-          else
-            echo "❌ Neither system Maven nor Maven wrapper is available"
-            exit 1
-          fi
-
-          # Verify JAR was created
-          echo "=== Build Verification ==="
-          if ls target/*.jar 1> /dev/null 2>&1; then
-            echo "✅ JAR file created successfully:"
-            ls -la target/*.jar
-          else
-            echo "❌ JAR file not found in target directory"
-            echo "Target directory contents:"
-            ls -la target/ || echo "Target directory does not exist"
-            exit 1
-          fi
-
       - name: Build and push user-appointment-service image
         uses: docker/build-push-action@v5
         with:
           context: ./user-appointment-service
+          file: ./user-appointment-service/Dockerfile
           push: true
           tags: ${{ steps.meta-user-appointment.outputs.tags }}
           labels: ${{ steps.meta-user-appointment.outputs.labels }}
@@ -191,10 +84,23 @@ jobs:
           cache-to: type=gha,mode=max,scope=user-appointment
           platforms: linux/amd64
 
+      - name: Build and push payment-service image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./payment-service
+          file: ./payment-service/Dockerfile
+          push: true
+          tags: ${{ steps.meta-payment-service.outputs.tags }}
+          labels: ${{ steps.meta-payment-service.outputs.labels }}
+          cache-from: type=gha,scope=payment-service
+          cache-to: type=gha,mode=max,scope=payment-service
+          platforms: linux/amd64
+
       - name: Build and push ai-service image
         uses: docker/build-push-action@v5
         with:
           context: ./ai-service
+          file: ./ai-service/Dockerfile
           push: true
           tags: ${{ steps.meta-ai-service.outputs.tags }}
           labels: ${{ steps.meta-ai-service.outputs.labels }}
@@ -206,6 +112,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
@@ -214,6 +121,7 @@ jobs:
           platforms: linux/amd64
           build-args: |
             VITE_USER_APPOINTMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8085
+            VITE_PAYMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8082
             VITE_AI_SERVICE_API_URL=http://${{ secrets.PUBLIC_IP }}:8000
             VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
             VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
@@ -254,116 +162,53 @@ jobs:
             mkdir -p ~/pulseiq-app
             cd ~/pulseiq-app
 
-            # Create environment file for production with proper variable substitution
-            echo "Creating environment file for production..."
+            # Create environment file for production
+            echo "Creating environment file..."
             echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env.azure
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env.azure
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.azure
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env.azure
             echo "PUBLIC_IP=${{ secrets.PUBLIC_IP }}" >> .env.azure
             echo "FRONTEND_URL=http://${{ secrets.PUBLIC_IP }}:8080" >> .env.azure
-            echo "USER_APPOINTMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8085" >> .env.azure
-            echo "AI_SERVICE_API_URL=http://${{ secrets.PUBLIC_IP }}:8000" >> .env.azure
-            echo "FIREBASE_ENABLED=true" >> .env.azure
-            echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env.azure
-            echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env.azure
-            echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> .env.azure
-            echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> .env.azure
-            echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env.azure
-            echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env.azure
-            echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> .env.azure
+            
+            # Email configuration
+            echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env.azure
+            echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env.azure
+            
+            # SSLCommerz configuration
+            echo "SSLCOMMERZ_STORE_ID=${{ secrets.SSLCOMMERZ_STORE_ID }}" >> .env.azure
+            echo "SSLCOMMERZ_STORE_PASSWORD=${{ secrets.SSLCOMMERZ_STORE_PASSWORD }}" >> .env.azure
 
-            # Verify environment variables are set correctly
-            echo "=== Environment Variables Verification ==="
-            echo "Environment file created with $(wc -l < .env.azure) lines"
-            echo "Sample variables (first few):"
-            head -3 .env.azure | sed 's/=.*/=***/' # Hide sensitive values
-
-            # Export variables to current shell session for docker-compose
+            # Export variables to current shell session
             set -a && source .env.azure && set +a
 
-            # Create Firebase service account file with proper JSON formatting
+            # Create Firebase service account file
             echo "Creating Firebase service account file..."
             echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > firebase-service-account.json
 
-            # Validate Firebase JSON file
-            echo "=== Validating Firebase Configuration ==="
-            if python3 -m json.tool firebase-service-account.json > /dev/null 2>&1; then
-              echo "Firebase service account JSON is valid"
-              echo "Project ID: $(python3 -c "import json; print(json.load(open('firebase-service-account.json'))['project_id'])" 2>/dev/null || echo 'Not found')"
-            else
-              echo "Firebase service account JSON is invalid"
-              echo "File size: $(wc -c < firebase-service-account.json) bytes"
-              echo "First 100 characters:"
-              head -c 100 firebase-service-account.json
-              exit 1
-            fi
-
-            # Move init-schema.sql to the correct location
-            if [ -f "user-appointment-service/init-schema.sql" ]; then
-              echo "Database schema file found, keeping it in place"
-              ls -la user-appointment-service/init-schema.sql
-            else
-              echo "⚠️ Database schema file not found at user-appointment-service/init-schema.sql"
-              echo "Available files:"
-              find . -name "*.sql" -type f || echo "No SQL files found"
-              # Don't exit - continue deployment without schema initialization
-              echo "Continuing deployment without schema file..."
-            fi
-
-            # Verify environment file was created correctly
-            echo "=== Environment Configuration ==="
-            echo "Environment file size: $(wc -l < .env.azure) lines"
-            echo "Environment file content (sanitized):"
-            cat .env.azure | sed 's/=.*/=***/' | head -5
-            echo "Firebase enabled: $(grep FIREBASE_ENABLED .env.azure || echo 'NOT FOUND')"
-
-            # Test environment variable loading
-            echo "=== Testing Environment Variables ==="
-            if [ -n "${DOCKER_USERNAME:-}" ]; then
-              echo "✓ DOCKER_USERNAME is set"
-            else
-              echo "⚠️ DOCKER_USERNAME is not set, checking file..."
-              grep DOCKER_USERNAME .env.azure | head -1 | sed 's/=.*/=***/'
-            fi
-
-            # Ensure firewall allows HTTP traffic for all services
-            echo "=== Configuring Firewall ==="
-            sudo ufw allow 8080/tcp || true  # Frontend
-            sudo ufw allow 8085/tcp || true  # User Appointment Service
-            sudo ufw allow 8000/tcp || true  # AI Service
-            sudo ufw status || true
-
-            # Pull latest images for all services
+            # Pull latest images
             echo "=== Pulling Latest Images ==="
             docker pull ${DOCKER_USERNAME}/pulseiq-user-appointment:latest
+            docker pull ${DOCKER_USERNAME}/pulseiq-payment-service:latest
             docker pull ${DOCKER_USERNAME}/pulseiq-ai-service:latest
             docker pull ${DOCKER_USERNAME}/pulseiq-frontend:latest
             docker pull postgres:15-alpine
 
-            # Clean up unused resources
-            echo "=== Cleaning Up Docker Resources ==="
-            docker system prune -f || true
-
             # Stop and remove existing containers
             echo "=== Stopping Existing Containers ==="
-            docker stop pulseiq_postgres pulseiq_user_appointment pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
-            docker rm pulseiq_postgres pulseiq_user_appointment pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
+            docker stop pulseiq_postgres pulseiq_user_appointment pulseiq_payment_service pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
+            docker rm pulseiq_postgres pulseiq_user_appointment pulseiq_payment_service pulseiq_ai_service pulseiq_frontend 2>/dev/null || true
 
             # Clean up old networks
             docker network rm pulseiq-network 2>/dev/null || true
 
-            # Start all services using simple Docker commands to avoid health check issues
-            echo "=== Starting PulseIQ Application Stack ==="
-
             # Create Docker network
             echo "Creating Docker network..."
-            docker network create pulseiq-network 2>/dev/null || echo "Network already exists"
+            docker network create pulseiq-network
 
-            # Start database first
+            # Start database
             echo "Starting PostgreSQL database..."
             if [ -f "user-appointment-service/init-schema.sql" ]; then
-              echo "Using schema file for database initialization"
               docker run -d \
                 --name pulseiq_postgres \
                 --network pulseiq-network \
@@ -371,14 +216,11 @@ jobs:
                 -e POSTGRES_DB=pulseiq_db \
                 -e POSTGRES_USER=pulseiq_user \
                 -e POSTGRES_PASSWORD=${DB_PASSWORD} \
-                -e POSTGRES_INITDB_ARGS="--auth-host=md5" \
-                -e PGDATA=/var/lib/postgresql/data/pgdata \
                 -v $(pwd)/user-appointment-service/init-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro \
                 -v pulseiq_postgres_data:/var/lib/postgresql/data \
                 -p 5432:5432 \
                 postgres:15-alpine
             else
-              echo "Starting database without schema file"
               docker run -d \
                 --name pulseiq_postgres \
                 --network pulseiq-network \
@@ -386,38 +228,16 @@ jobs:
                 -e POSTGRES_DB=pulseiq_db \
                 -e POSTGRES_USER=pulseiq_user \
                 -e POSTGRES_PASSWORD=${DB_PASSWORD} \
-                -e POSTGRES_INITDB_ARGS="--auth-host=md5" \
-                -e PGDATA=/var/lib/postgresql/data/pgdata \
                 -v pulseiq_postgres_data:/var/lib/postgresql/data \
                 -p 5432:5432 \
                 postgres:15-alpine
             fi
 
-            # Wait for database to start
-            echo "Waiting 30 seconds for database to initialize..."
-            sleep 30
+            # Wait for database
+            echo "Waiting 20 seconds for database..."
+            sleep 20
 
-            # Verify database is actually running
-            echo "Verifying database connectivity..."
-            for i in {1..10}; do
-              if docker exec pulseiq_postgres pg_isready -U pulseiq_user -d pulseiq_db; then
-                echo "✓ Database is ready"
-                break
-              else
-                echo "⚠️ Database not ready yet, waiting... (attempt $i/10)"
-                sleep 5
-              fi
-            done
-
-            # Set the default search path for the database
-            echo "Setting default search path for database..."
-            docker exec pulseiq_postgres psql -U pulseiq_user -d pulseiq_db -c "ALTER DATABASE pulseiq_db SET search_path TO pulseiq, public;" || echo "Warning: Could not set search path"
-
-            # Verify schema exists
-            echo "Verifying database schema..."
-            docker exec pulseiq_postgres psql -U pulseiq_user -d pulseiq_db -c "SELECT schema_name FROM information_schema.schemata WHERE schema_name = 'pulseiq';" || echo "Warning: Could not verify schema"
-
-            # Start user appointment service first (as AI service depends on it)
+            # Start user appointment service
             echo "Starting User Appointment service..."
             docker run -d \
               --name pulseiq_user_appointment \
@@ -431,27 +251,31 @@ jobs:
               -e FIREBASE_ENABLED=true \
               -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
               -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=pulseiq \
-              -e SERVER_PORT=8085 \
-              -e SERVER_ADDRESS=0.0.0.0 \
+              -e MAIL_USERNAME=${MAIL_USERNAME} \
+              -e MAIL_PASSWORD=${MAIL_PASSWORD} \
               -v $(pwd)/firebase-service-account.json:/app/firebase-service-account.json:ro \
               -p 8085:8085 \
               ${DOCKER_USERNAME}/pulseiq-user-appointment:latest
 
-            # Wait for user appointment service to start
-            echo "Waiting 20 seconds for user appointment service to start..."
-            sleep 20
-
-            # Verify user appointment service is running
-            echo "Verifying user appointment service..."
-            for i in {1..15}; do
-              if curl -f http://localhost:8085/actuator/health --max-time 5 > /dev/null 2>&1; then
-                echo "✓ User appointment service is healthy"
-                break
-              else
-                echo "⚠️ User appointment service not ready yet, waiting... (attempt $i/15)"
-                sleep 10
-              fi
-            done
+            # Start payment service
+            echo "Starting Payment service..."
+            docker run -d \
+              --name pulseiq_payment_service \
+              --network pulseiq-network \
+              --restart unless-stopped \
+              -e SPRING_DATASOURCE_URL=jdbc:postgresql://pulseiq_postgres:5432/pulseiq_db \
+              -e SPRING_DATASOURCE_USERNAME=pulseiq_user \
+              -e SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD} \
+              -e JWT_SECRET=${JWT_SECRET} \
+              -e FRONTEND_ORIGIN=${FRONTEND_URL} \
+              -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
+              -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=pulseiq \
+              -e MAIL_USERNAME=${MAIL_USERNAME} \
+              -e MAIL_PASSWORD=${MAIL_PASSWORD} \
+              -e SSLCOMMERZ_STORE_ID=${SSLCOMMERZ_STORE_ID} \
+              -e SSLCOMMERZ_STORE_PASSWORD=${SSLCOMMERZ_STORE_PASSWORD} \
+              -p 8082:8082 \
+              ${DOCKER_USERNAME}/pulseiq-payment-service:latest
 
             # Start AI service
             echo "Starting AI service..."
@@ -463,109 +287,24 @@ jobs:
               -p 8000:8000 \
               ${DOCKER_USERNAME}/pulseiq-ai-service:latest
 
-            # Wait for AI service to start
-            echo "Waiting 15 seconds for AI service to start..."
-            sleep 15
-
-
-            # Start frontend
+            # Start frontend with aggressive cache busting
             echo "Starting Frontend..."
+            docker images --format "{{.Repository}}:{{.Tag}}" | grep ${DOCKER_USERNAME}/pulseiq-frontend | xargs -r docker rmi -f 2>/dev/null || true
+            docker pull ${DOCKER_USERNAME}/pulseiq-frontend:latest
             docker run -d \
+              --pull always \
               --name pulseiq_frontend \
               --network pulseiq-network \
               --restart unless-stopped \
               -p 8080:80 \
               ${DOCKER_USERNAME}/pulseiq-frontend:latest
 
-            # Wait for services to start
-            echo "=== Waiting for Services to Start ==="
-            echo "Waiting 15 seconds for final initialization..."
-            sleep 15
-
-            # Check container status
-            echo "=== Container Status Check ==="
-            echo "Running containers:"
-            docker ps --filter network=pulseiq-network --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-
-            # Check for any failed containers
-            echo "=== Checking for Failed Containers ==="
-            failed_containers=$(docker ps -a --filter name=pulseiq_ --filter status=exited --format "{{.Names}}")
-            if [ ! -z "$failed_containers" ]; then
-              echo "⚠️ Found failed containers: $failed_containers"
-              for container in $failed_containers; do
-                echo "=== Logs for failed container: $container ==="
-                docker logs --tail=50 $container || echo "No logs available for $container"
-              done
-            else
-              echo "✓ No failed containers found"
-            fi
-
-            # Simple health check attempts (non-blocking)
-            echo "=== Health Check Attempts ==="
-            echo "Checking User Appointment Service..."
-            curl -f http://localhost:8085/actuator/health --max-time 10 && echo "✓ User Service OK" || echo "⚠️ User Service not ready yet"
-
-            echo "Checking AI Service..."
-            curl -f http://localhost:8000/health --max-time 10 && echo "✓ AI Service OK" || echo "⚠️ AI Service not ready yet"
-
-            echo "Checking Frontend..."
-            curl -f http://localhost:8080/ --max-time 10 && echo "✓ Frontend OK" || echo "⚠️ Frontend not ready yet"
-
-            # Show service status
-            echo "=== Service Status ==="
-            echo "Container health status:"
-            docker ps --filter network=pulseiq-network --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-
-            # Show recent logs for debugging
-            echo "=== Recent Application Logs ==="
-            echo "User Appointment Service logs:"
-            docker logs --tail=20 pulseiq_user_appointment 2>/dev/null || echo "No logs available"
-
-            echo "AI Service logs:"
-            docker logs --tail=20 pulseiq_ai_service 2>/dev/null || echo "No logs available"
-
-            echo "Frontend logs:"
-            docker logs --tail=10 pulseiq_frontend 2>/dev/null || echo "No logs available"
-
-            echo "Database logs:"
-            docker logs --tail=10 pulseiq_postgres 2>/dev/null || echo "No logs available"
-
-            # Final connectivity test (non-blocking)
-            echo "=== Final Connectivity Test ==="
-            echo "Testing service endpoints (best effort)..."
-
-            curl -f -s http://localhost:8085/actuator/health --max-time 5 && echo "✓ User Service responding" || echo "⚠️ User Service not responding"
-            curl -f -s http://localhost:8000/health --max-time 5 && echo "✓ AI Service responding" || echo "⚠️ AI Service not responding"
-            curl -f -s http://localhost:8080/ --max-time 5 >/dev/null && echo "✓ Frontend responding" || echo "⚠️ Frontend not responding"
-
-            # Show network information for debugging
-            echo "=== Network Information ==="
-            echo "Active ports:"
-            netstat -tlnp | grep -E ':(8080|8085|8000)' || echo "No services listening on expected ports"
-
-            echo "Docker networks:"
-            docker network ls | grep pulseiq || echo "No PulseIQ networks found"
-
-            echo "=== Firebase Configuration Check ==="
-            if [ -f "firebase-service-account.json" ]; then
-              echo "Firebase service account file: $(wc -c < firebase-service-account.json) bytes"
-              if command -v python3 >/dev/null 2>&1; then
-                echo "Project ID: $(python3 -c "import json; print(json.load(open('firebase-service-account.json'))['project_id'])" 2>/dev/null || echo 'Could not extract project ID')"
-              fi
-            else
-              echo "Firebase service account file not found"
-            fi
-
-            echo "=== Deployment Summary ==="
-            echo "✅ Deployment completed successfully using direct Docker containers!"
+            # Quick status check
+            echo "=== Deployment Complete ==="
             echo "🌐 Frontend: http://${{ secrets.PUBLIC_IP }}:8080"
-            echo "🏥 User Appointment Service: http://${{ secrets.PUBLIC_IP }}:8085"
+            echo "🏥 User Service: http://${{ secrets.PUBLIC_IP }}:8085"
+            echo "💳 Payment Service: http://${{ secrets.PUBLIC_IP }}:8082"
             echo "🤖 AI Service: http://${{ secrets.PUBLIC_IP }}:8000"
-            echo "🐘 Database: PostgreSQL on port 5432"
-            echo "💚 Health Checks:"
-            echo "   - User Service: http://${{ secrets.PUBLIC_IP }}:8085/actuator/health"
-            echo "   - AI Service: http://${{ secrets.PUBLIC_IP }}:8000/health"
             echo ""
-            echo "🔗 All services are connected via pulseiq-network Docker network"
-            echo "📊 Container Status:"
-            docker ps --filter network=pulseiq-network --format "table {{.Names}}\t{{.Status}}" || true
+            echo "Container Status:"
+            docker ps --filter network=pulseiq-network --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

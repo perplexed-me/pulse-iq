@@ -5,6 +5,8 @@ import com.pulseiq.dto.TestResultResponseDto;
 import com.pulseiq.dto.TestResultStatsDto;
 import com.pulseiq.entity.TestResult;
 import com.pulseiq.service.TestResultService;
+import com.pulseiq.service.NotificationService;
+import com.pulseiq.service.PatientOtpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 public class TestResultController {
 
     private final TestResultService testResultService;
+    private final NotificationService notificationService;
+    private final PatientOtpService patientOtpService;
 
     /**
      * Upload a new test result (Technician only)
@@ -36,6 +40,20 @@ public class TestResultController {
         try {
             String technicianId = userDetails.getUsername(); // Assuming username is the user ID
             TestResultResponseDto response = testResultService.uploadTestResult(uploadDto, technicianId);
+                        
+            // Create notification ONLY for patient (not doctor)
+            if (response.getPatientId() != null) {
+                notificationService.createNotification(
+                    response.getPatientId(),
+                    "PATIENT", 
+                    "Test Result Available",
+                    "Your test result for " + response.getTestName() + " is now available.",
+                    com.pulseiq.entity.Notification.NotificationType.TEST_RESULT_UPLOADED,
+                    response.getTestId().toString(),
+                    "TEST_RESULT",
+                    technicianId
+                );
+            }
             
             Map<String, Object> result = new HashMap<>();
             result.put("message", "Test result uploaded successfully");
@@ -269,6 +287,86 @@ public class TestResultController {
     }
 
     /**
+     * Generate OTP for doctor to access patient test results
+     */
+    @PostMapping("/doctor/request-otp")
+    public ResponseEntity<?> requestOtpForPatientResults(@RequestParam String patientId,
+                                                        @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String doctorId = userDetails.getUsername();
+            String result = patientOtpService.generateOtpForTestResults(patientId, doctorId);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("message", result);
+            response.put("info", "OTP has been sent to patient's email. Valid for 10 minutes.");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
+     * Verify OTP and get patient test results for doctor
+     */
+    @PostMapping("/doctor/verify-otp")
+    public ResponseEntity<?> verifyOtpAndGetPatientResults(@RequestParam String patientId,
+                                                          @RequestParam String otp,
+                                                          @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String doctorId = userDetails.getUsername();
+            
+            if (patientOtpService.verifyOtp(patientId, doctorId, otp)) {
+                // OTP verified, get all test results for this patient
+                List<TestResultResponseDto> testResults = testResultService.getTestResultsByPatientId(patientId);
+                
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "OTP verified successfully");
+                response.put("testResults", testResults);
+                response.put("patientId", patientId);
+                
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Invalid or expired OTP");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
+     * Download test result PDF with OTP verification for doctors
+     */
+    @PostMapping("/doctor/download-with-otp")
+    public ResponseEntity<?> downloadTestResultWithOtp(@RequestParam Long testId,
+                                                      @RequestParam String patientId,
+                                                      @RequestParam String otp,
+                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String doctorId = userDetails.getUsername();
+            
+            if (patientOtpService.verifyOtpForDownload(patientId, doctorId, otp)) {
+                // OTP verified, now validate that test result belongs to the specified patient
+                return testResultService.downloadTestResultForPatient(testId, doctorId, patientId);
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Invalid or expired OTP");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
      * Debug endpoint to check which technician IDs exist (no auth required)
      */
     @GetMapping("/debug/technicians")
@@ -300,6 +398,123 @@ public class TestResultController {
             errorResult.put("error", e.getMessage());
             errorResult.put("errorType", e.getClass().getSimpleName());
             return ResponseEntity.ok(errorResult);
+        }
+    }
+
+    /**
+     * Get distinct test types for a patient (Doctor only with permission validation)
+     */
+    @GetMapping("/patient/{patientId}/test-types")
+    public ResponseEntity<?> getTestTypesByPatient(@PathVariable String patientId,
+                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String doctorId = userDetails.getUsername();
+            
+            // Get test types for the patient
+            List<String> testTypes = testResultService.getTestTypesByPatient(patientId);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("patientId", patientId);
+            result.put("testTypes", testTypes);
+            result.put("success", true);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("error", e.getMessage());
+            errorResult.put("success", false);
+            return ResponseEntity.badRequest().body(errorResult);
+        }
+    }
+
+    /**
+     * Request OTP for specific test type access
+     */
+    @PostMapping("/patient/{patientId}/test-type/{testType}/request-otp")
+    public ResponseEntity<?> requestOtpForTestType(@PathVariable String patientId,
+                                                   @PathVariable String testType,
+                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String doctorId = userDetails.getUsername();
+            
+            String message = patientOtpService.generateOtpForTestType(patientId, doctorId, testType);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", message);
+            result.put("success", true);
+            result.put("testType", testType);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("error", e.getMessage());
+            errorResult.put("success", false);
+            return ResponseEntity.badRequest().body(errorResult);
+        }
+    }
+
+    /**
+     * Verify OTP and get test results for specific test type
+     */
+    @PostMapping("/patient/{patientId}/test-type/{testType}/verify-otp")
+    public ResponseEntity<?> verifyOtpForTestType(@PathVariable String patientId,
+                                                  @PathVariable String testType,
+                                                  @RequestParam String otp,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String doctorId = userDetails.getUsername();
+            
+            // Verify OTP
+            boolean isValid = patientOtpService.verifyOtpForTestType(patientId, doctorId, testType, otp);
+            
+            if (isValid) {
+                // Get test results for this test type
+                List<TestResultResponseDto> testResults = testResultService.getTestResultsByPatientAndTestTypeForDoctor(
+                    patientId, testType, doctorId);
+                
+                Map<String, Object> result = new HashMap<>();
+                result.put("success", true);
+                result.put("message", "OTP verified successfully");
+                result.put("testResults", testResults);
+                result.put("testType", testType);
+                
+                return ResponseEntity.ok(result);
+            } else {
+                Map<String, Object> errorResult = new HashMap<>();
+                errorResult.put("error", "Invalid or expired OTP");
+                errorResult.put("success", false);
+                return ResponseEntity.badRequest().body(errorResult);
+            }
+        } catch (Exception e) {
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("error", e.getMessage());
+            errorResult.put("success", false);
+            return ResponseEntity.badRequest().body(errorResult);
+        }
+    }
+
+    /**
+     * Cancel OTP for test type (when dialog is closed)
+     */
+    @PostMapping("/patient/{patientId}/test-type/{testType}/cancel-otp")
+    public ResponseEntity<?> cancelOtpForTestType(@PathVariable String patientId,
+                                                  @PathVariable String testType,
+                                                  @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            String doctorId = userDetails.getUsername();
+            
+            patientOtpService.cancelOtpForTestType(patientId, doctorId, testType);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "OTP cancelled successfully");
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("error", e.getMessage());
+            errorResult.put("success", false);
+            return ResponseEntity.badRequest().body(errorResult);
         }
     }
 

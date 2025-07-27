@@ -42,4 +42,31 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         @Param("currentDate") LocalDateTime currentDate,
         @Param("status") AppointmentStatus status
     );
+
+    // New methods for doctor dashboard statistics
+    @Query("SELECT DISTINCT a.patientId, " +
+           "CONCAT(COALESCE(p.firstName, ''), ' ', COALESCE(p.lastName, '')) as patientName, " +
+           "MAX(a.appointmentDate) as lastAppointmentDate, " +
+           "COUNT(a.appointmentId) as completedAppointments " +
+           "FROM Appointment a " +
+           "LEFT JOIN Patient p ON a.patientId = p.patientId " +
+           "WHERE a.doctorId = :doctorId AND a.status = 'COMPLETED' " +
+           "GROUP BY a.patientId, p.firstName, p.lastName " +
+           "ORDER BY lastAppointmentDate DESC")
+    List<Object[]> findCompletedPatientsByDoctorId(@Param("doctorId") String doctorId);
+
+    @Query("SELECT COUNT(a) FROM Appointment a " +
+           "WHERE a.doctorId = :doctorId " +
+           "AND FUNCTION('DATE', a.appointmentDate) = CURRENT_DATE " +
+           "AND a.status IN ('SCHEDULED', 'CONFIRMED')")
+    long countTodayAppointmentsByDoctorId(@Param("doctorId") String doctorId);
+
+    @Query("SELECT COUNT(a) FROM Appointment a " +
+           "WHERE a.doctorId = :doctorId " +
+           "AND FUNCTION('DATE', a.appointmentDate) > CURRENT_DATE " +
+           "AND a.status IN ('SCHEDULED', 'CONFIRMED')")
+    long countFutureAppointmentsByDoctorId(@Param("doctorId") String doctorId);
+
+    // Method to check if doctor has completed appointments with specific patient
+    boolean existsByDoctorIdAndPatientIdAndStatus(String doctorId, String patientId, AppointmentStatus status);
 }

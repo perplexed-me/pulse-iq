@@ -4,6 +4,9 @@ import java.sql.Types;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,8 +51,10 @@ public class TestResult {
 
     // PDF file stored as binary data
     @Lob
-    @Column(name = "pdf_data", nullable = false, columnDefinition = "LONGVARBINARY")
-    @JdbcTypeCode(Types.BINARY)
+    // @Column(name = "pdf_data", nullable = false, columnDefinition = "LONGVARBINARY")
+    // @JdbcTypeCode(Types.BINARY)
+    @Column(name = "pdf_data", nullable = false)
+    @JdbcTypeCode(SqlTypes.LONGVARBINARY)
     @NotNull(message = "PDF data is required")
     private byte[] pdfData;
 
@@ -69,13 +74,13 @@ public class TestResult {
     @JoinColumn(name = "patient_id", referencedColumnName = "patient_id", insertable = false, updatable = false)
     private Patient patient;
 
-    // Foreign Key: Doctor who ordered this test
-    @Column(name = "doctor_id", nullable = false)
-    @NotBlank(message = "Doctor ID is required")
+    // Foreign Key: Doctor who ordered this test (optional for custom doctor names)
+    @Column(name = "doctor_id", nullable = true)
     private String doctorId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", referencedColumnName = "doctor_id", insertable = false, updatable = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Doctor doctor;
 
     // Foreign Key: Technician who uploaded this test result

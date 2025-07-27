@@ -90,6 +90,19 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			animationDelay: {
+				'0': '0ms',
+				'100': '100ms',
+				'200': '200ms',
+				'300': '300ms',
+				'500': '500ms',
+				'700': '700ms',
+				'1000': '1000ms',
+				'1500': '1500ms',
+				'2000': '2000ms',
+				'2500': '2500ms',
+				'3000': '3000ms'
 			}
 		}
 	},

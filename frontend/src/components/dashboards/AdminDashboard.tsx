@@ -47,10 +47,11 @@ const AdminDashboard = () => {
 
   // Which tab we're viewing right now:
   const [viewMode, setViewMode] = useState<ViewMode>('pending');
+  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Fetch pending users from /api/admin/pending
   const fetchPendingUsers = useCallback(async () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       navigate('/admin');
       return;
@@ -74,7 +75,7 @@ const AdminDashboard = () => {
 
   // Fetch approved users from /api/admin/approved
   const fetchApprovedUsers = useCallback(async () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) return;
     try {
       const resp = await apiCall(API_CONFIG.ADMIN.APPROVED, {
@@ -90,7 +91,7 @@ const AdminDashboard = () => {
 
   // Fetch rejected users from /api/admin/rejected
   const fetchRejectedUsers = useCallback(async () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) return;
     try {
       const resp = await apiCall(API_CONFIG.ADMIN.REJECTED, {
@@ -104,12 +105,37 @@ const AdminDashboard = () => {
     }
   }, []);
 
-  // On mount, load all three lists
+  // On mount, load all three lists and set up auto-refresh
   useEffect(() => {
     fetchPendingUsers();
     fetchApprovedUsers();
     fetchRejectedUsers();
+
+    // Set up auto-refresh every 30 seconds for real-time updates
+    const interval = setInterval(() => {
+      fetchPendingUsers();
+      fetchApprovedUsers();
+      fetchRejectedUsers();
+    }, 5000);
+    
+    setRefreshInterval(interval);
+
+    // Cleanup interval on component unmount
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [fetchPendingUsers, fetchApprovedUsers, fetchRejectedUsers]);
+
+  // Cleanup interval when component unmounts
+  useEffect(() => {
+    return () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+    };
+  }, [refreshInterval]);
 
   const handleLogout = () => {
     logout();
@@ -126,7 +152,7 @@ const AdminDashboard = () => {
     action: 'approve' | 'reject'
   ) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) throw new Error('Unauthorized');
 
       console.log(`Attempting to ${action} user with userId: ${userId}`);
@@ -179,6 +205,30 @@ const AdminDashboard = () => {
   // Helper function to get display email/contact
   const getDisplayContact = (user: PendingUser): string => {
     return user.email || user.phone || 'No contact info';
+  };
+
+  // Helper function to categorize users by role
+  const categorizeUsersByRole = (users: PendingUser[]) => {
+    const categories = {
+      patient: users.filter(u => u.role.toLowerCase() === 'patient'),
+      doctor: users.filter(u => u.role.toLowerCase() === 'doctor'),
+      technician: users.filter(u => u.role.toLowerCase() === 'technician'),
+      admin: users.filter(u => u.role.toLowerCase() === 'admin'),
+      other: users.filter(u => !['patient', 'doctor', 'technician', 'admin'].includes(u.role.toLowerCase()))
+    };
+    return categories;
+  };
+
+  // Get role-based icon and color
+  const getRoleDisplay = (role: string) => {
+    const roleMap = {
+      patient: { icon: Users, color: 'bg-blue-500' },
+      doctor: { icon: Users, color: 'bg-green-500' },
+      technician: { icon: Users, color: 'bg-purple-500' },
+      admin: { icon: Shield, color: 'bg-red-500' },
+      default: { icon: Users, color: 'bg-gray-500' }
+    };
+    return roleMap[role.toLowerCase()] || roleMap.default;
   };
 
   // Build a 5‐card stats array; clicking sets viewMode
@@ -327,52 +377,213 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {pendingUsers.map((u) => (
-                    <div
-                      key={u.userId}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          <Users className="w-5 h-5 text-gray-600" />
-                        </div>
+                {(() => {
+                  const categories = categorizeUsersByRole(pendingUsers);
+                  return (
+                    <div className="space-y-6">
+                      {/* Patients */}
+                      {categories.patient.length > 0 && (
                         <div>
-                          <p className="font-medium">{getDisplayName(u)}</p>
-                          <p className="text-sm text-gray-500">{getDisplayContact(u)}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant="outline" className="text-xs">
-                              {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
-                            </Badge>
-                            <span className="text-xs text-gray-400">
-                              ID: {u.userId}
-                            </span>
+                          <h4 className="font-semibold text-blue-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Patients ({categories.patient.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.patient.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-blue-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center">
+                                    <Users className="w-4 h-4 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleUserAction(u.userId, 'approve')}
+                                    className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleUserAction(u.userId, 'reject')}
+                                    className="text-xs px-2 py-1"
+                                  >
+                                    <X className="w-3 h-3 mr-1" />
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {/* Pending → Approve */}
-                        <Button
-                          size="sm"
-                          onClick={() => handleUserAction(u.userId, 'approve')}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <Check className="w-4 h-4 mr-1" />
-                          Approve
-                        </Button>
-                        {/* Pending → Reject */}
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleUserAction(u.userId, 'reject')}
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Reject
-                        </Button>
-                      </div>
+                      )}
+
+                      {/* Doctors */}
+                      {categories.doctor.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-green-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Doctors ({categories.doctor.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.doctor.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center">
+                                    <Users className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleUserAction(u.userId, 'approve')}
+                                    className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleUserAction(u.userId, 'reject')}
+                                    className="text-xs px-2 py-1"
+                                  >
+                                    <X className="w-3 h-3 mr-1" />
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Technicians */}
+                      {categories.technician.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-purple-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Technicians ({categories.technician.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.technician.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-purple-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-purple-200 rounded-full flex items-center justify-center">
+                                    <Users className="w-4 h-4 text-purple-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleUserAction(u.userId, 'approve')}
+                                    className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleUserAction(u.userId, 'reject')}
+                                    className="text-xs px-2 py-1"
+                                  >
+                                    <X className="w-3 h-3 mr-1" />
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Other roles */}
+                      {(categories.admin.length > 0 || categories.other.length > 0) && (
+                        <div>
+                          <h4 className="font-semibold text-gray-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Other ({categories.admin.length + categories.other.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {[...categories.admin, ...categories.other].map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-gray-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                    <Users className="w-4 h-4 text-gray-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <div className="flex items-center space-x-1 mt-1">
+                                      <Badge variant="outline" className="text-xs">
+                                        {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
+                                      </Badge>
+                                      <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleUserAction(u.userId, 'approve')}
+                                    className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleUserAction(u.userId, 'reject')}
+                                    className="text-xs px-2 py-1"
+                                  >
+                                    <X className="w-3 h-3 mr-1" />
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {pendingUsers.length === 0 && (
+                        <p className="text-gray-500 text-center py-4">No pending users</p>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>
@@ -388,40 +599,173 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {approvedUsers.map((u) => (
-                    <div
-                      key={u.userId}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center">
-                          <ThumbsUp className="w-5 h-5 text-green-600" />
-                        </div>
+                {(() => {
+                  const categories = categorizeUsersByRole(approvedUsers);
+                  return (
+                    <div className="space-y-6">
+                      {/* Patients */}
+                      {categories.patient.length > 0 && (
                         <div>
-                          <p className="font-medium">{getDisplayName(u)}</p>
-                          <p className="text-sm text-gray-500">{getDisplayContact(u)}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant="outline" className="text-xs">
-                              {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
-                            </Badge>
-                            <span className="text-xs text-gray-400">
-                              ID: {u.userId}
-                            </span>
+                          <h4 className="font-semibold text-blue-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Patients ({categories.patient.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.patient.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center">
+                                    <ThumbsUp className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleUserAction(u.userId, 'reject')}
+                                  className="text-xs px-2 py-1"
+                                >
+                                  <X className="w-3 h-3 mr-1" />
+                                  Reject
+                                </Button>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleUserAction(u.userId, 'reject')}
-                      >
-                        <X className="w-4 h-4 mr-1" />
-                        Reject
-                      </Button>
+                      )}
+
+                      {/* Doctors */}
+                      {categories.doctor.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-green-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Doctors ({categories.doctor.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.doctor.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center">
+                                    <ThumbsUp className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleUserAction(u.userId, 'reject')}
+                                  className="text-xs px-2 py-1"
+                                >
+                                  <X className="w-3 h-3 mr-1" />
+                                  Reject
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Technicians */}
+                      {categories.technician.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-purple-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Technicians ({categories.technician.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.technician.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center">
+                                    <ThumbsUp className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleUserAction(u.userId, 'reject')}
+                                  className="text-xs px-2 py-1"
+                                >
+                                  <X className="w-3 h-3 mr-1" />
+                                  Reject
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Other roles */}
+                      {(categories.admin.length > 0 || categories.other.length > 0) && (
+                        <div>
+                          <h4 className="font-semibold text-gray-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Other ({categories.admin.length + categories.other.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {[...categories.admin, ...categories.other].map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-green-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center">
+                                    <ThumbsUp className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <div className="flex items-center space-x-1 mt-1">
+                                      <Badge variant="outline" className="text-xs">
+                                        {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
+                                      </Badge>
+                                      <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleUserAction(u.userId, 'reject')}
+                                  className="text-xs px-2 py-1"
+                                >
+                                  <X className="w-3 h-3 mr-1" />
+                                  Reject
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {approvedUsers.length === 0 && (
+                        <p className="text-gray-500 text-center py-4">No approved users</p>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>
@@ -437,40 +781,169 @@ const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {rejectedUsers.map((u) => (
-                    <div
-                      key={u.userId}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-red-200 rounded-full flex items-center justify-center">
-                          <ThumbsDown className="w-5 h-5 text-red-600" />
-                        </div>
+                {(() => {
+                  const categories = categorizeUsersByRole(rejectedUsers);
+                  return (
+                    <div className="space-y-6">
+                      {/* Patients */}
+                      {categories.patient.length > 0 && (
                         <div>
-                          <p className="font-medium">{getDisplayName(u)}</p>
-                          <p className="text-sm text-gray-500">{getDisplayContact(u)}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant="outline" className="text-xs">
-                              {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
-                            </Badge>
-                            <span className="text-xs text-gray-400">
-                              ID: {u.userId}
-                            </span>
+                          <h4 className="font-semibold text-blue-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Patients ({categories.patient.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.patient.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-red-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-red-200 rounded-full flex items-center justify-center">
+                                    <ThumbsDown className="w-4 h-4 text-red-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUserAction(u.userId, 'approve')}
+                                  className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Approve
+                                </Button>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                        onClick={() => handleUserAction(u.userId, 'approve')}
-                      >
-                        <Check className="w-4 h-4 mr-1" />
-                        Approve
-                      </Button>
+                      )}
+
+                      {/* Doctors */}
+                      {categories.doctor.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-green-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Doctors ({categories.doctor.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.doctor.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-red-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-red-200 rounded-full flex items-center justify-center">
+                                    <ThumbsDown className="w-4 h-4 text-red-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUserAction(u.userId, 'approve')}
+                                  className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Approve
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Technicians */}
+                      {categories.technician.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-purple-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Technicians ({categories.technician.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {categories.technician.map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-red-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-red-200 rounded-full flex items-center justify-center">
+                                    <ThumbsDown className="w-4 h-4 text-red-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUserAction(u.userId, 'approve')}
+                                  className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Approve
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Other roles */}
+                      {(categories.admin.length > 0 || categories.other.length > 0) && (
+                        <div>
+                          <h4 className="font-semibold text-gray-600 mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2" />
+                            Other ({categories.admin.length + categories.other.length})
+                          </h4>
+                          <div className="space-y-3">
+                            {[...categories.admin, ...categories.other].map((u) => (
+                              <div
+                                key={u.userId}
+                                className="flex items-center justify-between p-3 border rounded-lg bg-red-50"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-red-200 rounded-full flex items-center justify-center">
+                                    <ThumbsDown className="w-4 h-4 text-red-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-sm">{getDisplayName(u)}</p>
+                                    <p className="text-xs text-gray-500">{getDisplayContact(u)}</p>
+                                    <div className="flex items-center space-x-1 mt-1">
+                                      <Badge variant="outline" className="text-xs">
+                                        {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
+                                      </Badge>
+                                      <span className="text-xs text-gray-400">ID: {u.userId}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleUserAction(u.userId, 'approve')}
+                                  className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                                >
+                                  <Check className="w-3 h-3 mr-1" />
+                                  Approve
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {rejectedUsers.length === 0 && (
+                        <p className="text-gray-500 text-center py-4">No rejected users</p>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>

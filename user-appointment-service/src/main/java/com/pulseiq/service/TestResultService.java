@@ -43,6 +43,11 @@ public interface TestResultService {
     ResponseEntity<Resource> downloadTestResultPdf(Long testId, String userId);
     
     /**
+     * Download PDF file of a test result for a specific patient (OTP-verified access)
+     */
+    ResponseEntity<Resource> downloadTestResultForPatient(Long testId, String doctorId, String patientId);
+    
+    /**
      * Get test results by patient and date range
      */
     List<TestResultResponseDto> getTestResultsByPatientAndDateRange(String patientId, 
@@ -90,4 +95,14 @@ public interface TestResultService {
      * Get all test results (for debugging)
      */
     List<TestResult> getAllTestResults();
+
+    /**
+     * Get distinct test types for a specific patient
+     */
+    List<String> getTestTypesByPatient(String patientId);
+
+    /**
+     * Get test results by patient and test type with doctor permission validation
+     */
+    List<TestResultResponseDto> getTestResultsByPatientAndTestTypeForDoctor(String patientId, String testType, String doctorId);
 }

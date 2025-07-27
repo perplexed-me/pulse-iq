@@ -1,0 +1,7 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#f3f4f6"/>
+  <circle cx="100" cy="80" r="30" fill="#e5e7eb"/>
+  <rect x="70" y="105" width="60" height="40" rx="5" fill="#e5e7eb"/>
+  <text x="100" y="170" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">Medicine</text>
+  <path d="M85 65 L115 65 M100 50 L100 80" stroke="#9ca3af" stroke-width="3" stroke-linecap="round"/>
+</svg>

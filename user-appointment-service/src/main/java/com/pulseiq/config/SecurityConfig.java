@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/auth/register/**", "/api/auth/google-patient",
                                 "/api/auth/health")
                         .permitAll()
-                        .requestMatchers("/api/users/**","/api/appointments/**","/api/test-results/**","/api/doctors/**").permitAll()
+                        .requestMatchers("/api/users/**","/api/appointments/**","/api/test-results/**","/api/doctors/**","/api/prescriptions/**","/api/medicines/**","/api/notifications/**").permitAll()
                         .requestMatchers("/api/auth/validate", "/api/auth/profile").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -70,7 +70,8 @@ public class SecurityConfig {
         // Parse allowed origins from environment variable
         List<String> origins = new ArrayList<>();
         origins.add("http://localhost:8080");
-        origins.add("http://localhost:3000");
+        // origins.add("http://localhost:3000");
+        // origins.add("http://localhost:5173");
         origins.add(frontendOrigin);
 
         // Add origins from comma-separated environment variable

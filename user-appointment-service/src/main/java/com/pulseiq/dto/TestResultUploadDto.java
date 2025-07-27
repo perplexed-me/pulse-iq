@@ -22,7 +22,7 @@ public class TestResultUploadDto {
     @NotBlank(message = "Patient ID is required")
     private String patientId;
 
-    @NotBlank(message = "Doctor ID is required")
+    // Doctor ID is optional - can be empty for custom doctor names
     private String doctorId;
 
     @NotNull(message = "PDF file is required")

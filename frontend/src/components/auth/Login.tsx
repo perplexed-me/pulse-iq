@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import type { User } from '../../contexts/AuthContext';
@@ -9,12 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { User as LucideUser, Mail, Phone, LogIn } from 'lucide-react';
+import { User as LucideUser, Mail, Phone, LogIn, ArrowLeft, Stethoscope, Activity, FileText, Shield, Heart, Plus, Lock, Users, UserPlus } from 'lucide-react';
 import { auth, googleProvider } from '@/lib/firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { API_CONFIG, apiCall } from '@/config/api';
 
 const Login = () => {
+  const [particles, setParticles] = useState([]);
   const [formData, setFormData] = useState({
     userId: '',
     email: '',
@@ -28,6 +29,62 @@ const Login = () => {
 
   const { login, isLoading, setUser, lastLoginError } = useAuth();
   const navigate = useNavigate();
+
+  // Clear form data when component unmounts for security
+  useEffect(() => {
+    // Create animated particles
+    const createParticles = () => {
+      const newParticles = [];
+      for (let i = 0; i < 50; i++) {
+        newParticles.push({
+          id: i,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          size: Math.random() * 10 + 3,
+          speedX: (Math.random() - 0.5) * 1.5,
+          speedY: (Math.random() - 0.5) * 1.5,
+          opacity: Math.random() * 0.8 + 0.2,
+          color: ['sky', 'blue', 'cyan', 'indigo', 'purple', 'emerald', 'pink', 'amber'][Math.floor(Math.random() * 8)]
+        });
+      }
+      setParticles(newParticles);
+    };
+
+    createParticles();
+
+    // Animate particles continuously
+    const animateParticles = () => {
+      setParticles(prev => prev.map(particle => {
+        let newX = particle.x + particle.speedX;
+        let newY = particle.y + particle.speedY;
+
+        // Wrap around screen edges
+        if (newX > 100) newX = -5;
+        if (newX < -5) newX = 100;
+        if (newY > 100) newY = -5;
+        if (newY < -5) newY = 100;
+
+        return {
+          ...particle,
+          x: newX,
+          y: newY
+        };
+      }));
+    };
+
+    const particleInterval = setInterval(animateParticles, 25);
+
+    return () => {
+      clearInterval(particleInterval);
+      setFormData({
+        userId: '',
+        email: '',
+        phone: '',
+        password: '',
+        role: ''
+      });
+    };
+  }, []);
 
   const detectRoleFromUserId = (userId: string): string | null => {
     // Only auto-detect role if the userId matches a complete valid pattern
@@ -103,6 +160,16 @@ const Login = () => {
     
     if (result.success) {
       console.log('Showing success toast');
+      
+      // Clear form data to prevent autofill for next user
+      setFormData({
+        userId: '',
+        email: '',
+        phone: '',
+        password: '',
+        role: ''
+      });
+      
       toast({
         title: "Login Successful",
         description: "Welcome to PulseIQ!",
@@ -127,6 +194,9 @@ const Login = () => {
           navigate('/');
       }
     } else {
+      // Clear password field after failed login for security
+      setFormData(prev => ({ ...prev, password: '' }));
+      
       // Use the error message directly from the login result
       const errorMessage = result.errorMessage || "Invalid credentials. Please try again.";
       console.log('Showing error toast with message:', errorMessage);
@@ -228,14 +298,99 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-12 h-12 bg-sky-600 rounded-full flex items-center justify-center">
-            <LucideUser className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 relative overflow-hidden flex items-center justify-center p-4">
+      {/* Beautiful Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Moving Particles */}
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute rounded-full"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              opacity: particle.opacity,
+              background: particle.color === 'sky' ? 'linear-gradient(45deg, #0ea5e9, #38bdf8)' :
+                         particle.color === 'blue' ? 'linear-gradient(45deg, #3b82f6, #60a5fa)' :
+                         particle.color === 'cyan' ? 'linear-gradient(45deg, #06b6d4, #22d3ee)' :
+                         particle.color === 'indigo' ? 'linear-gradient(45deg, #6366f1, #818cf8)' :
+                         particle.color === 'purple' ? 'linear-gradient(45deg, #8b5cf6, #a78bfa)' :
+                         particle.color === 'emerald' ? 'linear-gradient(45deg, #10b981, #34d399)' :
+                         particle.color === 'pink' ? 'linear-gradient(45deg, #ec4899, #f472b6)' :
+                         particle.color === 'amber' ? 'linear-gradient(45deg, #f59e0b, #fbbf24)' :
+                         'linear-gradient(45deg, #8b5cf6, #a78bfa)',
+              boxShadow: `0 0 ${particle.size * 4}px ${particle.color === 'sky' ? 'rgba(14, 165, 233, 0.7)' : 
+                          particle.color === 'blue' ? 'rgba(59, 130, 246, 0.7)' :
+                          particle.color === 'cyan' ? 'rgba(6, 182, 212, 0.7)' :
+                          particle.color === 'indigo' ? 'rgba(99, 102, 241, 0.7)' :
+                          particle.color === 'purple' ? 'rgba(139, 92, 246, 0.7)' :
+                          particle.color === 'emerald' ? 'rgba(16, 185, 129, 0.7)' :
+                          particle.color === 'pink' ? 'rgba(236, 72, 153, 0.7)' :
+                          particle.color === 'amber' ? 'rgba(245, 158, 11, 0.7)' : 'rgba(139, 92, 246, 0.7)'}`,
+              filter: 'blur(0.3px)',
+              transition: 'all 0.02s linear',
+            }}
+          />
+        ))}
+
+        {/* Enhanced Floating Medical Icons */}
+        <div className="absolute top-20 left-10 animate-bounce" style={{ animationDuration: '3s', animationDelay: '0s' }}>
+          <Heart className="w-6 h-6 text-sky-400/50" />
+        </div>
+        <div className="absolute top-40 right-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+          <Stethoscope className="w-8 h-8 text-blue-400/50" />
+        </div>
+        <div className="absolute bottom-40 left-20 animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '2s' }}>
+          <Shield className="w-7 h-7 text-cyan-400/50" />
+        </div>
+        <div className="absolute bottom-20 right-40 animate-bounce" style={{ animationDuration: '4.5s', animationDelay: '0.5s' }}>
+          <Activity className="w-5 h-5 text-indigo-400/50" />
+        </div>
+        <div className="absolute top-60 right-10 animate-bounce" style={{ animationDuration: '3.8s', animationDelay: '1.5s' }}>
+          <Users className="w-6 h-6 text-emerald-400/50" />
+        </div>
+        <div className="absolute bottom-60 left-40 animate-bounce" style={{ animationDuration: '4.2s', animationDelay: '2.5s' }}>
+          <FileText className="w-5 h-5 text-purple-400/50" />
+        </div>
+        
+        {/* Enhanced Plus Signs */}
+        <div className="absolute top-60 left-1/3 animate-spin" style={{ animationDuration: '8s' }}>
+          <Plus className="w-4 h-4 text-sky-500/40" />
+        </div>
+        <div className="absolute bottom-60 right-1/3 animate-spin" style={{ animationDuration: '10s', animationDirection: 'reverse' }}>
+          <Plus className="w-6 h-6 text-blue-500/40" />
+        </div>
+        <div className="absolute top-32 left-2/3 animate-spin" style={{ animationDuration: '12s' }}>
+          <Plus className="w-5 h-5 text-emerald-500/40" />
+        </div>
+        <div className="absolute bottom-32 left-1/4 animate-spin" style={{ animationDuration: '9s', animationDirection: 'reverse' }}>
+          <Plus className="w-3 h-3 text-purple-500/40" />
+        </div>
+      </div>
+
+      {/* Back button - moved to top right */}
+      <div className="absolute top-4 right-4 z-50">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/')}
+          className="border-sky-200 text-sky-700 hover:bg-sky-50 hover:border-sky-300 font-medium shadow-lg hover:scale-105 transition-all duration-200 backdrop-blur-sm bg-white/80"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Home
+        </Button>
+      </div>
+      
+      <Card className="w-full max-w-md shadow-2xl border-0 backdrop-blur-sm bg-white/95 relative z-10">
+        <CardHeader className="text-center pb-6">
+          <div className="mx-auto mb-6 w-16 h-16 bg-gradient-to-r from-sky-600 to-blue-600 rounded-full flex items-center justify-center shadow-xl">
+            <Lock className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">PulseIQ Login</CardTitle>
-          <CardDescription>Access your healthcare management portal</CardDescription>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent mb-2">
+            Welcome Back
+          </CardTitle>
+          <CardDescription className="text-lg text-gray-600">Access your PulseIQ healthcare portal</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -281,7 +436,7 @@ const Login = () => {
           </div>
         </CardContent>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off" noValidate>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="userId">User ID</Label>
@@ -289,10 +444,13 @@ const Login = () => {
                 <LucideUser className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="userId"
+                  name="userId"
                   placeholder="e.g., D100, P200, T300 or email or phone"
                   value={formData.userId}
                   onChange={(e) => handleInputChange('userId', e.target.value)}
                   className="pl-10"
+                  autoComplete="off"
+                  autoFocus={false}
                 />
               </div>
             </div>
@@ -317,10 +475,13 @@ const Login = () => {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                autoComplete="new-password"
+                autoFocus={false}
               />
             </div>
           </CardContent>
@@ -347,6 +508,18 @@ const Login = () => {
                 Register here
               </button>
             </p>
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <p className="text-sm text-center text-gray-600">
+                Administrator?{' '}
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin')}
+                  className="text-red-600 hover:text-red-700 font-medium"
+                >
+                  Sign in as Admin
+                </button>
+              </p>
+            </div>
           </CardFooter>
         </form>
       </Card>

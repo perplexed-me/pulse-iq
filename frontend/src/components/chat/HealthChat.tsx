@@ -57,13 +57,13 @@ const formatAIResponse = (content: string) => {
         if (!trimmedLine) return null;
         if (trimmedLine.startsWith('🏥') || trimmedLine.startsWith('💡') || trimmedLine.startsWith('👨‍⚕️')) {
           return (
-            <div key={index} className="font-bold text-blue-700 my-2 text-lg">
+            <div key={index} className="font-bold text-blue-700 my-3 text-lg bg-blue-50/50 rounded-lg px-3 py-2 border-l-4 border-blue-500">
               {trimmedLine}
             </div>
           );
         }
         return (
-          <div key={index}>{trimmedLine}</div>
+          <div key={index} className="my-1 text-gray-700">{trimmedLine}</div>
         );
       })}
     </div>
@@ -154,55 +154,89 @@ const HealthChat = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-pink-100 font-sans">
-      {/* Glassmorphic Card */}
-      <div className="relative w-full max-w-2xl h-[700px] flex flex-col rounded-3xl shadow-2xl bg-gradient-to-br from-blue-100 via-white to-pink-100/80 backdrop-blur-lg border border-white/30 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center px-6 py-4 border-b border-white/30 bg-white/40 backdrop-blur-md">
-          <Button variant="ghost" size="sm" onClick={goBack} className="mr-3">
-            <ArrowLeft className="w-5 h-5 mr-1" />
-            Back
-          </Button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-pink-400 flex items-center justify-center shadow-lg animate-bounce-slow">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex flex-col">
+      {/* Header */}
+      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 px-6 py-4 flex items-center justify-between shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center shadow-lg">
               <Bot className="w-6 h-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">PulseIQ Health Assistant</h1>
-              <p className="text-xs text-gray-500">Modern Health Chat</p>
-            </div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+          </div>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+              PulseIQ Health Assistant
+            </h1>
+            <p className="text-sm text-gray-500">Your intelligent health companion</p>
           </div>
         </div>
-        {/* Chat Area */}
-        <ScrollArea className="flex-1 px-6 py-4 overflow-y-auto" ref={scrollAreaRef}>
-          <div className="flex flex-col gap-6 pb-32">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={goBack} 
+          className="text-blue-600 hover:text-blue-800 hover:bg-blue-50/80 border-blue-200 bg-blue-50/50 backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-sm"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Dashboard
+        </Button>
+      </div>
+
+      {/* Chat Messages Area */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full px-6 py-6" ref={scrollAreaRef}>
+          <div className="max-w-4xl mx-auto space-y-6">
             {messages.map((message, idx) => (
-              <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} w-full animate-fade-in`}>
-                <div className={`flex items-end gap-2 max-w-[80%]` + (message.sender === 'user' ? ' flex-row-reverse' : '')}>
+              <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex items-start gap-4 max-w-[75%] ${message.sender === 'user' ? 'flex-row-reverse' : ''}`}>
                   {/* Avatar */}
-                  <div className={`w-9 h-9 rounded-full shadow-lg ${message.sender === 'user' ? 'bg-gradient-to-br from-pink-400 to-blue-500' : 'bg-gradient-to-br from-blue-400 to-pink-300'} flex items-center justify-center ring-2 ring-white/60`}>
-                    {message.sender === 'user' ? <User className="w-5 h-5 text-white" /> : <Bot className="w-5 h-5 text-white" />}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg ${
+                    message.sender === 'user' 
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
+                      : 'bg-gradient-to-r from-green-400 to-blue-500'
+                  }`}>
+                    {message.sender === 'user' ? (
+                      <User className="w-5 h-5 text-white" />
+                    ) : (
+                      <Bot className="w-5 h-5 text-white" />
+                    )}
                   </div>
-                  {/* Bubble */}
-                  <div className={`rounded-2xl px-5 py-3 shadow-xl transition-all duration-300 ${message.sender === 'user' ? 'bg-gradient-to-br from-pink-400 to-blue-500 text-white' : 'bg-white/80 text-gray-900 border border-white/40'} relative`}>
-                    <div className="text-base">
-                      {message.sender === 'ai' ? formatAIResponse(message.content) : <span className="whitespace-pre-line">{message.content}</span>}
+                  
+                  {/* Message Bubble */}
+                  <div className={`rounded-2xl px-5 py-4 shadow-lg transition-all duration-200 hover:shadow-xl ${
+                    message.sender === 'user'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                      : 'bg-white/90 backdrop-blur-sm border border-gray-200/50 text-gray-900'
+                  }`}>
+                    <div className="text-sm leading-relaxed">
+                      {message.sender === 'ai' ? (
+                        <div className="whitespace-pre-line">
+                          {formatAIResponse(message.content)}
+                        </div>
+                      ) : (
+                        <span className="whitespace-pre-line font-medium">{message.content}</span>
+                      )}
                     </div>
-                    <span className={`absolute -bottom-5 text-xs ${message.sender === 'user' ? 'right-2 text-pink-100' : 'left-2 text-blue-400'}`}>{message.timestamp.toLocaleTimeString()}</span>
+                    <div className={`text-xs mt-2 ${
+                      message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                    }`}>
+                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
+            
             {isLoading && (
-              <div className="flex justify-start w-full animate-fade-in">
-                <div className="flex items-end gap-2 max-w-[80%]">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-pink-300 flex items-center justify-center ring-2 ring-white/60 shadow-lg animate-bounce-slow">
+              <div className="flex justify-start">
+                <div className="flex items-start gap-4 max-w-[75%]">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center shadow-lg">
                     <Bot className="w-5 h-5 text-white" />
                   </div>
-                  <div className="rounded-2xl px-5 py-3 bg-white/80 text-gray-900 border border-white/40 shadow-xl flex items-center gap-2">
-                    <div className="flex space-x-1">
+                  <div className="rounded-2xl px-5 py-4 bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg">
+                    <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
@@ -211,38 +245,34 @@ const HealthChat = () => {
             )}
           </div>
         </ScrollArea>
-        {/* Floating Input Bar */}
-        <div className="absolute bottom-0 left-0 w-full px-6 pb-6 pointer-events-none">
-          <div className="relative w-full max-w-xl mx-auto flex items-center bg-white/80 backdrop-blur-md rounded-full shadow-2xl border border-white/40 py-2 px-4 pointer-events-auto">
+      </div>      {/* Input Area */}
+      <div className="bg-white/80 backdrop-blur-md border-t border-gray-200/50 p-6 shadow-lg">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl px-6 py-3 shadow-inner border border-gray-200/50">
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your health question..."
+              placeholder="Ask me about your health concerns..."
               disabled={isLoading}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-base placeholder:text-gray-400"
+              className="flex-1 bg-transparent border-none focus:ring-0 text-base placeholder:text-gray-500 font-medium"
             />
             <Button
               onClick={handleSendMessage}
               disabled={isLoading || !inputMessage.trim()}
-              className="ml-2 rounded-full bg-gradient-to-br from-blue-500 to-pink-400 hover:from-pink-400 hover:to-blue-500 shadow-lg transition-all duration-200 focus:ring-2 focus:ring-pink-300"
-              size="icon"
+              size="sm"
+              className="rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:scale-100"
             >
-              <Send className="w-5 h-5 text-white drop-shadow" />
+              <Send className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-gray-500 mt-3 text-center select-none pointer-events-none">
-            💡 This AI assistant provides general health information and should not replace professional medical advice.
-          </p>
+          <div className="flex items-center justify-center mt-4">
+            <p className="text-xs text-gray-500 text-center bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200/50">
+              💡 This AI assistant provides general health information and should not replace professional medical advice.
+            </p>
+          </div>
         </div>
       </div>
-      {/* Animations */}
-      <style>{`
-        .animate-fade-in { animation: fadeIn 0.7s cubic-bezier(.4,0,.2,1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
-        .animate-bounce-slow { animation: bounceSlow 2.5s infinite alternate; }
-        @keyframes bounceSlow { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
-      `}</style>
     </div>
   );
 };

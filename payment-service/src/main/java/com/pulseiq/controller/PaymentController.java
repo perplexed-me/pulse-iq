@@ -1,23 +1,5 @@
 package com.pulseiq.controller;
 
-import com.pulseiq.dto.PaymentRequestDto;
-import com.pulseiq.dto.PaymentResponseDto;
-import com.pulseiq.dto.PaymentReceiptDto;
-import com.pulseiq.entity.Payment;
-import com.pulseiq.entity.PaymentStatus;
-import com.pulseiq.repository.PaymentRepository;
-import com.pulseiq.service.SslcommerzService;
-import com.pulseiq.service.SimpleNotificationService;
-import com.pulseiq.service.PdfReceiptService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -26,12 +8,44 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.pulseiq.dto.PaymentReceiptDto;
+import com.pulseiq.dto.PaymentRequestDto;
+import com.pulseiq.dto.PaymentResponseDto;
+import com.pulseiq.entity.Payment;
+import com.pulseiq.entity.PaymentStatus;
+import com.pulseiq.repository.PaymentRepository;
+import com.pulseiq.service.PdfReceiptService;
+import com.pulseiq.service.SimpleNotificationService;
+import com.pulseiq.service.SslcommerzService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/payments")
 // @CrossOrigin(origins = "*")
 public class PaymentController {
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
+
+    @Value("${frontend.origin:http://localhost:8080}")
+    private String frontendOrigin;
+
+    @Value("${public.ip:localhost}")
+    private String publicIp;
 
     @Autowired
     private SslcommerzService sslcommerzService;
@@ -76,7 +90,7 @@ public class PaymentController {
             }
 
             // Always redirect to frontend success page
-            String redirectUrl = "http://localhost:8080/result/success";
+            String redirectUrl = frontendOrigin + "/result/success";
             if (transactionId != null) {
                 redirectUrl += "?tran_id=" + transactionId;
             }
@@ -86,7 +100,7 @@ public class PaymentController {
         } catch (Exception e) {
             logger.error("Error processing payment success", e);
             // Still redirect to success since SSLCOMMERZ called the success endpoint
-            String redirectUrl = "http://localhost:8080/result/success";
+            String redirectUrl = frontendOrigin + "/result/success";
             String transactionId = request.getParameter("tran_id");
             if (transactionId != null) {
                 redirectUrl += "?tran_id=" + transactionId;
@@ -116,13 +130,13 @@ public class PaymentController {
 
             // Redirect to frontend failure page
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create("http://localhost:8080/result/fail"))
+                    .location(URI.create(frontendOrigin + "/result/fail"))
                     .build();
         } catch (Exception e) {
             logger.error("Error processing payment fail", e);
             // Redirect to frontend failure page on error
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create("http://localhost:8080/result/fail"))
+                    .location(URI.create(frontendOrigin + "/result/fail"))
                     .build();
         }
     }

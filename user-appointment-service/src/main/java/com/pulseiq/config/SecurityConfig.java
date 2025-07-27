@@ -27,10 +27,10 @@ import com.pulseiq.security.JwtFilter;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${frontend.origin:http://localhost:8080}")
+    @Value("${frontend.origin:http://132.196.64.104:8080}")
     private String frontendOrigin;
 
-    @Value("${app.cors.allowed-origins:http://localhost:8080,http://localhost:3000}")
+    @Value("${app.cors.allowed-origins:http://132.196.64.104:8080}")
     private String allowedOrigins;
 
     @Autowired
@@ -68,22 +68,33 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Parse allowed origins from environment variable
+        // For Azure deployment - use environment-based origins only
         List<String> origins = new ArrayList<>();
-        origins.add("http://localhost:8080");
-        // origins.add("http://localhost:3000");
-        // origins.add("http://localhost:5173");
-        origins.add(frontendOrigin);
+        
+        // Add frontend origin (main production URL)
+        if (frontendOrigin != null && !frontendOrigin.isEmpty()) {
+            origins.add(frontendOrigin);
+        }
 
         // Add origins from comma-separated environment variable
         if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
             String[] originArray = allowedOrigins.split(",");
             for (String origin : originArray) {
-                origins.add(origin.trim());
+                String trimmedOrigin = origin.trim();
+                if (!trimmedOrigin.isEmpty() && !origins.contains(trimmedOrigin)) {
+                    origins.add(trimmedOrigin);
+                }
             }
         }
 
-        configuration.setAllowedOrigins(origins);
+        // Fallback: if no origins configured, allow all for Azure deployment
+        if (origins.isEmpty()) {
+            System.out.println("CORS Configuration - No specific origins configured, allowing all origins for Azure deployment");
+            configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        } else {
+            System.out.println("CORS Configuration - Allowed Origins: " + origins);
+            configuration.setAllowedOrigins(origins);
+        }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",

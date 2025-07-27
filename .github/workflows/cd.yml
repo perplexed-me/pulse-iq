@@ -289,7 +289,8 @@ jobs:
               -e SPRING_DATASOURCE_USERNAME=pulseiq_user \
               -e SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD} \
               -e JWT_SECRET=${JWT_SECRET} \
-              -e FRONTEND_ORIGIN=${FRONTEND_URL} \
+              -e FRONTEND_ORIGIN="http://${PUBLIC_IP}:8080" \
+              -e APP_CORS_ALLOWED_ORIGINS="http://${PUBLIC_IP}:8080" \
               -e FIREBASE_ENABLED=true \
               -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
               -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=pulseiq \
@@ -313,7 +314,8 @@ jobs:
               -e SPRING_DATASOURCE_USERNAME=pulseiq_user \
               -e SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD} \
               -e JWT_SECRET=${JWT_SECRET} \
-              -e FRONTEND_ORIGIN=${FRONTEND_URL} \
+              -e FRONTEND_ORIGIN="http://${PUBLIC_IP}:8080" \
+              -e APP_CORS_ALLOWED_ORIGINS="http://${PUBLIC_IP}:8080" \
               -e PUBLIC_IP=${PUBLIC_IP} \
               -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
               -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=payment \

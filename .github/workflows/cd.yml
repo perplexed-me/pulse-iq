@@ -240,7 +240,7 @@ jobs:
                   postgres:15-alpine
               fi
             else
-              echo "Fresh volume – mounting init-schema.sql"
+              echo "Fresh volume – mounting init-schema.sql and prescription-schema-v3.sql"
               docker run -d \
                 --name pulseiq_postgres \
                 --network pulseiq-network \
@@ -250,6 +250,7 @@ jobs:
                 -e POSTGRES_PASSWORD=${DB_PASSWORD} \
                 -e POSTGRES_INITDB_ARGS="--encoding=UTF-8 --lc-collate=C --lc-ctype=C" \
                 -v "$(pwd)/user-appointment-service/init-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro" \
+                -v "$(pwd)/user-appointment-service/prescription-schema-v3.sql:/docker-entrypoint-initdb.d/02_prescription.sql:ro" \
                 -v pulseiq_postgres_data:/var/lib/postgresql/data \
                 -p 5432:5432 \
                 postgres:15-alpine
@@ -258,6 +259,15 @@ jobs:
             # Wait for database
             echo "Waiting 20 seconds for database..."
             sleep 20
+
+            # Ensure medicine schema is loaded (for both new and existing databases)
+            echo "Loading medicine schema if not already present..."
+            docker exec pulseiq_postgres psql -U pulseiq_user -d pulseiq_db -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='pulseiq' AND table_name='medicine';" | grep -q "1" || {
+              echo "Medicine table not found, loading prescription-schema-v3.sql..."
+              docker cp user-appointment-service/prescription-schema-v3.sql pulseiq_postgres:/tmp/prescription-schema-v3.sql
+              docker exec pulseiq_postgres psql -U pulseiq_user -d pulseiq_db -f /tmp/prescription-schema-v3.sql
+              echo "Medicine schema loaded successfully!"
+            } && echo "Medicine schema already exists, skipping..."
 
             # Start user appointment service
             echo "Starting User Appointment service..."

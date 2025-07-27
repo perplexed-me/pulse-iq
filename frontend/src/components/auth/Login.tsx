@@ -270,8 +270,7 @@ const Login = () => {
         status: data.status
       };
 
-      // Store user data and update context (consistent with regular login)
-      sessionStorage.setItem('pulseiq_user', JSON.stringify(userData));
+      // Update user context - this will also store user data in sessionStorage
       setUser(userData);
 
       toast({
@@ -279,10 +278,10 @@ const Login = () => {
         description: 'Welcome to PulseIQ!'
       });
 
-      // Small delay to ensure context is updated
+      // Wait a bit longer to ensure context is fully updated
       setTimeout(() => {
         navigate('/patient/dashboard');
-      }, 10);
+      }, 100);
     
     } catch (err: unknown) {
       console.error('Sign-in error:', err);
@@ -508,18 +507,7 @@ const Login = () => {
                 Register here
               </button>
             </p>
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <p className="text-sm text-center text-gray-600">
-                Administrator?{' '}
-                <button
-                  type="button"
-                  onClick={() => navigate('/admin')}
-                  className="text-red-600 hover:text-red-700 font-medium"
-                >
-                  Sign in as Admin
-                </button>
-              </p>
-            </div>
+           
           </CardFooter>
         </form>
       </Card>

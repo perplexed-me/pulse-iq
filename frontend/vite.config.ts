@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => ({
         target: process.env.VITE_PAYMENT_SERVICE_API_URL || 'http://localhost:8082',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/payment-api/, '/payment/payments'), // Rewrite to match payment service endpoint with context path
+        rewrite: (path) => path.replace(/^\/payment-api/, ''), // Fix: Remove /payment-api prefix to call correct endpoints
       },
     },
   },

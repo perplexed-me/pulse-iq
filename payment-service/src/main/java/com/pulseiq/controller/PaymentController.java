@@ -41,10 +41,10 @@ public class PaymentController {
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
-    @Value("${frontend.origin:http://localhost:8080}")
+    @Value("${frontend.origin:http://132.196.64.104:8080}")
     private String frontendOrigin;
 
-    @Value("${public.ip:localhost}")
+    @Value("${public.ip:132.196.64.104}")
     private String publicIp;
 
     @Autowired

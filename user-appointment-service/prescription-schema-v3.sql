@@ -13,8 +13,17 @@ CREATE TABLE IF NOT EXISTS pulseiq.medicine (
     manufacturer VARCHAR(255),
     price DOUBLE PRECISION,
     -- Add unique constraint for proper conflict handling
-    UNIQUE(medicine_name, medicine_power)
+    UNIQUE(medicine_name, medicine_power),
+    -- Add indexes for better performance
+    CONSTRAINT chk_medicine_name CHECK (medicine_name != ''),
+    CONSTRAINT chk_medicine_power CHECK (medicine_power != ''),
+    CONSTRAINT chk_category CHECK (category != '')
 );
+
+-- Create index on frequently queried fields
+CREATE INDEX IF NOT EXISTS idx_medicine_category ON pulseiq.medicine(category) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_medicine_name_search ON pulseiq.medicine(medicine_name) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_medicine_active ON pulseiq.medicine(is_active);
 
 -- Create Prescription table
 CREATE TABLE IF NOT EXISTS pulseiq.prescription (

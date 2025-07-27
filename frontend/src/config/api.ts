@@ -15,9 +15,7 @@ const getAiServiceApiUrl = (): string => {
 };
 
 const getPaymentServiceApiUrl = (): string => {
-  const baseUrl = import.meta.env.VITE_PAYMENT_SERVICE_API_URL || 'http://localhost:8082';
-  // Add /payment context path since the payment service runs with this context
-  return `${baseUrl}/payment`;
+  return import.meta.env.VITE_PAYMENT_SERVICE_API_URL || 'http://localhost:8082';
 }
 
 // API endpoints configuration

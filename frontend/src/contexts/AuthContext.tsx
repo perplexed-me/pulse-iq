@@ -100,13 +100,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setUser(newUser);
     if (newUser) {
-      // Use sessionStorage for tab-specific sessions
+      // Store in both sessionStorage and localStorage for persistence
       const userJson = JSON.stringify(newUser);
-      console.log('Saving user JSON to sessionStorage:', userJson);
+      console.log('Saving user JSON to storage:', userJson);
       sessionStorage.setItem('pulseiq_user', userJson);
+      localStorage.setItem('pulseiq_user', userJson);
     } else {
       sessionStorage.removeItem('pulseiq_user');
       sessionStorage.removeItem('token');
+      localStorage.removeItem('pulseiq_user');
+      localStorage.removeItem('token');
       setToken(null);
     }
     console.log('=== END UPDATE USER DEBUG ===');
@@ -123,24 +126,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Effect for initial auth only
   useEffect(() => {
-    const initAuth = () => {
-      // Check sessionStorage for this tab's session
-      const storedUser = sessionStorage.getItem('pulseiq_user');
-      const storedToken = sessionStorage.getItem('token');
+    const initAuth = async () => {
+      // Check sessionStorage first, then localStorage as fallback
+      let storedUser = sessionStorage.getItem('pulseiq_user');
+      let storedToken = sessionStorage.getItem('token');
+      
+      // If not found in sessionStorage, check localStorage
+      if (!storedUser || !storedToken) {
+        storedUser = localStorage.getItem('pulseiq_user');
+        storedToken = localStorage.getItem('token');
+        
+        // If found in localStorage, restore to sessionStorage for current session
+        if (storedUser && storedToken) {
+          sessionStorage.setItem('pulseiq_user', storedUser);
+          sessionStorage.setItem('token', storedToken);
+        }
+      }
       
       if (storedUser && storedToken) {
         try {
-          console.log('=== LOADING USER FROM SESSION STORAGE ===');
+          console.log('=== LOADING USER FROM STORAGE ===');
           console.log('Stored user JSON:', storedUser);
           const parsedUser = JSON.parse(storedUser);
           console.log('Parsed user object:', parsedUser);
           console.log('User specialization from storage:', parsedUser.specialization);
           console.log('User degree from storage:', parsedUser.degree);
-          setUser(parsedUser);
-          setToken(storedToken);
-          console.log('=== END SESSION STORAGE LOAD ===');
+          
+          // Validate token before setting user
+          const isTokenValid = await validateToken(storedToken);
+          if (isTokenValid) {
+            setUser(parsedUser);
+            setToken(storedToken);
+            console.log('Token validated successfully');
+          } else {
+            console.log('Token validation failed, clearing auth state');
+            sessionStorage.removeItem('pulseiq_user');
+            sessionStorage.removeItem('token');
+            localStorage.removeItem('pulseiq_user');
+            localStorage.removeItem('token');
+          }
+          console.log('=== END STORAGE LOAD ===');
         } catch (error) {
-          console.error('Error parsing stored user:', error);
+          console.error('Error parsing stored user or validating token:', error);
           updateUser(null);
         }
       }
@@ -248,8 +275,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('User degree:', loggedUser.degree);
       console.log('=== END USER CREATION DEBUG ===');
 
-      // Store token in sessionStorage for tab-specific sessions
+      // Store token in both sessionStorage and localStorage for persistence
       sessionStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.token);
       setToken(data.token);
       
       // Clear any existing appointment data before setting new user
@@ -290,11 +318,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Clear all user-specific data on logout
     const currentUserId = user?.id;
     
-    // Only logout this specific tab - no cross-tab synchronization
+    // Clear authentication state from both storages
     updateUser(null);
     
     // Clear appointment-related data (both old and new formats)
     sessionStorage.removeItem('paymentCompletionData');
+    localStorage.removeItem('paymentCompletionData');
     if (currentUserId) {
       sessionStorage.removeItem(`paymentCompletionData_${currentUserId}`);
       localStorage.removeItem(`paymentCompletionData_${currentUserId}`);

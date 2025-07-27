@@ -145,7 +145,7 @@ jobs:
           host: ${{ secrets.AZURE_SSH_HOST }}
           username: ${{ secrets.AZURE_SSH_USER }}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "user-appointment-service/init-schema.sql"
+          source: "user-appointment-service/init-schema.sql,user-appointment-service/prescription-schema-v3.sql"
           target: "~/pulseiq-app/"
           strip_components: 0
 

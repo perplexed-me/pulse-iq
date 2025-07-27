@@ -23,7 +23,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/payments/receipt/**").permitAll() // Specific matcher for receipt
                         .requestMatchers("/payments/**").permitAll()
-                        .requestMatchers("/payment/payments/**").permitAll() // Include context path
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/api/payments/**").permitAll()
                         .anyRequest().authenticated());

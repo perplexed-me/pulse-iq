@@ -258,8 +258,9 @@ const Login = () => {
         return;
       }
 
-      // Store the token in sessionStorage (consistent with regular login)
+      // Store the token in both sessionStorage and localStorage for persistence
       sessionStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.token);
 
       // Create properly typed user object
       const userData: User = {
@@ -272,6 +273,9 @@ const Login = () => {
 
       // Update user context - this will also store user data in sessionStorage
       setUser(userData);
+      
+      // Also store in localStorage for persistence across browser restarts
+      localStorage.setItem('pulseiq_user', JSON.stringify(userData));
 
       toast({
         title: 'Google Sign-In Successful',

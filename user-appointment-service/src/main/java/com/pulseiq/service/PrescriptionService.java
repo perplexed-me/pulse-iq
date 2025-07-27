@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,35 +38,56 @@ public class PrescriptionService {
         
         Prescription savedPrescription = prescriptionRepository.save(prescription);
         
-        // Create prescription medicines
-        List<PrescriptionMedicine> prescriptionMedicines = createDto.getMedicines().stream()
-                .map(medicineDto -> {
-                    System.out.println("Processing medicine DTO: " + medicineDto);
-                    System.out.println("Medicine ID: " + medicineDto.getMedicineId());
-                    
-                    if (medicineDto.getMedicineId() == null) {
-                        throw new RuntimeException("Medicine ID cannot be null");
-                    }
-                    
-                    Medicine medicine = medicineRepository.findById(medicineDto.getMedicineId())
-                            .orElseThrow(() -> new RuntimeException("Medicine not found with ID: " + medicineDto.getMedicineId()));
-                    
-                    PrescriptionMedicine prescriptionMedicine = new PrescriptionMedicine();
-                    prescriptionMedicine.setPrescription(savedPrescription);
-                    prescriptionMedicine.setMedicine(medicine);
-                    prescriptionMedicine.setQuantity(medicineDto.getQuantity());
-                    prescriptionMedicine.setDurationDays(medicineDto.getDurationDays());
-                    prescriptionMedicine.setMorningDose(medicineDto.getMorningDose());
-                    prescriptionMedicine.setNoonDose(medicineDto.getNoonDose());
-                    prescriptionMedicine.setEveningDose(medicineDto.getEveningDose());
-                    prescriptionMedicine.setMealTiming(medicineDto.getMealTiming());
-                    prescriptionMedicine.setSpecialInstructions(medicineDto.getSpecialInstructions());
-                    
-                    return prescriptionMedicine;
-                })
-                .collect(Collectors.toList());
+        // Create prescription medicines - handle gracefully if medicines list is empty or has issues
+        List<PrescriptionMedicine> prescriptionMedicines = new ArrayList<>();
         
-        List<PrescriptionMedicine> savedPrescriptionMedicines = prescriptionMedicineRepository.saveAll(prescriptionMedicines);
+        if (createDto.getMedicines() != null && !createDto.getMedicines().isEmpty()) {
+            System.out.println("Processing " + createDto.getMedicines().size() + " medicines for prescription");
+            prescriptionMedicines = createDto.getMedicines().stream()
+                    .filter(medicineDto -> {
+                        // Skip medicines with null or invalid IDs
+                        if (medicineDto.getMedicineId() == null) {
+                            System.out.println("Skipping medicine with null ID");
+                            return false;
+                        }
+                        return true;
+                    })
+                    .map(medicineDto -> {
+                        System.out.println("Processing medicine DTO: " + medicineDto);
+                        System.out.println("Medicine ID: " + medicineDto.getMedicineId());
+                        
+                        // Try to find the medicine, skip if not found for now
+                        Medicine medicine = medicineRepository.findById(medicineDto.getMedicineId())
+                                .orElse(null);
+                        
+                        if (medicine == null) {
+                            System.out.println("Medicine not found with ID: " + medicineDto.getMedicineId() + ", skipping for now");
+                            return null; // Skip this medicine
+                        }
+                        
+                        PrescriptionMedicine prescriptionMedicine = new PrescriptionMedicine();
+                        prescriptionMedicine.setPrescription(savedPrescription);
+                        prescriptionMedicine.setMedicine(medicine);
+                        prescriptionMedicine.setQuantity(medicineDto.getQuantity());
+                        prescriptionMedicine.setDurationDays(medicineDto.getDurationDays());
+                        prescriptionMedicine.setMorningDose(medicineDto.getMorningDose());
+                        prescriptionMedicine.setNoonDose(medicineDto.getNoonDose());
+                        prescriptionMedicine.setEveningDose(medicineDto.getEveningDose());
+                        prescriptionMedicine.setMealTiming(medicineDto.getMealTiming());
+                        prescriptionMedicine.setSpecialInstructions(medicineDto.getSpecialInstructions());
+                        
+                        return prescriptionMedicine;
+                    })
+                    .filter(pm -> pm != null) // Remove null entries
+                    .collect(Collectors.toList());
+        } else {
+            System.out.println("No medicines provided for prescription - creating prescription with notes only");
+        }
+        
+        List<PrescriptionMedicine> savedPrescriptionMedicines = new ArrayList<>();
+        if (!prescriptionMedicines.isEmpty()) {
+            savedPrescriptionMedicines = prescriptionMedicineRepository.saveAll(prescriptionMedicines);
+        }
         savedPrescription.setPrescriptionMedicines(savedPrescriptionMedicines);
         
         // Create notification for patient

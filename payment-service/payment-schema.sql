@@ -40,3 +40,35 @@ $$;
 
 -- Log successful completion
 SELECT 'Payment schema initialization completed successfully' AS status;
+
+-- Create the payments table if it doesn't exist
+CREATE TABLE IF NOT EXISTS payment.payments (
+    id BIGSERIAL PRIMARY KEY,
+    transaction_id VARCHAR(255) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    customer_name VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(255) NOT NULL,
+    customer_address VARCHAR(255) NOT NULL,
+    amount DECIMAL(38,2) NOT NULL,
+    currency VARCHAR(255) NOT NULL,
+    payment_method VARCHAR(255) NOT NULL,
+    status VARCHAR(255) CHECK (status IN ('PENDING','PROCESSING','COMPLETED','FAILED','CANCELLED')),
+    description TEXT,
+    created_at TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Grant explicit permissions on the payments table and sequence
+GRANT ALL PRIVILEGES ON TABLE payment.payments TO pulseiq_user;
+GRANT USAGE, SELECT ON SEQUENCE payment.payments_id_seq TO pulseiq_user;
+
+-- Create index on transaction_id for faster lookups
+CREATE INDEX IF NOT EXISTS idx_payments_transaction_id ON payment.payments(transaction_id);
+
+-- Create index on status for filtering
+CREATE INDEX IF NOT EXISTS idx_payments_status ON payment.payments(status);
+
+-- Create index on created_at for sorting
+CREATE INDEX IF NOT EXISTS idx_payments_created_at ON payment.payments(created_at);
+
+-- Log table creation completion
+SELECT 'Payment tables created successfully' AS status;

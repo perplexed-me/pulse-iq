@@ -26,25 +26,31 @@ public class PrescriptionController {
     public ResponseEntity<PrescriptionDto> createPrescription(
             @RequestBody CreatePrescriptionDto createDto,
             Authentication authentication) {
-        String doctorId = authentication.getName();
-        
-        // Debug: Log the received DTO
-        System.out.println("Received CreatePrescriptionDto: " + createDto);
-        System.out.println("Patient ID: " + createDto.getPatientId());
-        System.out.println("Appointment ID: " + createDto.getAppointmentId());
-        System.out.println("Doctor Notes: " + createDto.getDoctorNotes());
-        System.out.println("Medicines count: " + (createDto.getMedicines() != null ? createDto.getMedicines().size() : "null"));
-        
-        if (createDto.getMedicines() != null) {
-            for (int i = 0; i < createDto.getMedicines().size(); i++) {
-                var medicine = createDto.getMedicines().get(i);
-                System.out.println("Medicine " + i + ": " + medicine);
-                System.out.println("Medicine " + i + " ID: " + medicine.getMedicineId());
+        try {
+            String doctorId = authentication.getName();
+            
+            // Debug: Log the received DTO
+            System.out.println("Received CreatePrescriptionDto: " + createDto);
+            System.out.println("Patient ID: " + createDto.getPatientId());
+            System.out.println("Appointment ID: " + createDto.getAppointmentId());
+            System.out.println("Doctor Notes: " + createDto.getDoctorNotes());
+            System.out.println("Medicines count: " + (createDto.getMedicines() != null ? createDto.getMedicines().size() : "null"));
+            
+            if (createDto.getMedicines() != null) {
+                for (int i = 0; i < createDto.getMedicines().size(); i++) {
+                    var medicine = createDto.getMedicines().get(i);
+                    System.out.println("Medicine " + i + ": " + medicine);
+                    System.out.println("Medicine " + i + " ID: " + medicine.getMedicineId());
+                }
             }
+            
+            PrescriptionDto prescription = prescriptionService.createPrescription(doctorId, createDto);
+            return ResponseEntity.ok(prescription);
+        } catch (Exception e) {
+            System.err.println("Error creating prescription: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
-        
-        PrescriptionDto prescription = prescriptionService.createPrescription(doctorId, createDto);
-        return ResponseEntity.ok(prescription);
     }
     
     @GetMapping("/{prescriptionId}")

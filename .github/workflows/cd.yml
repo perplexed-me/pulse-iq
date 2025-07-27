@@ -301,15 +301,20 @@ jobs:
 
             # Start payment service
             echo "Starting Payment service..."
+            
+            # Additional wait to ensure payment schema is fully initialized
+            sleep 5
+            
             docker run -d \
               --name pulseiq_payment_service \
               --network pulseiq-network \
               --restart unless-stopped \
-              -e SPRING_DATASOURCE_URL=jdbc:postgresql://pulseiq_postgres:5432/pulseiq_db \
+              -e SPRING_DATASOURCE_URL=jdbc:postgresql://pulseiq_postgres:5432/pulseiq_db?currentSchema=payment \
               -e SPRING_DATASOURCE_USERNAME=pulseiq_user \
               -e SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD} \
               -e JWT_SECRET=${JWT_SECRET} \
               -e FRONTEND_ORIGIN=${FRONTEND_URL} \
+              -e PUBLIC_IP=${PUBLIC_IP} \
               -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
               -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=payment \
               -e MAIL_USERNAME=${MAIL_USERNAME} \

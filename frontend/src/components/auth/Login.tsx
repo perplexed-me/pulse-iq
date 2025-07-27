@@ -258,8 +258,8 @@ const Login = () => {
         return;
       }
 
-      // Store the token
-      localStorage.setItem('token', data.token);
+      // Store the token in sessionStorage (consistent with regular login)
+      sessionStorage.setItem('token', data.token);
 
       // Create properly typed user object
       const userData: User = {
@@ -270,8 +270,8 @@ const Login = () => {
         status: data.status
       };
 
-      // Store user data and update context
-      localStorage.setItem('pulseiq_user', JSON.stringify(userData));
+      // Store user data and update context (consistent with regular login)
+      sessionStorage.setItem('pulseiq_user', JSON.stringify(userData));
       setUser(userData);
 
       toast({

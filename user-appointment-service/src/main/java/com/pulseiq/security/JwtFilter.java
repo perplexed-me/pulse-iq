@@ -33,6 +33,16 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
+        String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+        
+        // Enhanced logging for prescription requests
+        if (requestURI.contains("/prescriptions")) {
+            logger.info("=== PRESCRIPTION REQUEST DEBUG ===");
+            logger.info("Request URI: {} {}", method, requestURI);
+            logger.info("Authorization header: {}", request.getHeader("Authorization"));
+        }
+        
         String token = null;
         String username = null;
 
@@ -40,7 +50,9 @@ public class JwtFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            logger.debug("Found token in Authorization header");
+            if (requestURI.contains("/prescriptions")) {
+                logger.info("Found token in Authorization header: {}", token.substring(0, Math.min(20, token.length())) + "...");
+            }
         }
 
         // If no token in header, try to get from URL parameter
@@ -54,13 +66,17 @@ public class JwtFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 username = jwtUtil.extractUsername(token);
-                logger.debug("Successfully extracted username from token: {}", username);
+                if (requestURI.contains("/prescriptions")) {
+                    logger.info("Successfully extracted username from token: {}", username);
+                }
             } catch (Exception e) {
                 logger.error("Error extracting username from token: {}", e.getMessage());
                 // Don't throw error, just continue with null username
             }
         } else {
-            logger.debug("No token found for request to: {}", request.getRequestURI());
+            if (requestURI.contains("/prescriptions")) {
+                logger.warn("No token found for prescription request to: {}", requestURI);
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -71,7 +87,9 @@ public class JwtFilter extends OncePerRequestFilter {
                             userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    logger.debug("Successfully authenticated user: {}", username);
+                    if (requestURI.contains("/prescriptions")) {
+                        logger.info("Successfully authenticated user: {} with authorities: {}", username, userDetails.getAuthorities());
+                    }
                 } else {
                     logger.warn("Token validation failed for user: {}", username);
                     // Clear security context on validation failure

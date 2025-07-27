@@ -131,10 +131,10 @@ export const API_CONFIG = {
 
   // Payment Service endpoints
   PAYMENT: {
-    INITIATE: `${getPaymentServiceApiUrl()}/payments/initiate-direct`,
-    INITIATE_DIRECT: `${getPaymentServiceApiUrl()}/payments/initiate-direct`,
-    VERIFY: `${getPaymentServiceApiUrl()}/payments/verify`,
-    RECEIPT: (transactionId: string) => `${getPaymentServiceApiUrl()}/payments/receipt/${transactionId}`,
+    INITIATE: `${getPaymentServiceApiUrl()}/payment/payments/initiate-direct`,
+    INITIATE_DIRECT: `${getPaymentServiceApiUrl()}/payment/payments/initiate-direct`,
+    VERIFY: `${getPaymentServiceApiUrl()}/payment/payments/verify`,
+    RECEIPT: (transactionId: string) => `${getPaymentServiceApiUrl()}/payment/payments/receipt/${transactionId}`,
     ME: `${getUserAppointmentApiUrl()}/api/patients/me`,
   },
 };

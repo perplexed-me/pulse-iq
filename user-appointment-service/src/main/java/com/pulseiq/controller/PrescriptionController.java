@@ -6,12 +6,15 @@ import com.pulseiq.service.PrescriptionService;
 import com.pulseiq.service.PrescriptionPdfService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/prescriptions")
@@ -26,7 +29,23 @@ public class PrescriptionController {
     public ResponseEntity<PrescriptionDto> createPrescription(
             @RequestBody CreatePrescriptionDto createDto,
             Authentication authentication) {
+        
+        // Enhanced authentication debugging
+        System.out.println("=== PRESCRIPTION CREATION DEBUG ===");
+        System.out.println("Authentication object: " + authentication);
+        System.out.println("Authentication name: " + (authentication != null ? authentication.getName() : "null"));
+        System.out.println("Authentication principal: " + (authentication != null ? authentication.getPrincipal() : "null"));
+        System.out.println("Authentication authorities: " + (authentication != null ? authentication.getAuthorities() : "null"));
+        System.out.println("Is authenticated: " + (authentication != null ? authentication.isAuthenticated() : "false"));
+        
+        if (authentication == null) {
+            System.out.println("ERROR: Authentication is null!");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(null);
+        }
+        
         String doctorId = authentication.getName();
+        System.out.println("Doctor ID extracted: " + doctorId);
         
         // Debug: Log the received DTO
         System.out.println("Received CreatePrescriptionDto: " + createDto);
@@ -43,8 +62,16 @@ public class PrescriptionController {
             }
         }
         
-        PrescriptionDto prescription = prescriptionService.createPrescription(doctorId, createDto);
-        return ResponseEntity.ok(prescription);
+        try {
+            PrescriptionDto prescription = prescriptionService.createPrescription(doctorId, createDto);
+            System.out.println("Prescription created successfully with ID: " + prescription.getPrescriptionId());
+            return ResponseEntity.ok(prescription);
+        } catch (Exception e) {
+            System.out.println("Error creating prescription: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
+        }
     }
     
     @GetMapping("/{prescriptionId}")
@@ -121,5 +148,28 @@ public class PrescriptionController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    // Debug endpoint to test authentication
+    @GetMapping("/test-auth")
+    public ResponseEntity<?> testAuth(Authentication authentication) {
+        System.out.println("=== AUTH TEST DEBUG ===");
+        System.out.println("Authentication object: " + authentication);
+        System.out.println("Authentication name: " + (authentication != null ? authentication.getName() : "null"));
+        System.out.println("Authentication principal: " + (authentication != null ? authentication.getPrincipal() : "null"));
+        System.out.println("Authentication authorities: " + (authentication != null ? authentication.getAuthorities() : "null"));
+        System.out.println("Is authenticated: " + (authentication != null ? authentication.isAuthenticated() : "false"));
+        
+        Map<String, Object> response = new HashMap<>();
+        if (authentication != null) {
+            response.put("authenticated", authentication.isAuthenticated());
+            response.put("name", authentication.getName());
+            response.put("principal", authentication.getPrincipal().toString());
+            response.put("authorities", authentication.getAuthorities().toString());
+        } else {
+            response.put("authenticated", false);
+            response.put("error", "Authentication is null");
+        }
+        return ResponseEntity.ok(response);
     }
 }

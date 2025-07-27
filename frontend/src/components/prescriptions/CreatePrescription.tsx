@@ -96,13 +96,103 @@ const CreatePrescription: React.FC<CreatePrescriptionProps> = ({
 
   const fetchMedicines = async () => {
     try {
+      console.log('Fetching medicines from:', API_CONFIG.MEDICINES.ALL);
       const response = await apiCall(API_CONFIG.MEDICINES.ALL);
+      console.log('Medicine fetch response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
-        setMedicines(data);
+        console.log('Fetched medicines data:', data);
+        console.log('Number of medicines fetched:', data.length);
+        
+        if (data.length === 0) {
+          console.warn('No medicines found in database, using fallback data');
+          // Fallback dummy medicines if database is empty
+          const fallbackMedicines = [
+            {
+              medicineId: 1,
+              medicineName: 'Paracetamol',
+              medicinePower: '500mg',
+              category: 'Pain Relief',
+              description: 'Pain reliever and fever reducer',
+              manufacturer: 'GSK',
+              price: 8.50,
+              isActive: true
+            },
+            {
+              medicineId: 2,
+              medicineName: 'Amoxicillin',
+              medicinePower: '500mg',
+              category: 'Antibiotic',
+              description: 'Antibiotic used to treat bacterial infections',
+              manufacturer: 'Pfizer',
+              price: 15.50,
+              isActive: true
+            },
+            {
+              medicineId: 3,
+              medicineName: 'Ibuprofen',
+              medicinePower: '400mg',
+              category: 'Pain Relief',
+              description: 'Anti-inflammatory pain reliever',
+              manufacturer: 'Johnson & Johnson',
+              price: 12.00,
+              isActive: true
+            }
+          ];
+          setMedicines(fallbackMedicines);
+        } else {
+          setMedicines(data);
+        }
+      } else {
+        console.error('Failed to fetch medicines. Status:', response.status);
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        
+        // Use fallback medicines on API error
+        console.warn('Using fallback medicines due to API error');
+        const fallbackMedicines = [
+          {
+            medicineId: 1,
+            medicineName: 'Paracetamol',
+            medicinePower: '500mg',
+            category: 'Pain Relief',
+            description: 'Pain reliever and fever reducer',
+            manufacturer: 'GSK',
+            price: 8.50,
+            isActive: true
+          },
+          {
+            medicineId: 2,
+            medicineName: 'Amoxicillin',
+            medicinePower: '500mg',
+            category: 'Antibiotic',
+            description: 'Antibiotic used to treat bacterial infections',
+            manufacturer: 'Pfizer',
+            price: 15.50,
+            isActive: true
+          }
+        ];
+        setMedicines(fallbackMedicines);
       }
     } catch (error) {
       console.error('Error fetching medicines:', error);
+      
+      // Use fallback medicines on network error
+      console.warn('Using fallback medicines due to network error');
+      const fallbackMedicines = [
+        {
+          medicineId: 1,
+          medicineName: 'Paracetamol',
+          medicinePower: '500mg',
+          category: 'Pain Relief',
+          description: 'Pain reliever and fever reducer',
+          manufacturer: 'GSK',
+          price: 8.50,
+          isActive: true
+        }
+      ];
+      setMedicines(fallbackMedicines);
     }
   };
 

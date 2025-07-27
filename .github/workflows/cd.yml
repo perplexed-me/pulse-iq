@@ -145,7 +145,7 @@ jobs:
           host: ${{ secrets.AZURE_SSH_HOST }}
           username: ${{ secrets.AZURE_SSH_USER }}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "user-appointment-service/init-schema.sql,user-appointment-service/prescription-schema-v3.sql"
+          source: "user-appointment-service/init-schema.sql,user-appointment-service/prescription-schema-v3.sql,payment-service/payment-schema.sql"
           target: "~/pulseiq-app/"
           strip_components: 0
 
@@ -240,7 +240,7 @@ jobs:
                   postgres:15-alpine
               fi
             else
-              echo "Fresh volume – mounting init-schema.sql and prescription-schema-v3.sql"
+              echo "Fresh volume – mounting init-schema.sql, prescription-schema-v3.sql, and payment-schema.sql"
               docker run -d \
                 --name pulseiq_postgres \
                 --network pulseiq-network \
@@ -251,6 +251,7 @@ jobs:
                 -e POSTGRES_INITDB_ARGS="--encoding=UTF-8 --lc-collate=C --lc-ctype=C" \
                 -v "$(pwd)/user-appointment-service/init-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro" \
                 -v "$(pwd)/user-appointment-service/prescription-schema-v3.sql:/docker-entrypoint-initdb.d/02_prescription.sql:ro" \
+                -v "$(pwd)/payment-service/payment-schema.sql:/docker-entrypoint-initdb.d/03_payment.sql:ro" \
                 -v pulseiq_postgres_data:/var/lib/postgresql/data \
                 -p 5432:5432 \
                 postgres:15-alpine
@@ -268,6 +269,15 @@ jobs:
               docker exec pulseiq_postgres psql -U pulseiq_user -d pulseiq_db -f /tmp/prescription-schema-v3.sql
               echo "Medicine schema loaded successfully!"
             } && echo "Medicine schema already exists, skipping..."
+
+            # Ensure payment schema is loaded (for both new and existing databases)
+            echo "Loading payment schema if not already present..."
+            docker exec pulseiq_postgres psql -U pulseiq_user -d pulseiq_db -c "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='payment';" | grep -q "1" || {
+              echo "Payment schema not found, loading payment-schema.sql..."
+              docker cp payment-service/payment-schema.sql pulseiq_postgres:/tmp/payment-schema.sql
+              docker exec pulseiq_postgres psql -U pulseiq_user -d pulseiq_db -f /tmp/payment-schema.sql
+              echo "Payment schema loaded successfully!"
+            } && echo "Payment schema already exists, skipping..."
 
             # Start user appointment service
             echo "Starting User Appointment service..."
@@ -301,7 +311,7 @@ jobs:
               -e JWT_SECRET=${JWT_SECRET} \
               -e FRONTEND_ORIGIN=${FRONTEND_URL} \
               -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
-              -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=pulseiq \
+              -e SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA=payment \
               -e MAIL_USERNAME=${MAIL_USERNAME} \
               -e MAIL_PASSWORD=${MAIL_PASSWORD} \
               -e SSLCOMMERZ_STORE_ID=${SSLCOMMERZ_STORE_ID} \

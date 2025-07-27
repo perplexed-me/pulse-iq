@@ -141,18 +141,38 @@ export const API_CONFIG = {
 
 // Helper function to get headers with authentication
 export const getAuthHeaders = (includeAuth: boolean = true) => {
+  console.log('=== GET AUTH HEADERS ===');
+  console.log('Include auth:', includeAuth);
+  
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
   
   if (includeAuth) {
-    // Use sessionStorage for tab-specific tokens
-    const token = sessionStorage.getItem('token');
+    // Check sessionStorage first, then localStorage as fallback
+    let token = sessionStorage.getItem('token');
+    console.log('SessionStorage token:', token ? 'Present' : 'Not found');
+    
+    if (!token) {
+      token = localStorage.getItem('token');
+      console.log('LocalStorage token:', token ? 'Present' : 'Not found');
+      
+      // If found in localStorage, restore to sessionStorage for current session
+      if (token) {
+        console.log('Restoring token from localStorage to sessionStorage');
+        sessionStorage.setItem('token', token);
+      }
+    }
+    
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      console.log('Authorization header set with token');
+    } else {
+      console.log('No token found - no Authorization header');
     }
   }
   
+  console.log('Final headers:', headers);
   return headers;
 };
 
@@ -162,17 +182,28 @@ export const apiCall = async (
   options: RequestInit = {},
   includeAuth: boolean = true
 ) => {
+  console.log(`=== API CALL: ${url} ===`);
+  console.log('Include auth:', includeAuth);
+  
+  const headers = getAuthHeaders(includeAuth);
+  console.log('API headers:', headers);
+  
   const defaultOptions: RequestInit = {
     method: 'GET',
-    headers: getAuthHeaders(includeAuth),
+    headers: headers,
     credentials: 'include',
     ...options,
   };
 
+  console.log('Request options:', defaultOptions);
+  
   const response = await fetch(url, defaultOptions);
+  console.log('Response status:', response.status);
+  console.log('Response headers:', Object.fromEntries(response.headers.entries()));
   
   // Handle authentication errors globally
   if (response.status === 401 && includeAuth) {
+    console.error('Authentication error (401) detected');
     // Call global auth error handler if available
     if (typeof (window as any).handleAuthError === 'function') {
       (window as any).handleAuthError();

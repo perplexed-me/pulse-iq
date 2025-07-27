@@ -43,7 +43,7 @@ const BookAppointment = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, token } = useAuth();
+  const { user, token, isLoading } = useAuth();
   
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [allDoctors, setAllDoctors] = useState<Doctor[]>([]);
@@ -88,7 +88,20 @@ const BookAppointment = () => {
 
   // Check authentication before proceeding
   useEffect(() => {
+    // Don't check authentication while still loading
+    if (isLoading) {
+      console.log('BookAppointment: Auth context is still loading...');
+      return;
+    }
+    
+    console.log('BookAppointment: Auth check after loading completed');
+    console.log('User:', user ? user.email : 'Not logged in');
+    console.log('Token:', token ? 'Present' : 'Not found');
+    console.log('SessionStorage token:', sessionStorage.getItem('token') ? 'Present' : 'Not found');
+    console.log('LocalStorage token:', localStorage.getItem('token') ? 'Present' : 'Not found');
+    
     if (!user || !token) {
+      console.log('BookAppointment: Authentication failed - redirecting to login');
       toast({
         title: "Authentication Required",
         description: "Please log in to book an appointment.",
@@ -97,7 +110,9 @@ const BookAppointment = () => {
       navigate('/login');
       return;
     }
-  }, [user, token, navigate, toast]);
+    
+    console.log('BookAppointment: Authentication successful');
+  }, [user, token, isLoading, navigate, toast]);
 
   // Clean up when user changes to prevent data leakage between users
   useEffect(() => {
@@ -682,6 +697,16 @@ const BookAppointment = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-gray-50 to-green-100 py-8">
+      {/* Show loading state while authentication is being checked */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      )}
+      
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Enhanced Professional Header */}
         <div className="mb-8">

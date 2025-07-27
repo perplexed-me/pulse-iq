@@ -18,6 +18,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # Schema initialization (runs only once)
       - ./user-appointment-service/init-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      - ./user-appointment-service/prescription-schema-v3.sql:/docker-entrypoint-initdb.d/02_prescription.sql:ro
+      - ./payment-service/payment-schema.sql:/docker-entrypoint-initdb.d/03_payment.sql:ro
     networks:
       - pulseiq-network
     healthcheck:
@@ -108,7 +110,7 @@ services:
     networks:
       - pulseiq-network
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/pulseiq_db?currentSchema=pulseiq
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/pulseiq_db?currentSchema=payment
       - SPRING_DATASOURCE_USERNAME=pulseiq_user
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}

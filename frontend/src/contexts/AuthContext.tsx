@@ -46,21 +46,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const validateToken = async (token: string) => {
     try {
+      console.log('=== TOKEN VALIDATION START ===');
+      console.log('Token to validate:', token ? 'Token present' : 'No token');
+      
       const response = await apiCall(API_CONFIG.AUTH.VALIDATE, {
         method: 'GET'
       }, true);
 
+      console.log('Validation response status:', response.status);
+      console.log('Validation response headers:', Object.fromEntries(response.headers.entries()));
+
       // Only return false for actual auth failures
       if (response.status === 401 || response.status === 403) {
-        console.error('Token invalid or expired');
+        console.error('Token invalid or expired - status:', response.status);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Validation error details:', errorData);
         return false;
       }
 
-      // For network errors or other issues, assume token is still valid
+      if (response.ok) {
+        const validationData = await response.json().catch(() => ({}));
+        console.log('Token validation successful:', validationData);
+        return true;
+      }
+
+      // For network errors or other issues, assume token is still valid but log the issue
+      console.warn('Token validation failed with status:', response.status, 'but assuming valid');
       return true;
     } catch (error) {
       console.error('Token validation error:', error);
-      // For network errors, assume token is still valid
+      // For network errors, assume token is still valid but log the error
+      console.warn('Network error during token validation, assuming token is valid');
       return true;
     }
   };

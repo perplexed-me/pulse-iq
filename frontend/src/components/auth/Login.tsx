@@ -212,9 +212,14 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
+      console.log('=== GOOGLE LOGIN START ===');
       const result = await signInWithPopup(auth, googleProvider);
+      console.log('Firebase user result:', result.user);
+      
       const idToken = await result.user.getIdToken();
+      console.log('ID Token obtained:', idToken ? 'Token present' : 'No token');
 
+      console.log('Calling backend Google auth endpoint...');
       const response = await apiCall(API_CONFIG.AUTH.GOOGLE_PATIENT, {
         method: 'POST',
         body: JSON.stringify({ 
@@ -228,6 +233,7 @@ const Login = () => {
 
       const data = await response.json();
       console.log('Backend response:', data);
+      console.log('Response status:', response.status);
 
       // Handle non-200 responses with specific error messages
       if (!response.ok) {
@@ -258,9 +264,11 @@ const Login = () => {
         return;
       }
 
+      console.log('Storing tokens and user data...');
       // Store the token in both sessionStorage and localStorage for persistence
       sessionStorage.setItem('token', data.token);
       localStorage.setItem('token', data.token);
+      console.log('Tokens stored in both sessionStorage and localStorage');
 
       // Create properly typed user object
       const userData: User = {
@@ -270,25 +278,29 @@ const Login = () => {
         name: data.name || result.user.displayName || 'Patient User',
         status: data.status
       };
+      console.log('User data prepared:', userData);
 
       // Update user context - this will also store user data in sessionStorage
+      console.log('Setting user in context...');
       setUser(userData);
       
       // Also store in localStorage for persistence across browser restarts
       localStorage.setItem('pulseiq_user', JSON.stringify(userData));
+      console.log('User data stored in localStorage');
 
       toast({
         title: 'Google Sign-In Successful',
         description: 'Welcome to PulseIQ!'
       });
 
+      console.log('=== GOOGLE LOGIN SUCCESS - NAVIGATING ===');
       // Wait a bit longer to ensure context is fully updated
       setTimeout(() => {
         navigate('/patient/dashboard');
       }, 100);
     
     } catch (err: unknown) {
-      console.error('Sign-in error:', err);
+      console.error('=== GOOGLE LOGIN ERROR ===', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       toast({
         title: 'Google Sign-In Failed',

@@ -41,6 +41,7 @@ COPY . .
 # Note: Firebase configuration values are PUBLIC and intended for client-side use
 # Docker Scout warnings about these being "secrets" are false positives
 ARG VITE_USER_APPOINTMENT_API_URL
+ARG VITE_PAYMENT_SERVICE_API_URL
 ARG VITE_AI_SERVICE_API_URL
 # Firebase public configuration (not secrets - safe for client-side)
 ARG VITE_FIREBASE_API_KEY
@@ -54,6 +55,7 @@ ARG VITE_FIREBASE_MEASUREMENT_ID
 # Set environment variables (these become part of the client-side build)
 ENV NODE_ENV=production
 ENV VITE_USER_APPOINTMENT_API_URL=$VITE_USER_APPOINTMENT_API_URL
+ENV VITE_PAYMENT_SERVICE_API_URL=$VITE_PAYMENT_SERVICE_API_URL
 ENV VITE_AI_SERVICE_API_URL=$VITE_AI_SERVICE_API_URL
 ENV VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY
 ENV VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN

@@ -138,7 +138,7 @@ const PaymentPage: React.FC = () => {
     setError("");
     
     try {
-      const response = await fetch("/payment-api/initiate-direct", {
+      const response = await apiCall(API_CONFIG.PAYMENT.INITIATE_DIRECT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ const PaymentPage: React.FC = () => {
           ...form,
           amount: parseFloat(form.amount),
         }),
-      });
+      }, false); // false = don't include auth headers for payment initiation
       
       const data = await response.json();
       

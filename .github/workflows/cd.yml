@@ -209,10 +209,38 @@ jobs:
             # Start database
             echo "Starting PostgreSQL database..."
 
-            PGDATA_PATH=$(docker volume inspect pulseiq_postgres_data -f '{{ .Mountpoint }}')
-
-            if [ ! -f "$PGDATA_PATH/PG_VERSION" ]; then
-              echo "Fresh volume detected – mounting init-schema.sql"
+            # Check if volume exists and has data
+            if docker volume inspect pulseiq_postgres_data >/dev/null 2>&1; then
+              PGDATA_PATH=$(docker volume inspect pulseiq_postgres_data -f '{{ .Mountpoint }}' 2>/dev/null || echo "")
+              if [ -n "$PGDATA_PATH" ] && [ -f "$PGDATA_PATH/PG_VERSION" ]; then
+                echo "Existing volume with data detected – skipping init schema"
+                docker run -d \
+                  --name pulseiq_postgres \
+                  --network pulseiq-network \
+                  --restart unless-stopped \
+                  -e POSTGRES_DB=pulseiq_db \
+                  -e POSTGRES_USER=pulseiq_user \
+                  -e POSTGRES_PASSWORD=${DB_PASSWORD} \
+                  -v pulseiq_postgres_data:/var/lib/postgresql/data \
+                  -p 5432:5432 \
+                  postgres:15-alpine
+              else
+                echo "Volume exists but no data – mounting init-schema.sql"
+                docker run -d \
+                  --name pulseiq_postgres \
+                  --network pulseiq-network \
+                  --restart unless-stopped \
+                  -e POSTGRES_DB=pulseiq_db \
+                  -e POSTGRES_USER=pulseiq_user \
+                  -e POSTGRES_PASSWORD=${DB_PASSWORD} \
+                  -e POSTGRES_INITDB_ARGS="--encoding=UTF-8 --lc-collate=C --lc-ctype=C" \
+                  -v "$(pwd)/user-appointment-service/init-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro" \
+                  -v pulseiq_postgres_data:/var/lib/postgresql/data \
+                  -p 5432:5432 \
+                  postgres:15-alpine
+              fi
+            else
+              echo "Fresh volume – mounting init-schema.sql"
               docker run -d \
                 --name pulseiq_postgres \
                 --network pulseiq-network \
@@ -222,18 +250,6 @@ jobs:
                 -e POSTGRES_PASSWORD=${DB_PASSWORD} \
                 -e POSTGRES_INITDB_ARGS="--encoding=UTF-8 --lc-collate=C --lc-ctype=C" \
                 -v "$(pwd)/user-appointment-service/init-schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro" \
-                -v pulseiq_postgres_data:/var/lib/postgresql/data \
-                -p 5432:5432 \
-                postgres:15-alpine
-            else
-              echo "Existing volume – skipping init schema"
-              docker run -d \
-                --name pulseiq_postgres \
-                --network pulseiq-network \
-                --restart unless-stopped \
-                -e POSTGRES_DB=pulseiq_db \
-                -e POSTGRES_USER=pulseiq_user \
-                -e POSTGRES_PASSWORD=${DB_PASSWORD} \
                 -v pulseiq_postgres_data:/var/lib/postgresql/data \
                 -p 5432:5432 \
                 postgres:15-alpine

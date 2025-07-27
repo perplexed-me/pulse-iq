@@ -121,7 +121,7 @@ jobs:
           platforms: linux/amd64
           build-args: |
             VITE_USER_APPOINTMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8085
-            VITE_PAYMENT_API_URL=http://${{ secrets.PUBLIC_IP }}:8082
+            VITE_PAYMENT_SERVICE_API_URL=http://${{ secrets.PUBLIC_IP }}:8082
             VITE_AI_SERVICE_API_URL=http://${{ secrets.PUBLIC_IP }}:8000
             VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
             VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}

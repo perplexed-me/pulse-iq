@@ -138,6 +138,12 @@ const PaymentPage: React.FC = () => {
     setError("");
     
     try {
+      console.log('Initiating payment with URL:', API_CONFIG.PAYMENT.INITIATE_DIRECT);
+      console.log('Payment payload:', {
+        ...form,
+        amount: parseFloat(form.amount),
+      });
+
       const response = await apiCall(API_CONFIG.PAYMENT.INITIATE_DIRECT, {
         method: 'POST',
         headers: {
@@ -149,9 +155,35 @@ const PaymentPage: React.FC = () => {
         }),
       }, false); // false = don't include auth headers for payment initiation
       
-      const data = await response.json();
+      console.log('Payment response status:', response.status);
       
-      if (response.ok && data && (data.gatewayPageURL || data.GatewayPageURL)) {
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Payment error response:', errorText);
+        
+        let errorMessage = "Failed to initiate payment";
+        
+        if (response.status === 404) {
+          errorMessage = "Payment service is not available. Please try again later.";
+        } else if (response.status >= 500) {
+          errorMessage = "Payment service is experiencing issues. Please try again later.";
+        } else {
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.error || errorData.message || errorMessage;
+          } catch (e) {
+            errorMessage = errorText || errorMessage;
+          }
+        }
+        
+        setError(errorMessage);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log('Payment response data:', data);
+      
+      if (data && (data.gatewayPageURL || data.GatewayPageURL)) {
         // Store payment details in localStorage with user-specific key before redirecting
         const pendingPaymentKey = `pendingPayment_${user?.id || 'guest'}`;
         localStorage.setItem(pendingPaymentKey, JSON.stringify({
@@ -160,6 +192,7 @@ const PaymentPage: React.FC = () => {
           paymentData: data
         }));
         
+        console.log('Redirecting to payment gateway:', data.gatewayPageURL || data.GatewayPageURL);
         // Redirect to payment gateway
         window.location.href = data.gatewayPageURL || data.GatewayPageURL;
       } else {
@@ -167,7 +200,16 @@ const PaymentPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Payment initiation error:", err);
-      setError(`Failed to initiate payment: ${err.message}`);
+      
+      let errorMessage = "Failed to initiate payment";
+      
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        errorMessage = "Cannot connect to payment service. Please check your internet connection and try again.";
+      } else {
+        errorMessage = `Failed to initiate payment: ${err.message}`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

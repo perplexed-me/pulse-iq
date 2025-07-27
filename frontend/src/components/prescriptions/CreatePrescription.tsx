@@ -321,10 +321,22 @@ const CreatePrescription: React.FC<CreatePrescriptionProps> = ({
       return;
     }
 
+    // Check if user is authenticated
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      toast({
+        title: "Authentication Error",
+        description: "Please log in again to create prescriptions",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       // Debug: Log the selected medicines to check medicineId
       console.log('Selected medicines before sending:', selectedMedicines);
+      console.log('Authentication token present:', !!token);
       
       const prescriptionData = {
         patientId,
@@ -346,11 +358,14 @@ const CreatePrescription: React.FC<CreatePrescriptionProps> = ({
       };
       
       console.log('Final prescription data being sent:', prescriptionData);
+      console.log('Sending request to:', API_CONFIG.PRESCRIPTIONS.CREATE);
 
       const response = await apiCall(API_CONFIG.PRESCRIPTIONS.CREATE, {
         method: 'POST',
         body: JSON.stringify(prescriptionData)
       });
+
+      console.log('Prescription response status:', response.status);
 
       if (response.ok) {
         toast({
@@ -364,10 +379,27 @@ const CreatePrescription: React.FC<CreatePrescriptionProps> = ({
         setSelectedMedicines([]);
         setDoctorNotes('');
       } else {
-        const errorData = await response.json();
+        const errorText = await response.text();
+        console.error('Prescription error response:', errorText);
+        
+        let errorMessage = "Failed to create prescription";
+        
+        if (response.status === 403) {
+          errorMessage = "Access denied. Please ensure you are logged in as a doctor.";
+        } else if (response.status === 401) {
+          errorMessage = "Authentication failed. Please log in again.";
+        } else {
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            errorMessage = errorText || errorMessage;
+          }
+        }
+        
         toast({
           title: "Error",
-          description: errorData.message || "Failed to create prescription",
+          description: errorMessage,
           variant: "destructive"
         });
       }
@@ -375,7 +407,7 @@ const CreatePrescription: React.FC<CreatePrescriptionProps> = ({
       console.error('Error creating prescription:', error);
       toast({
         title: "Error",
-        description: "Failed to create prescription",
+        description: "Network error. Please check your connection and try again.",
         variant: "destructive"
       });
     } finally {

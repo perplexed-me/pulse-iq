@@ -50,7 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/auth/register/**", "/api/auth/google-patient",
                                 "/api/auth/health")
                         .permitAll()
-                        .requestMatchers("/api/users/**","/api/appointments/**","/api/test-results/**","/api/doctors/**","/api/prescriptions/**","/api/medicines/**","/api/notifications/**").permitAll()
+                        .requestMatchers("/api/medicines/**").permitAll() // Medicines can be accessed without auth for listing
+                        .requestMatchers("/api/users/**","/api/appointments/**","/api/test-results/**","/api/doctors/**","/api/prescriptions/**","/api/notifications/**").authenticated()
                         .requestMatchers("/api/auth/validate", "/api/auth/profile").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

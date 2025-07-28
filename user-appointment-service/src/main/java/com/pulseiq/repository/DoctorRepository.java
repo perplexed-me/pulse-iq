@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.pulseiq.entity.Doctor;
@@ -22,11 +23,12 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
     // Appointment-related methods
     List<Doctor> findByIsAvailableTrue();
     
-    List<Doctor> findBySpecializationContainingIgnoreCaseAndIsAvailableTrue(String specialization);
+    @Query("SELECT d FROM Doctor d WHERE d.specialization LIKE %:specialization% AND (d.isAvailable IS NULL OR d.isAvailable = true)")
+    List<Doctor> findBySpecializationContainingIgnoreCaseAndIsAvailableNullOrTrue(@Param("specialization") String specialization);
     
-    @Query("SELECT DISTINCT d.specialization FROM Doctor d WHERE d.isAvailable = true ORDER BY d.specialization")
+    @Query("SELECT DISTINCT d.specialization FROM Doctor d WHERE (d.isAvailable IS NULL OR d.isAvailable = true) ORDER BY d.specialization")
     List<String> findAllSpecializations();
     
-    @Query("SELECT d FROM Doctor d WHERE d.isAvailable = true ORDER BY d.firstName, d.lastName")
+    @Query("SELECT d FROM Doctor d WHERE (d.isAvailable IS NULL OR d.isAvailable = true) ORDER BY d.firstName, d.lastName")
     List<Doctor> findAllAvailableDoctorsOrderedByName();
 }

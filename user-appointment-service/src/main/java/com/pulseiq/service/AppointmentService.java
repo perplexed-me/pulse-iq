@@ -200,7 +200,7 @@ public class AppointmentService {
 
     public List<DoctorListDto> getDoctorsBySpecialization(String specialization) {
         List<Doctor> doctors = doctorRepository
-            .findBySpecializationContainingIgnoreCaseAndIsAvailableTrue(specialization);
+            .findBySpecializationContainingIgnoreCaseAndIsAvailableNullOrTrue(specialization);
         
         return doctors.stream()
             .map(doctor -> DoctorListDto.builder()

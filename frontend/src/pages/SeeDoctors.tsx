@@ -119,21 +119,25 @@ const SeeDoctors = () => {
         console.log('Doctors list received:', doctorsList);
         
         if (Array.isArray(doctorsList) && doctorsList.length > 0) {
-          // Filter for available doctors first
+          // Less strict filtering - include more doctors
           const availableDoctors = doctorsList.filter((doctor: any) => {
-            const isActive = doctor.isAvailable === true || 
-                            doctor.status === 'ACTIVE' || 
-                            doctor.status === 'APPROVED' || 
-                            doctor.status === 'Available' || 
-                            doctor.approved === true ||
-                            !doctor.status;
-            console.log(`Doctor ${doctor.firstName || doctor.fullName} isAvailable:`, doctor.isAvailable, 'filtered as active:', isActive);
+            // Accept doctors that are available OR don't have isAvailable set (default to available)
+            const isActive = doctor.isAvailable !== false && 
+                            doctor.status !== 'INACTIVE' && 
+                            doctor.status !== 'REJECTED' && 
+                            doctor.status !== 'SUSPENDED';
+            console.log(`Doctor ${doctor.firstName || doctor.fullName} isAvailable:`, doctor.isAvailable, 'status:', doctor.status, 'filtered as active:', isActive);
             return isActive;
           });
 
+          console.log(`Found ${availableDoctors.length} available doctors out of ${doctorsList.length} total`);
+
+          // If no available doctors with strict filtering, show all doctors as fallback
+          const doctorsToShow = availableDoctors.length > 0 ? availableDoctors : doctorsList;
+
           // Try to fetch complete profile data for each doctor, but fallback gracefully
           const doctorProfiles = await Promise.all(
-            availableDoctors.map(async (doctor: any) => {
+            doctorsToShow.map(async (doctor: any) => {
               const doctorId = doctor.doctorId || doctor.id;
               console.log(`Trying to fetch profile for doctor ${doctorId}`);
               

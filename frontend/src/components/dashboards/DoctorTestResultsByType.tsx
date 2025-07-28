@@ -273,12 +273,32 @@ const DoctorTestResultsByType: React.FC<DoctorTestResultsByTypeProps> = ({ patie
     setOtp('');
   };
 
-  const downloadTestResult = async (testResult: TestResult) => {
+  const downloadTestResult = async (testResult: TestResult, testType: string) => {
+    if (!otp || !viewingResults) {
+      toast({
+        title: "Error",
+        description: "Please verify OTP first to download test results",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Use the regular download endpoint since OTP access has already been verified
-      const response = await apiCall(API_CONFIG.TEST_RESULTS.DOWNLOAD(testResult.testId), {
-        method: 'GET',
-        headers: getAuthHeaders()
+      const token = sessionStorage.getItem('token');
+      
+      // Use the test-type-specific download endpoint for multiple test scenarios
+      const response = await fetch(API_CONFIG.DOCTORS.DOWNLOAD_WITH_TEST_TYPE_OTP, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: new URLSearchParams({
+          testId: testResult.testId.toString(),
+          patientId: patientId,
+          testType: testType, // Pass the specific test type
+          otp: otp
+        })
       });
 
       if (response.ok) {
@@ -287,7 +307,7 @@ const DoctorTestResultsByType: React.FC<DoctorTestResultsByTypeProps> = ({ patie
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = testResult.pdfFilename;
+        a.download = testResult.pdfFilename || `test-result-${testResult.testId}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -298,10 +318,19 @@ const DoctorTestResultsByType: React.FC<DoctorTestResultsByTypeProps> = ({ patie
           description: "Test result downloaded successfully",
         });
       } else {
-        const errorData = await response.json().catch(() => ({ error: "Download failed" }));
+        const errorText = await response.text();
+        let errorMessage = "Failed to download test result";
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          console.warn('Error response is not valid JSON:', errorText);
+        }
+
         toast({
-          title: "Error",
-          description: errorData.error || "Failed to download test result",
+          title: "Download Error", 
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -309,7 +338,7 @@ const DoctorTestResultsByType: React.FC<DoctorTestResultsByTypeProps> = ({ patie
       console.error('Error downloading test result:', error);
       toast({
         title: "Error",
-        description: "Failed to download test result",
+        description: "Failed to download test result. Please check your connection and try again.",
         variant: "destructive",
       });
     }
@@ -552,7 +581,7 @@ const DoctorTestResultsByType: React.FC<DoctorTestResultsByTypeProps> = ({ patie
                             
                             <div className="ml-6">
                               <Button
-                                onClick={() => downloadTestResult(result)}
+                                onClick={() => downloadTestResult(result, testType)}
                                 className={`
                                   ${typeIndex % 3 === 0 ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800' :
                                     typeIndex % 3 === 1 ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800' :

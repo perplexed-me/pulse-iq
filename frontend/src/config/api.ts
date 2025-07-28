@@ -78,6 +78,7 @@ export const API_CONFIG = {
     VERIFY_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/verify-otp`,
     CANCEL_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/cancel-otp`,
     DOWNLOAD_WITH_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/download-with-otp`,
+    DOWNLOAD_WITH_TEST_TYPE_OTP: `${getUserAppointmentApiUrl()}/api/test-results/doctor/download-with-test-type-otp`,
   },
   
   ADMIN: {

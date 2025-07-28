@@ -119,25 +119,27 @@ const SeeDoctors = () => {
         console.log('Doctors list received:', doctorsList);
         
         if (Array.isArray(doctorsList) && doctorsList.length > 0) {
-          // Less strict filtering - include more doctors
+          // Filter for available doctors first - be more permissive
           const availableDoctors = doctorsList.filter((doctor: any) => {
-            // Accept doctors that are available OR don't have isAvailable set (default to available)
-            const isActive = doctor.isAvailable !== false && 
-                            doctor.status !== 'INACTIVE' && 
-                            doctor.status !== 'REJECTED' && 
-                            doctor.status !== 'SUSPENDED';
+            // Only exclude doctors if they are explicitly marked as unavailable
+            const isExplicitlyUnavailable = doctor.isAvailable === false || 
+                                          doctor.status === 'INACTIVE' || 
+                                          doctor.status === 'REJECTED' || 
+                                          doctor.status === 'SUSPENDED' ||
+                                          doctor.approved === false;
+            
+            const isActive = !isExplicitlyUnavailable;
             console.log(`Doctor ${doctor.firstName || doctor.fullName} isAvailable:`, doctor.isAvailable, 'status:', doctor.status, 'filtered as active:', isActive);
             return isActive;
           });
 
-          console.log(`Found ${availableDoctors.length} available doctors out of ${doctorsList.length} total`);
-
-          // If no available doctors with strict filtering, show all doctors as fallback
-          const doctorsToShow = availableDoctors.length > 0 ? availableDoctors : doctorsList;
+          // If no doctors pass the filter, show all doctors (fallback)
+          const doctorsToProcess = availableDoctors.length > 0 ? availableDoctors : doctorsList;
+          console.log(`Processing ${doctorsToProcess.length} doctors (${availableDoctors.length} available, ${doctorsList.length} total)`);
 
           // Try to fetch complete profile data for each doctor, but fallback gracefully
           const doctorProfiles = await Promise.all(
-            doctorsToShow.map(async (doctor: any) => {
+            doctorsToProcess.map(async (doctor: any) => {
               const doctorId = doctor.doctorId || doctor.id;
               console.log(`Trying to fetch profile for doctor ${doctorId}`);
               

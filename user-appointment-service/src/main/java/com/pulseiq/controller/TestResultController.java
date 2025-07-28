@@ -1,26 +1,36 @@
 package com.pulseiq.controller;
 
-import com.pulseiq.dto.TestResultUploadDto;
-import com.pulseiq.dto.TestResultResponseDto;
-import com.pulseiq.dto.TestResultStatsDto;
-import com.pulseiq.entity.TestResult;
-import com.pulseiq.service.TestResultService;
-import com.pulseiq.service.NotificationService;
-import com.pulseiq.service.PatientOtpService;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.pulseiq.dto.TestResultResponseDto;
+import com.pulseiq.dto.TestResultStatsDto;
+import com.pulseiq.dto.TestResultUploadDto;
+import com.pulseiq.entity.TestResult;
+import com.pulseiq.service.NotificationService;
+import com.pulseiq.service.PatientOtpService;
+import com.pulseiq.service.TestResultService;
 
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/test-results")

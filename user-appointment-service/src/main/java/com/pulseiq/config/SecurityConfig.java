@@ -51,6 +51,7 @@ public class SecurityConfig {
                                 "/api/auth/health")
                         .permitAll()
                         .requestMatchers("/api/medicines/**").permitAll() // Medicines can be accessed without auth for listing
+                        .requestMatchers("/api/public/doctors").permitAll() // Public endpoint for viewing doctors
                         .requestMatchers("/api/users/**","/api/appointments/**","/api/test-results/**","/api/doctors/**","/api/prescriptions/**","/api/notifications/**").authenticated()
                         .requestMatchers("/api/auth/validate", "/api/auth/profile").authenticated()
                         .anyRequest().authenticated())

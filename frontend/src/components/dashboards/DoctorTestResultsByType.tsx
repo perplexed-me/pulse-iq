@@ -274,30 +274,11 @@ const DoctorTestResultsByType: React.FC<DoctorTestResultsByTypeProps> = ({ patie
   };
 
   const downloadTestResult = async (testResult: TestResult) => {
-    if (!otp || !viewingResults) {
-      toast({
-        title: "Error",
-        description: "Please verify OTP first to download test results",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      const token = sessionStorage.getItem('token');
-      
-      // Use the OTP-verified download endpoint for proper authorization
-      const response = await fetch(API_CONFIG.DOCTORS.DOWNLOAD_WITH_OTP, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: new URLSearchParams({
-          testId: testResult.testId.toString(),
-          patientId: patientId,
-          otp: otp
-        })
+      // Use the regular download endpoint since OTP access has already been verified
+      const response = await apiCall(API_CONFIG.TEST_RESULTS.DOWNLOAD(testResult.testId), {
+        method: 'GET',
+        headers: getAuthHeaders()
       });
 
       if (response.ok) {

@@ -1,6 +1,16 @@
 package com.pulseiq.service;
 
-import com.pulseiq.dto.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.pulseiq.dto.AppointmentRequestDto;
+import com.pulseiq.dto.AppointmentResponseDto;
+import com.pulseiq.dto.DoctorListDto;
 import com.pulseiq.entity.Appointment;
 import com.pulseiq.entity.Appointment.AppointmentStatus;
 import com.pulseiq.entity.Doctor;
@@ -8,13 +18,6 @@ import com.pulseiq.entity.Patient;
 import com.pulseiq.repository.AppointmentRepository;
 import com.pulseiq.repository.DoctorRepository;
 import com.pulseiq.repository.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -200,7 +203,7 @@ public class AppointmentService {
 
     public List<DoctorListDto> getDoctorsBySpecialization(String specialization) {
         List<Doctor> doctors = doctorRepository
-            .findBySpecializationContainingIgnoreCaseAndIsAvailableNullOrTrue(specialization);
+            .findBySpecializationContainingIgnoreCaseAndIsAvailableTrue(specialization);
         
         return doctors.stream()
             .map(doctor -> DoctorListDto.builder()
